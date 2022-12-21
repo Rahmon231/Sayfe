@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".OtpVerificationFragment"
+    android:background="@color/dark_blue_color">
+
+    <RelativeLayout
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/back_arrow_bg"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/back_arrow"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OTP Verification"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/white"
+        android:id="@+id/otp_verification_text_id"
+        android:textSize="34sp"
+        android:layout_marginStart="@dimen/margin_32"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/outfit_bold"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/otp_verification_text_id"
+        android:text="Enter the 4-Digit verification code sent to your \n email address"
+        android:textColor="@color/white"
+        android:id="@+id/descrip_txt"
+        android:textSize="16sp"
+        android:fontFamily="@font/outfit_light"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/otp_constraint_id"
+        app:layout_constraintTop_toBottomOf="@id/descrip_txt"
+        android:layout_marginTop="24dp">
+
+        <EditText
+            android:layout_width="68dp"
+            android:layout_height="60dp"
+            android:id="@+id/first_otp"
+            android:text="1"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/otp_item"/>
+
+        <EditText
+            android:layout_width="68dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="18dp"
+            android:text="2"
+            android:textAlignment="center"
+            android:id="@+id/second_otp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/first_otp"
+            android:background="@drawable/otp_item"/>
+
+        <EditText
+            android:layout_width="68dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="18dp"
+            android:text="3"
+            android:textAlignment="center"
+            android:id="@+id/third_otp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/second_otp"
+            android:background="@drawable/otp_item"/>
+
+        <EditText
+            android:layout_width="68dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="18dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="4"
+            android:textAlignment="center"
+            app:layout_constraintStart_toEndOf="@id/third_otp"
+            android:background="@drawable/otp_item"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/otp_constraint_id"
+        android:layout_marginTop="108dp"
+        android:background="@drawable/button_blue_bg"
+        android:id="@+id/verify_btn_otp_veri"
+        android:text="Verify"
+        android:textColor="@color/white"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/verify_btn_otp_veri"
+        android:layout_marginTop="40dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Resend code in "
+            android:textColor="@color/white"
+            android:textSize="14sp"/>
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="55"
+            android:textColor="@color/blue_color"
+            android:textSize="14sp"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="s"
+            android:textColor="@color/white"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

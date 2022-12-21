@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<item
+    android:height="300dp"
+    android:width="300dp">
+    <shape android:shape="oval">
+        <stroke
+            android:color="@color/blue_color"
+            android:dashWidth="16dp"
+            android:dashGap="16dp"
+            android:width="2dp"/>
+        <size
+            android:width="15dp"
+            android:height="15dp"/>
+    </shape>
+</item>
+
+<item
+    android:drawable="@drawable/app_logo"
+    android:gravity="center"
+    android:width="141dp"
+    android:height="177dp">
+</item>
+
+</layer-list>

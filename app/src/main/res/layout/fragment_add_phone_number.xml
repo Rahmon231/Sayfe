@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".AddPhoneNumber"
+    android:background="@color/dark_blue_color">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="48dp"
+        android:id="@+id/setup_later_txt"
+        android:textSize="14sp"
+        android:layout_marginEnd="@dimen/margin_32"
+        android:fontFamily="@font/outfit_medium"
+        android:textColor="@color/blue_color"
+        android:text="Setup Later"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="24dp"
+        android:text="Add your phone number"
+        android:id="@+id/add_num_to_acct_txt"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:layout_marginTop="80dp"
+        android:fontFamily="@font/outfit_bold"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/add_num_to_acct_txt"
+        android:text="Add your phone number to get verified and have \naccess to all safe opportunities on Sayfe."
+        android:textColor="@color/white"
+        android:id="@+id/description_txt"
+        android:textSize="16sp"
+        android:fontFamily="@font/outfit_light"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/linear_add_phone"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="@dimen/margin_32"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/description_txt"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:hint="Code"
+            android:textColorHint="@color/white"
+            app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:startIconDrawable="@drawable/ic_baseline_phone_24">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:id="@+id/country_code_et"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/white"
+                android:inputType="phone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Phone"
+            android:textColorHint="@color/white"
+            app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:startIconDrawable="@drawable/ic_baseline_phone_24">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:id="@+id/phone_number_et"
+                android:textColor="@color/white"
+                android:inputType="phone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/continue_add_phone"
+        app:layout_constraintTop_toBottomOf="@id/linear_add_phone"
+        android:background="@drawable/button_blue_bg"
+        android:text="Continue"
+        android:layout_marginTop="100dp"
+        android:textColor="@color/white"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
