@@ -50,7 +50,11 @@
         tools:layout="@layout/fragment_dashboard" />
     <fragment
         android:id="@+id/addPhoneNumber"
-        android:name="com.lemzeeyyy.sayfe.AddPhoneNumber"
+        android:name="com.lemzeeyyy.sayfe.fragments.AddPhoneNumberFragment"
         android:label="fragment_add_phone_number"
-        tools:layout="@layout/fragment_add_phone_number" />
+        tools:layout="@layout/fragment_add_phone_number" >
+        <action
+            android:id="@+id/action_addPhoneNumber_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+    </fragment>
 </navigation>

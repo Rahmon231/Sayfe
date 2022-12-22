@@ -85,14 +85,13 @@ class SignUpFragment : Fragment() {
     private fun createUserEmailAndPassword(
         emailString: String,
         passwordString: String,
-        fullName: String) {
+        fullName: String){
         fAuth.createUserWithEmailAndPassword(emailString, passwordString)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     binding.progressSignup.visibility = View.GONE
-                    Navigation.findNavController(binding.signInTvSignup).navigate(R.id.signInFragment)
-                    // Sign in success, go to dashboard
-                    Log.d("TAG", "createUserWithEmail:success")
+                    Toast.makeText(requireContext(),"Account created successfully",Toast.LENGTH_LONG).show()
+                    Navigation.findNavController(binding.signInTvSignup).navigate(R.id.addPhoneNumber)
                     val user = fAuth.currentUser
                     val currentUserId = user!!.uid
                     val userInfo = hashMapOf(
@@ -102,7 +101,7 @@ class SignUpFragment : Fragment() {
                     )
                     collectionReference.add(userInfo)
                         .addOnSuccessListener {
-                            Toast.makeText(requireContext(),it.id.toString(),Toast.LENGTH_LONG).show()
+
                         }
                         .addOnFailureListener {
                             Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()

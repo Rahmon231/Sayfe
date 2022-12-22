@@ -8,10 +8,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -61,9 +60,11 @@ class SignInFragment : Fragment() {
     }
 
     private fun signInUsers(email: String, password: String) {
+        var numberEmpty = true
         fAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
+                   // findNavController().navigate(R.id.dashboardFragment)
                     binding.progressSignin.visibility = View.GONE
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("TAG", "signInWithEmail:success")
@@ -75,10 +76,9 @@ class SignInFragment : Fragment() {
                             if(!value!!.isEmpty){
                                 for( snapshot : QueryDocumentSnapshot in value){
                                    val phone = snapshot.get("phoneNumber")
-                                    if(phone!=""){
-                                        Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.dashboardFragment)
-                                    }else
-                                        Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.addPhoneNumber)
+                                    Log.d("TAG", "signInUsers: ${phone}")
+                                    numberEmpty = phone == ""
+                                    Log.d("TAG", "signInUsers: ${numberEmpty}")
                                 }
 
                             }
@@ -95,6 +95,14 @@ class SignInFragment : Fragment() {
 
                 }
             }
+        Log.d("TAG", "signInUsers: ${numberEmpty}")
+        if (numberEmpty){
+            Log.d("TAGx", "signInUsers: ${numberEmpty}")
+            findNavController().navigate(R.id.addPhoneNumber)
+        }else{
+            Log.d("TAGy", "signInUsers: ${numberEmpty}")
+            findNavController().navigate(R.id.dashboardFragment)
+        }
     }
 
     override fun onStart() {

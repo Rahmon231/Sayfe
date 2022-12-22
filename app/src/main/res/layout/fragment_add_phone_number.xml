@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".AddPhoneNumber"
+    tools:context=".fragments.AddPhoneNumberFragment"
     android:background="@color/dark_blue_color">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -59,32 +59,28 @@
         app:layout_constraintTop_toBottomOf="@+id/description_txt"
         android:orientation="horizontal">
 
+        <com.hbb20.CountryCodePicker
+            android:layout_width="200dp"
+            android:layout_height="52dp"
+            android:gravity="center"
+            app:ccp_contentColor="@color/white"
+            app:ccp_arrowColor="@color/white"
+            app:ccp_textSize="16sp"
+            android:background="@drawable/country_code_picker_border"
+            app:ccp_defaultPhoneCode="234"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/country_code_et"
+            android:layout_weight="1"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:hint="Code"
-            android:textColorHint="@color/white"
-            app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:startIconDrawable="@drawable/ic_baseline_phone_24">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusable="true"
-                android:id="@+id/country_code_et"
-                android:layout_marginEnd="16dp"
-                android:textColor="@color/white"
-                android:inputType="phone" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_weight="2"
             android:hint="Phone"
+            android:layout_marginStart="10dp"
             android:textColorHint="@color/white"
             app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -92,8 +88,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:focusable="true"
+               android:textSize="16sp"
                 android:id="@+id/phone_number_et"
                 android:textColor="@color/white"
                 android:inputType="phone" />

@@ -21,7 +21,13 @@ import androidx.activity.addCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.databinding.FragmentDashboardBinding
+import com.lemzeeyyy.sayfe.model.RecipientDataInfo
 import java.util.*
 import kotlin.math.sqrt
 
@@ -29,6 +35,10 @@ const val PERMISSION_REQUEST = 101
 
 class DashboardFragment : Fragment() {
     private lateinit var binding : FragmentDashboardBinding
+    private val database = Firebase.firestore
+    private lateinit var fAuth: FirebaseAuth
+    private val collectionReference = database.collection("Users")
+    private val recipientCollectionReference = database.collection("RecipientsDatabase")
     private lateinit var backPressedCallback: OnBackPressedCallback
     private var sensorManager: SensorManager? = null
     private var acceleration = 0f
@@ -76,6 +86,8 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fAuth = Firebase.auth
+       // saveRecipientData()
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         Objects.requireNonNull(sensorManager)!!
@@ -85,6 +97,46 @@ class DashboardFragment : Fragment() {
         acceleration = 10f
         currentAcceleration = SensorManager.GRAVITY_EARTH
         lastAcceleration = SensorManager.GRAVITY_EARTH
+    }
+
+    private fun saveRecipientData() {
+        val user = fAuth.currentUser
+        val currentUserId = user!!.uid
+
+        val recipientDataInfo = RecipientDataInfo("123456","lemzyyy@gmail.com",currentUserId)
+
+        recipientCollectionReference
+            .document()
+            .set(recipientDataInfo)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(),"Contact added successfully",Toast.LENGTH_LONG).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_LONG).show()
+            }
+
+
+    }
+
+    private fun updateRecipientData() {
+        val user = fAuth.currentUser
+        val currentUserId = user!!.uid
+        val recipientDataInfo = hashMapOf(
+            "recipientPhoneNumber" to "",
+            "recipientEmail" to ""
+        )
+        recipientCollectionReference.whereEqualTo("userid",currentUserId)
+            .addSnapshotListener { value, error ->
+                if(!value!!.isEmpty){
+                    for( snapshot : QueryDocumentSnapshot in value){
+                        val myObject = snapshot.toObject(RecipientDataInfo::class.java)
+                        recipientCollectionReference.document(snapshot.id)
+                            .update("recipientPhoneNumber","123")
+
+                    }
+                }
+            }
+
     }
 
     private fun smsPermissionRequest() {
@@ -102,8 +154,6 @@ class DashboardFragment : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-
-
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST) {
