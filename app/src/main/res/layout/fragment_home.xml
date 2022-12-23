@@ -1,14 +1,349 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".HomeFragment"
+    android:background="@color/dark_blue_color">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       app:layout_constraintStart_toStartOf="parent"
+       android:id="@+id/rel1_user_rel"
+       app:layout_constraintEnd_toEndOf="parent"
+       android:layout_marginStart="@dimen/margin_32"
+       android:layout_marginEnd="@dimen/margin_32"
+       app:layout_constraintTop_toTopOf="parent"
+       android:layout_marginTop="10dp">
+      <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true">
+         <androidx.appcompat.widget.AppCompatTextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Welcome, "
+             android:textColor="@color/white"
+             android:textSize="24dp"
+             android:fontFamily="@font/outfit_bold"/>
 
-</FrameLayout>
+         <androidx.appcompat.widget.AppCompatTextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:id="@+id/user_name_home"
+             android:text="Lemzy"
+             android:textColor="@color/white"
+             android:textSize="24dp"
+             android:fontFamily="@font/outfit_bold"/>
+
+      </LinearLayout>
+
+      <de.hdodenhof.circleimageview.CircleImageView
+          xmlns:app="http://schemas.android.com/apk/res-auto"
+          android:id="@+id/profile_image"
+          android:layout_width="40dp"
+          android:layout_alignParentEnd="true"
+          android:layout_height="40dp"
+          android:src="@drawable/profile_image"
+          app:civ_border_width="2dp"
+          app:civ_border_color="#FF000000"/>
+   </RelativeLayout>
+
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="90dp"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       android:id="@+id/overall_security_rel"
+       android:layout_marginStart="@dimen/margin_32"
+       android:layout_marginEnd="@dimen/margin_32"
+       android:background="@drawable/overall_security_bg"
+       app:layout_constraintTop_toBottomOf="@id/rel1_user_rel"
+       android:layout_marginTop="24dp">
+
+      <RelativeLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_marginStart="16dp"
+          android:id="@+id/progress_container">
+
+         <com.google.android.material.progressindicator.CircularProgressIndicator
+             android:layout_width="52dp"
+             android:layout_height="52dp"
+             android:max="100"
+             android:progress="20"
+             android:id="@+id/dashboard_progress"
+             app:trackColor="#232E39"
+             app:indicatorDirectionCircular="clockwise"
+             />
+
+         <androidx.appcompat.widget.AppCompatTextView
+             android:id="@+id/progress_percentage_text"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_centerInParent="true"
+             android:fontFamily="@font/outfit_regular"
+             android:text="20%"
+             android:textColor="@color/white"
+             android:textSize="14sp" />
+      </RelativeLayout>
+
+      <RelativeLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerInParent="true"
+          android:layout_marginStart="28dp"
+          android:layout_toEndOf="@id/progress_container">
+
+         <androidx.appcompat.widget.AppCompatTextView
+             android:id="@+id/over_all_security_txt"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:fontFamily="@font/outfit_semibold"
+             android:text="Overall Security"
+             android:textColor="@color/white" />
+
+         <androidx.appcompat.widget.AppCompatTextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_below="@id/over_all_security_txt"
+             android:layout_marginTop="4dp"
+             android:fontFamily="@font/outfit_regular"
+             android:text="To make your self more secure, please complete all settings and checks!"
+             android:textColor="@color/white"
+             android:textSize="12sp" />
+
+
+      </RelativeLayout>
+
+   </RelativeLayout>
+
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="52dp"
+       android:id="@+id/trigger_mode_rel"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       android:layout_marginStart="@dimen/margin_32"
+       android:layout_marginEnd="@dimen/margin_32"
+       android:background="@drawable/trigger_mode_bg"
+       app:layout_constraintTop_toBottomOf="@id/overall_security_rel"
+       android:layout_marginTop="16dp">
+
+      <androidx.appcompat.widget.AppCompatTextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerInParent="true"
+          android:text="Shake your phone twice to trigger Sayfe"
+          android:fontFamily="@font/outfit_regular"
+          android:textSize="14sp"
+          android:textColor="#FF9D36"
+          />
+   </RelativeLayout>
+
+   <androidx.core.widget.NestedScrollView
+       android:layout_width="match_parent"
+       android:layout_height="0dp"
+       android:layout_marginTop="28dp"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       android:fillViewport="true"
+       app:layout_constraintTop_toBottomOf="@id/trigger_mode_rel"
+       android:layout_marginStart="@dimen/margin_32"
+       android:layout_marginEnd="@dimen/margin_32">
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintEnd_toEndOf="parent">
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="96dp"
+             app:layout_constraintStart_toStartOf="parent"
+             android:id="@+id/alert_beneficiary_dashboard"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintTop_toTopOf="parent"
+             android:background="@drawable/dashboard_items_bg">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/alert_beneficiary_icon"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:id="@+id/icon_id_alert"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:id="@+id/alert_benefi_text"
+                android:layout_toEndOf="@id/icon_id_alert"
+                android:fontFamily="@font/outfit_regular"
+                android:textSize="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Guardian Angels"
+                android:textColor="@color/white"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="22dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/alert_benefi_text"
+                android:layout_toEndOf="@id/icon_id_alert"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/outfit_regular"
+                android:text="Control who would be receiving your alerts"
+                android:textColor="#949494"/>
+
+         </RelativeLayout>
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="96dp"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             android:id="@+id/triggers_dashboard"
+             app:layout_constraintTop_toBottomOf="@id/alert_beneficiary_dashboard"
+             android:background="@drawable/dashboard_items_bg"
+             android:layout_marginTop="28dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/trigger_icon"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:id="@+id/icon_id_trigger"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:id="@+id/alert_trigger_text"
+                android:layout_toEndOf="@id/icon_id_trigger"
+                android:fontFamily="@font/outfit_regular"
+                android:textSize="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Triggers"
+                android:textColor="@color/white"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="22dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/alert_trigger_text"
+                android:layout_toEndOf="@id/icon_id_trigger"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/outfit_regular"
+                android:text="How would you like to trigger Sayfe in danger?"
+                android:textColor="#949494"/>
+
+         </RelativeLayout>
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="96dp"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             android:id="@+id/alerts_dashboard"
+             app:layout_constraintTop_toBottomOf="@id/triggers_dashboard"
+             android:background="@drawable/dashboard_items_bg"
+             android:layout_marginTop="28dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/alerts_icon"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:id="@+id/icon_id_alerts"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:id="@+id/alert_text"
+                android:layout_toEndOf="@id/icon_id_alerts"
+                android:fontFamily="@font/outfit_regular"
+                android:textSize="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Alerts"
+                android:textColor="@color/white"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="22dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/alert_text"
+                android:layout_toEndOf="@id/icon_id_alerts"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/outfit_regular"
+                android:text="How would you like to alert your contacts?"
+                android:textColor="#949494"/>
+
+
+         </RelativeLayout>
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="96dp"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             android:id="@+id/sos_texts_dashboard"
+             app:layout_constraintTop_toBottomOf="@id/alerts_dashboard"
+             android:background="@drawable/dashboard_items_bg"
+             android:layout_marginTop="28dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/sos_message_icon"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:id="@+id/icon_id_sos_text"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:id="@+id/sos_text"
+                android:layout_toEndOf="@id/icon_id_sos_text"
+                android:fontFamily="@font/outfit_regular"
+                android:textSize="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="SOS Text"
+                android:textColor="@color/white"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="22dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sos_text"
+                android:layout_toEndOf="@id/icon_id_sos_text"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/outfit_regular"
+                android:text="Add default texts to your alerts"
+                android:textColor="#949494"/>
+
+         </RelativeLayout>
+
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+   </androidx.core.widget.NestedScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

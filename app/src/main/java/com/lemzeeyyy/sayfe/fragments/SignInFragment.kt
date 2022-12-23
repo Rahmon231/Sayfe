@@ -107,9 +107,9 @@ class SignInFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-//        if (fAuth.currentUser != null){
-//            Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.dashboardFragment)
-//        }
+        if (fAuth.currentUser != null){
+            Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.dashboardFragment)
+        }
     }
 
 }

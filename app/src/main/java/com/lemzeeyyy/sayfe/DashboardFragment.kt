@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.telephony.SmsManager
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +19,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.QueryDocumentSnapshot
@@ -86,6 +88,23 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        val navView: BottomNavigationView = binding.navViewBtm
+
+        val navController = requireActivity().findNavController(R.id.nav_host_fragment_content_main)
+
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_home, R.id.nav_activities, R.id.nav_phonebook,R.id.nav_settings
+            )
+        )
+        // setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
+
         fAuth = Firebase.auth
        // saveRecipientData()
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -149,6 +168,23 @@ class DashboardFragment : Fragment() {
         }
     }
 
+
+    private fun requestPermission() {
+        val readContactPermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
+        val writeContactPermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
+        val messagePermissionCheck = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.SEND_SMS)
+
+        if (readContactPermission == PackageManager.PERMISSION_GRANTED && writeContactPermission ==  PackageManager.PERMISSION_GRANTED
+            && messagePermissionCheck == PackageManager.PERMISSION_GRANTED )
+        {
+
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.WRITE_CONTACTS, android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.SEND_SMS),
+                PERMISSION_REQUEST)
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -158,13 +194,15 @@ class DashboardFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                sendSMSSOS();
+               Toast.makeText(requireContext(),"Permission Granted successfully",Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(requireContext(), "You don't have required permission to send a message",
                     Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+
 
     private fun sendSMSSOS(){
         try {
@@ -207,7 +245,7 @@ class DashboardFragment : Fragment() {
             acceleration = acceleration * 0.9f + delta
 
             if (acceleration > 12) {
-                smsPermissionRequest()
+                //smsPermissionRequest()
                 Toast.makeText(requireContext(), "Shake event detected", Toast.LENGTH_SHORT).show()
             }
         }
@@ -226,5 +264,10 @@ class DashboardFragment : Fragment() {
     override fun onPause() {
         sensorManager!!.unregisterListener(sensorListener)
         super.onPause()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requestPermission()
     }
 }

@@ -1,59 +1,84 @@
 package com.lemzeeyyy.sayfe
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.provider.ContactsContract
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
+import com.lemzeeyyy.sayfe.databinding.FragmentHomeBinding
+import com.lemzeeyyy.sayfe.model.RecipientContact
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
+const val REQUEST_CONTACT = 10
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    companion object{
+         var recipientContacts : MutableList<RecipientContact> = ArrayList()
     }
+
+    lateinit var binding : FragmentHomeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        binding =  FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+       //
+
+        binding.alertBeneficiaryDashboard.setOnClickListener {
+
+
+
+        }
+    }
+
+
+    @SuppressLint("Range")
+    private fun getPhoneBook() : MutableList<RecipientContact>? {
+
+        val cr = requireActivity().contentResolver
+        val query = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+        null,
+        null,
+        null,
+        null)
+        if (query!!.count > 0){
+            while (query.moveToNext()){
+                val id = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NAME_RAW_CONTACT_ID))
+                val name = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+                recipientContacts.add(RecipientContact(id,name,number))
+                recipientContacts.forEach {
+                   // Log.d("phonedata", "getPhoneBook: ${it.number} ")
                 }
             }
+        }
+
+        return recipientContacts
+
     }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+         getPhoneBook()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+
+        recipientContacts = emptyList<RecipientContact>() as MutableList<RecipientContact>
+    }
+
 }

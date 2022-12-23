@@ -11,10 +11,10 @@
         android:icon="@drawable/ic_baseline_local_activity_24"
         android:title="Activities" />
 
-    <item
-        android:id="@+id/nav_alerts"
-        android:icon="@drawable/alerts_icon_btm"
-        android:title="Alerts"/>
+
+    <item android:id="@+id/nav_phonebook"
+       android:icon="@drawable/contact_icon"
+        android:title="Contacts"/>
 
     <item
         android:id="@+id/nav_settings"
