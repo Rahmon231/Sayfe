@@ -9,11 +9,18 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.RecipientContact
 
 class PhonebookRecyclerAdapter : RecyclerView.Adapter<PhonebookRecyclerAdapter.PhonebookViewHolder>() {
+
     var phoneBookData = listOf<RecipientContact>()
     var checkBoxStateArray = SparseBooleanArray()
+    var isChecked = false
     companion object{
         var checkedList : MutableList<RecipientContact> = ArrayList()
     }
@@ -36,22 +43,27 @@ class PhonebookRecyclerAdapter : RecyclerView.Adapter<PhonebookRecyclerAdapter.P
                     checkBox.isChecked = true
                     checkBoxStateArray.put(adapterPosition, true)
 
-                    if (checkedList.size>=0){
-                        checkedList.add(phoneBookData[adapterPosition])
-                    }
+                    addContactToList()
 
                 } else {
                     checkBox.isChecked = false
                     checkBoxStateArray.put(adapterPosition, false)
-
-                    checkedList.remove(phoneBookData[adapterPosition])
+                    removeContactFromList()
 
                        // checkedList.removeAt(adapterPosition)
 
                 }
 
+            }
+        }
 
+        private fun removeContactFromList() {
+            checkedList.remove(phoneBookData[adapterPosition])
+        }
 
+        private fun addContactToList() {
+            if (checkedList.size >= 0) {
+                checkedList.add(phoneBookData[adapterPosition])
             }
         }
     }
@@ -73,4 +85,5 @@ class PhonebookRecyclerAdapter : RecyclerView.Adapter<PhonebookRecyclerAdapter.P
     override fun getItemCount(): Int {
       return phoneBookData.size
     }
+
 }

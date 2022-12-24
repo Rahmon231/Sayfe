@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.lemzeeyyy.sayfe.databinding.FragmentHomeBinding
@@ -38,7 +39,7 @@ class HomeFragment : Fragment() {
 
         binding.alertBeneficiaryDashboard.setOnClickListener {
 
-
+            Navigation.findNavController(view).navigate(R.id.guardianAngelsFragment)
 
         }
     }
@@ -60,9 +61,6 @@ class HomeFragment : Fragment() {
                 val number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
                 recipientContacts.add(RecipientContact(id,name,number))
-                recipientContacts.forEach {
-                   // Log.d("phonedata", "getPhoneBook: ${it.number} ")
-                }
             }
         }
 
@@ -72,12 +70,15 @@ class HomeFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        Toast.makeText(requireContext(),"Home Fragment Attached",Toast.LENGTH_LONG)
+            .show()
          getPhoneBook()
     }
 
     override fun onDetach() {
         super.onDetach()
-
+        Toast.makeText(requireContext(),"Home Fragment Detached",Toast.LENGTH_LONG)
+            .show()
         recipientContacts = emptyList<RecipientContact>() as MutableList<RecipientContact>
     }
 

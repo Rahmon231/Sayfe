@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:id="@+id/back_arrow_contact_list"
             android:src="@drawable/white_back_arrroq"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_32"
@@ -78,6 +79,18 @@
         tools:listitem="@layout/contact_item"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/search_contact_tv_id"
+        />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/add_guardian_angel"
+        android:layout_marginEnd="@dimen/margin_32"
+        android:backgroundTint="@color/blue_color"
+        android:src="@drawable/ic_baseline_add_24"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.875"
         />
 
 

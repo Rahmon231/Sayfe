@@ -30,4 +30,12 @@
         android:name="com.lemzeeyyy.sayfe.PhoneBookFragment"
         android:label="fragment_phone_book"
         tools:layout="@layout/fragment_phone_book" />
+
+
+    <fragment
+        android:id="@+id/guardianAngelsFragment"
+        android:name="com.lemzeeyyy.sayfe.GuardianAngelsFragment"
+        android:label="fragment_guardian_angels"
+        tools:layout="@layout/fragment_guardian_angels" />
+
 </navigation>

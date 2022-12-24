@@ -46,6 +46,7 @@
         android:textColorHint="@color/white"
         app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:startIconTint="@color/grey_start_end_icon_tint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/descr_txt"
@@ -76,6 +77,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:theme="@style/EditTextThemeOverlay"
+        app:startIconTint="@color/grey_start_end_icon_tint"
         app:layout_constraintTop_toBottomOf="@+id/user_email_sign_up"
         app:startIconDrawable="@drawable/ic_baseline_person_24">
 
@@ -93,6 +95,8 @@
         android:id="@+id/user_password_sign_up"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:startIconTint="@color/grey_start_end_icon_tint"
+        app:endIconTint="@color/grey_start_end_icon_tint"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
@@ -103,7 +107,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:theme="@style/EditTextThemeOverlay"
-        app:passwordToggleEnabled="true"
+        app:endIconMode="password_toggle"
         app:layout_constraintTop_toBottomOf="@+id/user_full_name_sign_up"
         app:startIconDrawable="@drawable/ic_baseline_lock_24">
 
@@ -123,9 +127,12 @@
         android:layout_height="0dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
+        app:startIconTint="@color/grey_start_end_icon_tint"
+        app:endIconTint="@color/grey_start_end_icon_tint"
+
+        app:endIconMode="password_toggle"
         android:layout_marginEnd="24dp"
         android:hint="Confirm Password"
-        app:passwordToggleEnabled="true"
         android:textColorHint="@color/white"
         app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
