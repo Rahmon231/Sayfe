@@ -129,8 +129,8 @@ class DashboardFragment : Fragment() {
             val currentUserId = user!!.uid
             viewModel.guardianLiveData.observe(viewLifecycleOwner){
                 val dataList = it.guardianInfo
-                dataList.forEach {
-                    val guardianPhone = it.number
+                dataList.forEach { recipientContact ->
+                    val guardianPhone = recipientContact.number
                     smsManager.sendTextMessage(guardianPhone, null, "Sayfe", null, null)
                 }
             }
