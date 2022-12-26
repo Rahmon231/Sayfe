@@ -1,5 +1,6 @@
 package com.lemzeeyyy.sayfe
 
+import android.content.Context
 import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.util.forEach
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -16,14 +18,14 @@ import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.RecipientContact
 
-class PhonebookRecyclerAdapter : RecyclerView.Adapter<PhonebookRecyclerAdapter.PhonebookViewHolder>() {
+class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContactListener) : RecyclerView.Adapter<PhonebookRecyclerAdapter.PhonebookViewHolder>() {
+
+
 
     var phoneBookData = listOf<RecipientContact>()
-    var checkBoxStateArray = SparseBooleanArray()
-    var isChecked = false
-    companion object{
+
         var checkedList : MutableList<RecipientContact> = ArrayList()
-    }
+
 
 
     fun updatePhonebookData(phoneBookData : List<RecipientContact> ){
@@ -36,36 +38,6 @@ class PhonebookRecyclerAdapter : RecyclerView.Adapter<PhonebookRecyclerAdapter.P
         var phoneName = itemView.findViewById<TextView>(R.id.contact_name_id)
         var checkBox = itemView.findViewById<CheckBox>(R.id.choose_contact_checkbox)
 
-        init {
-
-            checkBox.setOnClickListener {
-                if (!checkBoxStateArray.get(adapterPosition, false)) {
-                    checkBox.isChecked = true
-                    checkBoxStateArray.put(adapterPosition, true)
-
-                    addContactToList()
-
-                } else {
-                    checkBox.isChecked = false
-                    checkBoxStateArray.put(adapterPosition, false)
-                    removeContactFromList()
-
-                       // checkedList.removeAt(adapterPosition)
-
-                }
-
-            }
-        }
-
-        private fun removeContactFromList() {
-            checkedList.remove(phoneBookData[adapterPosition])
-        }
-
-        private fun addContactToList() {
-            if (checkedList.size >= 0) {
-                checkedList.add(phoneBookData[adapterPosition])
-            }
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhonebookViewHolder {
@@ -75,15 +47,24 @@ class PhonebookRecyclerAdapter : RecyclerView.Adapter<PhonebookRecyclerAdapter.P
 
     override fun onBindViewHolder(holder: PhonebookViewHolder, position: Int) {
         val item = phoneBookData[position]
-
-        holder.checkBox.isChecked = checkBoxStateArray.get(position,false)
-
         holder.phoneNumber.setText(item.number)
         holder.phoneName.setText(item.name)
+
+        if(phoneBookData.isNotEmpty() && phoneBookData != null){
+            holder.checkBox.setOnClickListener {
+                if (holder.checkBox.isChecked){
+                    checkedList.add(phoneBookData[position])
+                }else{
+                    checkedList.remove(phoneBookData[position])
+                }
+                checkedContactListener.onContactClick(checkedList)
+            }
+        }
     }
 
     override fun getItemCount(): Int {
       return phoneBookData.size
     }
+
 
 }

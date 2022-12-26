@@ -37,7 +37,7 @@ class AddPhoneNumberFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
         binding.setupLaterTxt.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.dashboardFragment)
+            Navigation.findNavController(view).navigate(R.id.nav_home)
         }
         binding.continueAddPhone.setOnClickListener {
             val phoneString = binding.phoneNumberEt.text!!.toString()
@@ -71,7 +71,7 @@ class AddPhoneNumberFragment : Fragment() {
 
                 }
             }
-        Navigation.findNavController(view).navigate(R.id.dashboardFragment)
+        Navigation.findNavController(view).navigate(R.id.nav_home)
     }
 
 }

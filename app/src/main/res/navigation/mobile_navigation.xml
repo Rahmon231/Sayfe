@@ -44,21 +44,48 @@
         android:label="fragment_create_new_password"
         tools:layout="@layout/fragment_create_new_password" />
     <fragment
-        android:id="@+id/dashboardFragment"
-        android:name="com.lemzeeyyy.sayfe.DashboardFragment"
-        android:label="fragment_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
-    <fragment
         android:id="@+id/addPhoneNumber"
         android:name="com.lemzeeyyy.sayfe.fragments.AddPhoneNumberFragment"
         android:label="fragment_add_phone_number"
         tools:layout="@layout/fragment_add_phone_number" >
         <action
             android:id="@+id/action_addPhoneNumber_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
+            app:destination="@id/nav_home" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.lemzeeyyy.sayfe.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+    <fragment
+        android:id="@+id/nav_activities"
+        android:name="com.lemzeeyyy.sayfe.ActivitiesFragment"
+        android:label="fragment_activities"
+        tools:layout="@layout/fragment_activities" />
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.lemzeeyyy.sayfe.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/nav_phonebook"
+        android:name="com.lemzeeyyy.sayfe.PhoneBookFragment"
+        android:label="fragment_phone_book"
+        tools:layout="@layout/fragment_phone_book" >
+
     </fragment>
 
-
+    <fragment
+        android:id="@+id/guardianAngelsFragment"
+        android:name="com.lemzeeyyy.sayfe.GuardianAngelsFragment"
+        android:label="fragment_guardian_angels"
+        tools:layout="@layout/fragment_guardian_angels" />
+    <fragment
+        android:id="@+id/triggersFragment"
+        android:name="com.lemzeeyyy.sayfe.TriggersFragment"
+        android:label="fragment_triggers"
+        tools:layout="@layout/fragment_triggers" />
 
 
 </navigation>

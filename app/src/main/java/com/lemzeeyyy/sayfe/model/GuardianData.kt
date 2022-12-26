@@ -1,3 +1,3 @@
 package com.lemzeeyyy.sayfe.model
 
-data class GuardianData(val guardianInfo : MutableList<RecipientContact> = mutableListOf() )
+data class GuardianData(var guardianInfo : MutableList<RecipientContact> = mutableListOf() )

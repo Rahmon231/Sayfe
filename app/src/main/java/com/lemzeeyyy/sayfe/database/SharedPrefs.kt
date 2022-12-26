@@ -21,14 +21,6 @@ class SharedPrefs {
             prefsEditor.apply()
         }
 
-
-
-        fun putString(key: String?, value: String) {
-            val prefsEditor = mSharedPref!!.edit()
-            prefsEditor.putString(key, value)
-            prefsEditor.apply()
-        }
-
     }
 
 

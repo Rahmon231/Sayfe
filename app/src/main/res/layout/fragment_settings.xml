@@ -1,14 +1,322 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingsFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".SettingsFragment"
+    android:background="@color/dark_blue_color">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/settings_rel"
+        android:layout_marginStart="24dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textColor="@color/white"
+            android:layout_centerVertical="true"
+            android:textSize="24dp"
+            android:layout_marginStart="24dp"
+            android:id="@+id/settings_txt"
+            android:fontFamily="@font/outfit_bold"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/margin_32"
+        android:id="@+id/profile_relative_layout"
+        app:layout_constraintTop_toBottomOf="@+id/settings_rel"
+        android:background="@drawable/profile_pix_dotted_bg">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image_settings"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/profile_image" />
+    </RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize="mini"
+        android:id="@+id/fab_btn_upload_pic"
+        android:src="@drawable/ic_baseline_edit_24"
+        app:backgroundTint="@color/white"
+        android:layout_marginEnd="-16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="@id/profile_relative_layout"
+        app:layout_constraintBottom_toTopOf="@+id/user_info_linear"
+        android:layout_marginTop="55dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/user_info_linear"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_relative_layout"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lemzy"
+            android:textSize="16dp"
+            android:padding="4dp"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:fontFamily="@font/outfit_regular"
+            android:textColor="@color/white"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:text="Lemzy@gail.com"
+            android:textSize="14dp"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:fontFamily="@font/outfit_regular"
+            android:textColor="@color/white"/>
+
+    </LinearLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_info_linear"
+        android:layout_marginStart="@dimen/margin_32"
+        android:layout_marginEnd="@dimen/margin_32"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
 
-</FrameLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/account_settings_settings"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_manage_accounts_24"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:id="@+id/icon_id_account"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:id="@+id/account_text_settings"
+                    android:layout_toEndOf="@id/icon_id_account"
+                    android:fontFamily="@font/outfit_regular"
+                    android:textSize="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Account"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="22dp"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/account_text_settings"
+                    android:layout_toEndOf="@id/icon_id_account"
+                    android:layout_marginStart="16dp"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:text="Security notifications, change number"
+                    android:textColor="#949494"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/alert_alert_settings"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBaseline_toBottomOf="@id/account_settings_settings"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_manage_accounts_24"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:id="@+id/icon_id_alert_settings"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:id="@+id/alert_text_settings"
+                    android:layout_toEndOf="@id/icon_id_alert_settings"
+                    android:fontFamily="@font/outfit_regular"
+                    android:textSize="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Alerts"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="22dp"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/alert_text_settings"
+                    android:layout_toEndOf="@id/icon_id_alert_settings"
+                    android:layout_marginStart="16dp"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:text="Triggers, reactions, beneficiaries"
+                    android:textColor="#949494"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/noti_settings_settings"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBaseline_toBottomOf="@id/alert_alert_settings">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/noti_icon_settings"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:id="@+id/icon_id_noti"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:id="@+id/noti_text_settings"
+                    android:layout_toEndOf="@id/icon_id_noti"
+                    android:fontFamily="@font/outfit_regular"
+                    android:textSize="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Notification"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="22dp"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/noti_text_settings"
+                    android:layout_toEndOf="@id/icon_id_noti"
+                    android:layout_marginStart="16dp"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:text="New beneficiaries, alerts triggered, received"
+                    android:textColor="#949494"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/language_settings_settings"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBaseline_toBottomOf="@id/noti_settings_settings">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/language_icon_settings"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:id="@+id/icon_id_language"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:id="@+id/language_text_settings"
+                    android:layout_toEndOf="@id/icon_id_language"
+                    android:fontFamily="@font/outfit_regular"
+                    android:textSize="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="App Language"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="22dp"/>
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/help_support_settings_settings"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBaseline_toBottomOf="@id/language_settings_settings">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/help_icon_settings"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:id="@+id/icon_id_help"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:id="@+id/help_text_settings"
+                    android:layout_toEndOf="@id/icon_id_help"
+                    android:fontFamily="@font/outfit_regular"
+                    android:textSize="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Help and Support"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="22dp"/>
+
+            </RelativeLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -101,14 +101,14 @@ class SignInFragment : Fragment() {
             findNavController().navigate(R.id.addPhoneNumber)
         }else{
             Log.d("TAGy", "signInUsers: ${numberEmpty}")
-            findNavController().navigate(R.id.dashboardFragment)
+            findNavController().navigate(R.id.nav_home)
         }
     }
 
     override fun onStart() {
         super.onStart()
         if (fAuth.currentUser != null){
-            Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.dashboardFragment)
+            Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.nav_home)
         }
     }
 

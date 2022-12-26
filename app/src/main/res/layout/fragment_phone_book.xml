@@ -15,16 +15,6 @@
         android:id="@+id/contact_list_rel"
         android:layout_marginStart="24dp">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:id="@+id/back_arrow_contact_list"
-            android:src="@drawable/white_back_arrroq"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/margin_32"
-            />
-
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,7 +22,6 @@
             android:textColor="@color/white"
             android:layout_centerVertical="true"
             android:textSize="24dp"
-            android:layout_marginStart="48dp"
             android:id="@+id/contacts_txt"
             android:fontFamily="@font/outfit_bold"
             />
@@ -45,7 +34,7 @@
         android:layout_height="0dp"
         android:id="@+id/search_contact_tv_id"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="@dimen/margin_32"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:hint="Search Contact"
         android:textColorHint="@color/white"
@@ -62,7 +51,7 @@
             android:focusable="true"
             android:id="@+id/search_contact_id"
             android:textColor="@color/white"
-            android:inputType="textEmailAddress" />
+            android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -3,8 +3,10 @@ package com.lemzeeyyy.sayfe
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.google.firebase.auth.FirebaseAuth
@@ -12,13 +14,15 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.databinding.FragmentGuardianAngelsBinding
+import com.lemzeeyyy.sayfe.model.GuardianData
+import com.lemzeeyyy.sayfe.model.RecipientContact
 
 
 class GuardianAngelsFragment : Fragment() {
 
     private lateinit var binding : FragmentGuardianAngelsBinding
     private lateinit var adapter : GuardianAngelAdapter
-     private val viewModel: GuardianAngelsViewModel by activityViewModels()
+     private val viewModel: MainActivityViewModel by activityViewModels()
 
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
@@ -42,6 +46,7 @@ class GuardianAngelsFragment : Fragment() {
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
 
+
         adapter = GuardianAngelAdapter()
         viewModel.getGuardianAngelsListToDb(currentUserId)
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
@@ -55,6 +60,46 @@ class GuardianAngelsFragment : Fragment() {
             Navigation.findNavController(view).navigate(R.id.nav_home)
         }
 
+        binding.verticalEllipse.setOnClickListener {
+            showPopup(view)
+        }
+    }
+    private fun emptyGuardianAngelList(checkedList: MutableList<RecipientContact>){
+        val user = fAuth.currentUser
+        val currentUserId = user!!.uid
+        val docData = GuardianData(listOf<RecipientContact>().toMutableList())
+
+        collectionReference
+            .document(currentUserId)
+            .set(docData)
+            .addOnSuccessListener {
+
+            }
+            .addOnFailureListener {
+
+            }
+    }
+
+    private fun showPopup(v : View){
+        fAuth = Firebase.auth
+        val user = fAuth.currentUser
+        val currentUserId = user!!.uid
+        val popup = PopupMenu(requireContext(), v)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.delete_menu, popup.menu)
+        popup.setOnMenuItemClickListener { menuItem ->
+            when(menuItem.itemId){
+                R.id.action_delete-> {
+                    viewModel.guardianLiveData.observe(viewLifecycleOwner){
+                        adapter.updateGuardianAngelsList(listOf<RecipientContact>().toMutableList())
+                    }
+                    emptyGuardianAngelList(listOf<RecipientContact>().toMutableList())
+
+                }
+            }
+            true
+        }
+        popup.show()
     }
 
 }
