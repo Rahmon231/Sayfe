@@ -30,17 +30,17 @@
         tools:layout="@layout/fragment_forgot_password" />
     <fragment
         android:id="@+id/onBoardingFragment"
-        android:name="com.lemzeeyyy.sayfe.OnBoardingFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.OnBoardingFragment"
         android:label="fragment_on_boarding"
         tools:layout="@layout/fragment_on_boarding" />
     <fragment
         android:id="@+id/otpVerificationFragment"
-        android:name="com.lemzeeyyy.sayfe.OtpVerificationFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.OtpVerificationFragment"
         android:label="fragment_otp_verification"
         tools:layout="@layout/fragment_otp_verification" />
     <fragment
         android:id="@+id/createNewPasswordFragment"
-        android:name="com.lemzeeyyy.sayfe.CreateNewPasswordFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.CreateNewPasswordFragment"
         android:label="fragment_create_new_password"
         tools:layout="@layout/fragment_create_new_password" />
     <fragment
@@ -54,23 +54,23 @@
     </fragment>
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.lemzeeyyy.sayfe.DashboardFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.DashboardFragment"
         android:label="fragment_dashboard"
         tools:layout="@layout/fragment_dashboard" />
     <fragment
         android:id="@+id/nav_activities"
-        android:name="com.lemzeeyyy.sayfe.ActivitiesFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.ActivitiesFragment"
         android:label="fragment_activities"
         tools:layout="@layout/fragment_activities" />
     <fragment
         android:id="@+id/nav_settings"
-        android:name="com.lemzeeyyy.sayfe.SettingsFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/nav_phonebook"
-        android:name="com.lemzeeyyy.sayfe.PhoneBookFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.PhoneBookFragment"
         android:label="fragment_phone_book"
         tools:layout="@layout/fragment_phone_book" >
 
@@ -78,14 +78,19 @@
 
     <fragment
         android:id="@+id/guardianAngelsFragment"
-        android:name="com.lemzeeyyy.sayfe.GuardianAngelsFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.GuardianAngelsFragment"
         android:label="fragment_guardian_angels"
         tools:layout="@layout/fragment_guardian_angels" />
     <fragment
         android:id="@+id/triggersFragment"
-        android:name="com.lemzeeyyy.sayfe.TriggersFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.TriggersFragment"
         android:label="fragment_triggers"
         tools:layout="@layout/fragment_triggers" />
+    <fragment
+        android:id="@+id/sosTextFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.SosTextFragment"
+        android:label="fragment_sos_text"
+        tools:layout="@layout/fragment_sos_text" />
 
 
 </navigation>

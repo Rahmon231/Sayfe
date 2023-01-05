@@ -1,4 +1,4 @@
-package com.lemzeeyyy.sayfe
+package com.lemzeeyyy.sayfe.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,6 +13,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import com.lemzeeyyy.sayfe.R
+import com.lemzeeyyy.sayfe.adapters.GuardianAngelAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentGuardianAngelsBinding
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.RecipientContact
@@ -48,7 +51,7 @@ class GuardianAngelsFragment : Fragment() {
 
 
         adapter = GuardianAngelAdapter()
-        viewModel.getGuardianAngelsListToDb(currentUserId)
+        viewModel.getGuardianAngelsListFromDb(currentUserId)
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
             val dataList = it.guardianInfo
             adapter.updateGuardianAngelsList(dataList)
@@ -64,6 +67,7 @@ class GuardianAngelsFragment : Fragment() {
             showPopup(view)
         }
     }
+
     private fun emptyGuardianAngelList(checkedList: MutableList<RecipientContact>){
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
@@ -89,7 +93,7 @@ class GuardianAngelsFragment : Fragment() {
         inflater.inflate(R.menu.delete_menu, popup.menu)
         popup.setOnMenuItemClickListener { menuItem ->
             when(menuItem.itemId){
-                R.id.action_delete-> {
+                R.id.action_delete -> {
                     viewModel.guardianLiveData.observe(viewLifecycleOwner){
                         adapter.updateGuardianAngelsList(listOf<RecipientContact>().toMutableList())
                     }

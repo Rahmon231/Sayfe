@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".SosTextFragment"
+    android:background="@color/dark_blue_color">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/sos_rel"
+        android:layout_marginStart="@dimen/margin_32">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/back_arrow_sos"
+            android:src="@drawable/white_back_arrroq"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/margin_32"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SOS Text"
+            android:textColor="@color/white"
+            android:layout_centerVertical="true"
+            android:textSize="24dp"
+            android:layout_marginStart="@dimen/margin_32"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:id="@+id/sos_txt"
+            android:fontFamily="@font/outfit_bold"
+            />
+
+    </RelativeLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sos_rel"
+        android:layout_marginTop="@dimen/margin_32"
+        android:textColor="@color/white"
+        android:id="@+id/default_txt_id"
+        android:text="Add Default text to your alerts"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="284dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/margin_32"
+        android:id="@+id/default_text_tv"
+        android:textColorHint="@color/white"
+        app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/default_txt_id"
+        android:layout_marginStart="@dimen/margin_32"
+        android:layout_marginEnd="@dimen/margin_32"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:textSize="16sp"
+            android:gravity="start"
+            android:id="@+id/default_text"
+            android:textColor="@color/white"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/default_text_tv"
+        android:layout_marginTop="190dp"
+        android:layout_marginStart="@dimen/margin_32"
+        android:layout_marginEnd="@dimen/margin_32"
+        android:text="Save"
+        android:background="@drawable/button_blue_bg"
+        android:textColor="@color/white"
+
+        />
+    
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

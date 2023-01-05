@@ -47,6 +47,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.4.1'
     implementation 'com.google.firebase:firebase-storage:20.1.0'
+    implementation 'com.google.firebase:firebase-messaging:23.1.1'
+    implementation 'com.google.firebase:firebase-inappmessaging-display:20.2.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
@@ -74,5 +76,37 @@ dependencies {
 
    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
+    implementation 'com.google.code.gson:gson:2.10'
+
+
+
+
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
+
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
+
+
+
+
+    // Retrofit with Moshi Converter
+    implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
+    // retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    // define a BOM and its version
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.3"))
+
+    //Moshi
+    implementation 'com.squareup.moshi:moshi-kotlin:1.13.0'
+
+    implementation"org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+
+    //Room
+    implementation("androidx.room:room-runtime:2.4.3")
+    annotationProcessor("androidx.room:room-compiler:2.4.3")
+    implementation("androidx.room:room-ktx:2.4.3")
+    kapt "androidx.room:room-compiler:2.4.3"
 
 }

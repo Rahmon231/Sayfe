@@ -1,17 +1,15 @@
-package com.lemzeeyyy.sayfe
+package com.lemzeeyyy.sayfe.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.lemzeeyyy.sayfe.model.GuardianData
+import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.model.RecipientContact
 
 class GuardianAngelAdapter : RecyclerView.Adapter<GuardianAngelAdapter.GuardianAngelViewHolder>() {

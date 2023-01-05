@@ -13,7 +13,11 @@ class SharedPrefs {
                 context.getSharedPreferences(context.packageName, Activity.MODE_PRIVATE)
         }
         fun getBoolean(key: String?, defValue: Boolean): Boolean {
-            return mSharedPref!!.getBoolean(key, defValue)
+            //return mSharedPref!!.getBoolean(key, defValue)
+            return mSharedPref?.let {
+                it.getBoolean(key, defValue)
+            }
+                ?: false
         }
         fun putBoolean(key: String?, value: Boolean) {
             val prefsEditor = mSharedPref!!.edit()

@@ -14,6 +14,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentAddPhoneNumberBinding
+import com.lemzeeyyy.sayfe.model.Users
 
 
 class AddPhoneNumberFragment : Fragment() {
@@ -42,7 +43,7 @@ class AddPhoneNumberFragment : Fragment() {
         binding.continueAddPhone.setOnClickListener {
             val phoneString = binding.phoneNumberEt.text!!.toString()
             val countryCode = binding.countryCodeEt.selectedCountryCode.toString()
-            val phoneNumber = phoneString + countryCode
+            val phoneNumber = "$+$countryCode$phoneString"
             savePhoneNumber(view,phoneNumber)
         }
     }
@@ -57,8 +58,10 @@ class AddPhoneNumberFragment : Fragment() {
             .addSnapshotListener { value, error ->
                 if(!value!!.isEmpty){
                     for( snapshot : QueryDocumentSnapshot in value){
+                        val users = snapshot.toObject(Users::class.java)
+                        users.phoneNumber = phone
                         collectionReference.document(snapshot.id)
-                            .update("phoneNumber",phone)
+                            .set(users)
                             .addOnSuccessListener {
                                 Toast.makeText(requireContext(),"Phone Number Added Successfully",Toast.LENGTH_LONG).show()
                              addedSuccess = true

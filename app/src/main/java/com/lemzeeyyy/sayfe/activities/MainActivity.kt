@@ -1,9 +1,15 @@
 package com.lemzeeyyy.sayfe.activities
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
+import android.view.KeyEvent
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -21,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        checkAccessibilityPermission()
 
         val navView: BottomNavigationView = binding.navViewBtm
 
@@ -41,8 +47,39 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
     }
+    private fun checkAccessibilityPermission(): Boolean {
+        var accessEnabled = 0
+        try {
+            accessEnabled =
+                Settings.Secure.getInt(this.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
+        } catch (e: Settings.SettingNotFoundException) {
+            e.printStackTrace()
+        }
+        return if (accessEnabled == 0) {
+            /** if not construct intent to request permission  */
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            /** request permission via start activity for result  */
+
+            startActivity(intent)
+            false
+        } else {
+            true
+        }
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+
+        Log.d("AccessKeyDetector","Key pressed");
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+//        if(intent?.action == "ACTIVITIES")
+//            navController.navigate(R.id.nav_activities)
     }
 }

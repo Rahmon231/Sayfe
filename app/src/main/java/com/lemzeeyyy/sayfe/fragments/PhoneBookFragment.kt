@@ -1,35 +1,26 @@
-package com.lemzeeyyy.sayfe
+package com.lemzeeyyy.sayfe.fragments
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
-import android.util.SparseBooleanArray
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.findFragment
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.CheckedContactListener
+import com.lemzeeyyy.sayfe.adapters.PhonebookRecyclerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentPhoneBookBinding
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.RecipientContact
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 const val REQUEST_CONTACT = 10
-class PhoneBookFragment : Fragment(),CheckedContactListener {
+class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     companion object{
         var recipientContacts : MutableList<RecipientContact> = ArrayList()
@@ -106,8 +97,6 @@ class PhoneBookFragment : Fragment(),CheckedContactListener {
             saveGuardianAngelsListToDb(contacts)
             Toast.makeText(requireContext(),"Guardian Angles Contacts Saved",Toast.LENGTH_LONG).show()
         }
-
-
     }
 
 }

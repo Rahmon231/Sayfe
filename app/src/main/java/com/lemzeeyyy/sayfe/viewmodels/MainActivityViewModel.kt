@@ -1,15 +1,12 @@
-package com.lemzeeyyy.sayfe
+package com.lemzeeyyy.sayfe.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -35,7 +32,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val userContactsLiveDataList : LiveData<MutableList<RecipientContact>?> get() = _userContactsLiveData
 
 
-    fun getGuardianAngelsListToDb(currentUserid: String) {
+    fun getGuardianAngelsListFromDb(currentUserid: String) {
 
         collectionReference.document(currentUserid)
             .get()
@@ -93,5 +90,7 @@ fun getImageUriFromDb(currentUserid: String){
         return _userContactsLiveData
 
     }
+
+    
 
 }

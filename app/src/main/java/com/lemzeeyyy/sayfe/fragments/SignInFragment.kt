@@ -16,6 +16,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSignInBinding
+import com.lemzeeyyy.sayfe.model.Users
 
 
 class SignInFragment : Fragment() {
@@ -75,10 +76,14 @@ class SignInFragment : Fragment() {
                         .addSnapshotListener { value, error ->
                             if(!value!!.isEmpty){
                                 for( snapshot : QueryDocumentSnapshot in value){
-                                   val phone = snapshot.get("phoneNumber")
-                                    Log.d("TAG", "signInUsers: ${phone}")
-                                    numberEmpty = phone == ""
-                                    Log.d("TAG", "signInUsers: ${numberEmpty}")
+                                    val users = snapshot.toObject(Users::class.java)
+                                    if (users.phoneNumber == ""){
+                                        findNavController().navigate(R.id.addPhoneNumber)
+                                    }
+                                   else{
+                                       findNavController().navigate(R.id.nav_home)
+                                    }
+
                                 }
 
                             }
@@ -95,20 +100,13 @@ class SignInFragment : Fragment() {
 
                 }
             }
-        Log.d("TAG", "signInUsers: ${numberEmpty}")
-        if (numberEmpty){
-            Log.d("TAGx", "signInUsers: ${numberEmpty}")
-            findNavController().navigate(R.id.addPhoneNumber)
-        }else{
-            Log.d("TAGy", "signInUsers: ${numberEmpty}")
-            findNavController().navigate(R.id.nav_home)
-        }
+
     }
 
     override fun onStart() {
         super.onStart()
         if (fAuth.currentUser != null){
-            Navigation.findNavController(binding.signUpTvSignIn).navigate(R.id.nav_home)
+           findNavController().navigate(R.id.nav_home)
         }
     }
 

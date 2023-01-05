@@ -1,4 +1,4 @@
-package com.lemzeeyyy.sayfe
+package com.lemzeeyyy.sayfe.fragments
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
@@ -11,14 +11,16 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSettingsBinding
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 
 const val IMG_REQUEST_CODE = 120
@@ -37,9 +39,6 @@ class SettingsFragment : Fragment() {
     companion object{
         var imageUri : Uri = Uri.EMPTY
     }
-
-
-
 
 
     override fun onCreateView(
@@ -74,6 +73,11 @@ class SettingsFragment : Fragment() {
             i.action = Intent.ACTION_GET_CONTENT
             startActivityForResult(i,IMG_REQUEST_CODE)
 
+        }
+
+        binding.logoutSettingsSettings.setOnClickListener {
+            fAuth.signOut()
+            findNavController().navigate(R.id.signInFragment)
         }
 
     }

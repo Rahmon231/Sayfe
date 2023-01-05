@@ -9,12 +9,15 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.navigation.Navigation
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSignUpBinding
+import com.lemzeeyyy.sayfe.model.Users
 
 class SignUpFragment : Fragment() {
 
@@ -24,6 +27,7 @@ class SignUpFragment : Fragment() {
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Users")
     private lateinit var progressBar: ProgressBar
+    private var appToken = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +41,7 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
+
 
         binding.agreeAndRegisterBtnSignUp.setOnClickListener {
             binding.progressSignup.visibility = View.VISIBLE
@@ -92,20 +97,42 @@ class SignUpFragment : Fragment() {
                     binding.progressSignup.visibility = View.GONE
                     Toast.makeText(requireContext(),"Account created successfully",Toast.LENGTH_LONG).show()
                     Navigation.findNavController(binding.signInTvSignup).navigate(R.id.addPhoneNumber)
-                    val user = fAuth.currentUser
-                    val currentUserId = user!!.uid
-                    val userInfo = hashMapOf(
-                        "userid" to currentUserId,
-                        "fullName" to fullName,
-                        "phoneNumber" to ""
-                    )
-                    collectionReference.add(userInfo)
-                        .addOnSuccessListener {
+                    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { tokenTask ->
+                        if (!tokenTask.isSuccessful) {
+                            Log.w("TAG", "Fetching FCM registration token failed", task.exception)
+                            return@OnCompleteListener
+                        }
 
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()
-                        }
+                        // Get new FCM registration token
+                        appToken = tokenTask.result
+
+                        // Log and toast
+
+                        Log.d("tokeennn", appToken)
+                        Toast.makeText(requireContext(), appToken, Toast.LENGTH_SHORT).show()
+
+
+                        val user = fAuth.currentUser
+                        val currentUserId = user!!.uid
+                        val userInfo = hashMapOf(
+                            "userid" to currentUserId,
+                            "fullName" to fullName,
+                            "phoneNumber" to "",
+                            "app_token" to appToken
+                        )
+
+                        val users = Users(phoneNumber = "",appToken,currentUserId,fullName)
+                        collectionReference.add(users)
+                            .addOnSuccessListener {
+
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()
+                            }
+
+
+                    })
+
 //
                 } else {
                     binding.progressSignup.visibility = View.GONE
@@ -122,6 +149,9 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
             }
     }
+
+
+
 
     override fun onStart() {
         super.onStart()
