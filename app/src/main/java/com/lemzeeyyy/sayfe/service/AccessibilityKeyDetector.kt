@@ -4,6 +4,7 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import android.telephony.SmsManager
@@ -16,6 +17,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
@@ -33,6 +35,7 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 const val NOTIFICATION_URL = "https://fcm.googleapis.com/fcm/send"
@@ -41,18 +44,23 @@ private const val DOUBLE_CLICK_TIME_DELTA: Long = 300 //milliseconds
 class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val TAG = "AccessKeyDetector"
     private val database = Firebase.firestore
+    private val fAuth = Firebase.auth
     private val collectionReference = database.collection("Guardian Angels")
     private val usersCollection = database.collection("Users")
     private var guardianList = mutableListOf<RecipientContact>()
+
     private var latitude = 0.0
     private var longitude = 0.0
     private var locationUrl = ""
     var lastClickTime: Long = 0
+    private val outgoingAlertDb = Firebase.database
+    private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
+    private var outgoingDataList = mutableListOf<OutgoingAlertData>()
 
     companion object{
-        var outgoingDataList = mutableListOf<OutgoingAlertData>()
+         var appTokenList : MutableList<String> = mutableListOf()
+        var alertTriggerId : String = ""
     }
-
 
 
 
@@ -67,7 +75,18 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     Toast.makeText(this,"Tapped twice",Toast.LENGTH_LONG).show()
                     if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
                         getCurrentLocation()
-                        fAuth.currentUser?.uid?.let { getGuardianAngelsAppToken(it) }
+
+//                        fAuth.currentUser?.uid?.let {
+//                           appTokenList =  getAppTokens(it)
+//                            Log.d("TOKENLIST", "onKeyEvent: $appTokenList")
+//                            Log.d("TOKENLIST", "onKeyEvent: ${getAppTokens(it)}")
+//                            // alertTriggerId = it
+//                        }
+
+                        fAuth.currentUser?.uid?.let {
+                            getGuardianAngelsAppToken(it)
+                           // alertTriggerId = it
+                        }
                     }
                 }
                 lastClickTime = clickTime
@@ -129,12 +148,11 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     }
 
     private fun getGuardianAngelsAppToken(currentUserid: String){
+        alertTriggerId = currentUserid
         collectionReference.document(currentUserid)
             .get()
             .addOnSuccessListener {
-
                 val data = it.toObject(GuardianData::class.java)
-
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact ->
@@ -143,13 +161,30 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                          querySnapshot.forEach {queryDocumentSnapshot ->
                              val users = queryDocumentSnapshot.toObject(Users::class.java)
                             val appToken = users.appToken
+                             val userName = users.fullName
+                             appTokenList.add(appToken)
+                             Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${appTokenList}")
+                             var cityName: String = ""
+                             val geoCoder = Geocoder(this, Locale.getDefault())
+                             val address = geoCoder.getFromLocation(latitude,longitude,1)
+                             if (address != null) {
+                                 cityName = address[0].adminArea
+                                 if (cityName == null){
+                                     cityName = address[0].locality
+                                     if (cityName == null){
+                                         cityName = address[0].subAdminArea
+                                     }
+                                 }
+                             }
 
-                             Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${users.appToken}")
-                             var outgoingAlertData = OutgoingAlertData("","SOS BODY","","ALERT TITLE","")
+
+                             val outgoingAlertData = OutgoingAlertData(userName,
+                                 locationUrl,"6:00am","Sayfe SOS Alert",cityName)
+
                              outgoingDataList.add(outgoingAlertData)
-                             Log.d("OUTDATA", "getGuardianAngelsAppToken: ${outgoingDataList.toString()}")
+                             saveOutgoingAlertToDb(currentUserid, outgoingDataList)
                              sendPushNotifier(users,outgoingAlertData)
-                             //sendNotification(appToken as String)
+
                          }
                      }
                          .addOnFailureListener{exception ->
@@ -162,11 +197,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
             }
     }
-
-    private fun sendNotification(appToken: String) {
-
-    }
-
     private fun sendSMSSOS(phoneNumber : String) {
         try {
 
@@ -298,9 +328,12 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
         }
     }
 
+    private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
+        myRef.child(currentUserid).setValue(outgoingAlertDataList)
+    }
+
     override fun onLocationChanged(p0: Location) {
         latitude = p0.latitude
         longitude = p0.longitude
     }
-
 }

@@ -5,11 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.lemzeeyyy.sayfe.NotificationBodyClickListener
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.model.IncomingAlertData
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 
-class OutgoingAlertsRecyclerAdapter : RecyclerView.Adapter<OutgoingAlertsRecyclerAdapter.OutgoingViewHolder>() {
+class OutgoingAlertsRecyclerAdapter(private val notificationBodyClickListener: NotificationBodyClickListener) : RecyclerView.Adapter<OutgoingAlertsRecyclerAdapter.OutgoingViewHolder>() {
     var dataList = listOf<OutgoingAlertData>()
     fun updateDataList(dataList : List<OutgoingAlertData> ){
         this.dataList = dataList
@@ -33,7 +34,9 @@ class OutgoingAlertsRecyclerAdapter : RecyclerView.Adapter<OutgoingAlertsRecycle
         holder.alertBody.setText(dataItem.alertBody)
         holder.alertTime.setText(dataItem.timestamp)
         holder.alertLocation.setText(dataItem.location)
-
+        holder.alertBody.setOnClickListener {
+            notificationBodyClickListener.onNotificationBodyClick(it)
+        }
     }
 
     override fun getItemCount(): Int {

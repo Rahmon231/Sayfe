@@ -33,13 +33,14 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
 import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.FragmentDashboardBinding
-import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.outgoingDataList
+import com.lemzeeyyy.sayfe.model.Users
 import java.util.*
 import kotlin.math.sqrt
 
@@ -50,6 +51,9 @@ class DashboardFragment : Fragment() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var fAuth: FirebaseAuth
+
+    private val database = Firebase.firestore
+    private val collectionReference = database.collection("Users")
 
     // private var imageUri : Uri = Uri.EMPTY
     private lateinit var backPressedCallback: OnBackPressedCallback
@@ -102,10 +106,16 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fAuth = Firebase.auth
+        collectionReference.whereEqualTo("currentUserId",fAuth.currentUser?.uid).addSnapshotListener { value, error ->
+            if (value != null) {
+                for ( i in value){
+                    val users = i.toObject(Users::class.java)
+                    binding.userNameHome.setText(users.fullName)
+                }
 
-        binding.userNameHome.setText(outgoingDataList.toString())
-
-
+            }
+        }
 
 
 

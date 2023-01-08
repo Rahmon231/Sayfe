@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/dark_blue_color">
+    android:background="@color/dark_blue_color"
+    android:layout_marginBottom="@dimen/margin_32">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -123,24 +126,21 @@
             android:layout_marginStart="4dp"/>
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@id/profile_image_alert"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="16dp"
-            android:textSize="14sp"
             android:id="@+id/alert_body"
-            android:text="EMERGENCY SOS: I NEED HELP! CURRENTLY \nIN AN INSECURE ENVIROMENT"
-            android:textColor="@color/white"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
             android:fontFamily="@font/outfit_regular"
-            android:layout_marginTop="16dp"
-            />
+            android:padding="10dp"
+            android:text="EMERGENCY SOS: I NEED HELP! CURRENTLY IN AN INSECURE ENVIROMENT"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/name_alert"
+            app:layout_constraintTop_toBottomOf="@id/name_alert" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
 
 
 

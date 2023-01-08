@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -20,12 +21,21 @@ import com.google.firebase.messaging.RemoteMessage
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.activities.MainActivity
 import com.lemzeeyyy.sayfe.fragments.DashboardFragment
+import com.lemzeeyyy.sayfe.model.IncomingAlertData
+import com.lemzeeyyy.sayfe.model.OutgoingAlertData
+import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.appTokenList
 
 const val CHANNEL_ID = "notification_id"
 const val CHANNEL_NAME = "notification channel name"
 const val NOTIFICATION_TITLE = "Title"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Sayfe Description"
 class MyFirebaseMessagingService : FirebaseMessagingService() {
+    private val outgoingAlertDb = Firebase.database
+    private val fAuth = Firebase.auth
+    private val myRef = outgoingAlertDb.getReference("IncomingAlerts")
+    private var incomingDataList = mutableListOf<IncomingAlertData>()
+
     override fun onNewToken(token: String) {
         updateToken(token)
         super.onNewToken(token)
@@ -33,14 +43,27 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-
-        Log.d("NOTBODY", "onMessageReceived: ${message.data["alertBody"]}")
-        Log.d("NOTBODY", "onMessageReceived: ${message.data}")
-
-
+        Log.d("apptokencheck", "onMessageReceived: $appTokenList ")
 
         message.data["alertBody"]?.let { generateNotification(it,"Body") }
+        val incomingAlertData = message.data["alertBody"]?.let {
+            message.data["title"]?.let { it1 ->
+                message.data["location"]?.let { it2 ->
+                    message.data["senderName"]?.let { it3 ->
+                        IncomingAlertData(
+                            it3,
+                            it,"6:00am", it1, it2
+                        )
+                    }
+                }
+            }
+        }
 
+        if (incomingAlertData != null) {
+            incomingDataList.add(incomingAlertData)
+        }
+        Log.d("tiger", "onMessageReceived: $incomingDataList")
+        saveIncomingAlertToDb(incomingDataList)
 
     }
 
@@ -54,8 +77,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .addSnapshotListener { value, error ->
                 if (!value!!.isEmpty) {
                     for (snapshot: QueryDocumentSnapshot in value) {
+                        val value = snapshot.toObject(Users::class.java)
+                        value.appToken = token
                         collectionReference.document(snapshot.id)
-                            .update("app_token", token)
+                            .set(value)
                     }
                 }
             }
@@ -116,6 +141,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         NotificationManagerCompat.from(context).notify(123, builder.build())
     }
 
+    private fun saveIncomingAlertToDb(incomingAlertDataList: MutableList<IncomingAlertData>){
+        fAuth.currentUser?.uid?.let { myRef.child(it).setValue(incomingAlertDataList) }
+
+    }
 
 
     }

@@ -6,14 +6,30 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.NotificationBodyClickListener
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.adapters.OutgoingAlertsRecyclerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentOutgoingAlertBinding
-import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.outgoingDataList
+import com.lemzeeyyy.sayfe.model.OutgoingAlertData
+import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
+import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.alertTriggerId
 
-class OutgoingAlertFragment : Fragment() {
+
+class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
     private lateinit var binding : FragmentOutgoingAlertBinding
     private lateinit var outgoingAlertsRecyclerAdapter: OutgoingAlertsRecyclerAdapter
+    private val outgoingAlertDb = Firebase.database
+    private val fAuth = Firebase.auth
+    private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
+    private lateinit var notificationBodyListener : NotificationBodyClickListener
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,11 +42,39 @@ class OutgoingAlertFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        outgoingAlertsRecyclerAdapter = OutgoingAlertsRecyclerAdapter()
+        notificationBodyListener = this
+        val currentUserId = fAuth.currentUser?.uid
+        outgoingAlertsRecyclerAdapter = OutgoingAlertsRecyclerAdapter(notificationBodyListener)
         binding.outgoingRecycler.adapter = outgoingAlertsRecyclerAdapter
-        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
-        Log.d("OUTDATA", "onViewCreated: ${outgoingDataList.toString()}")
 
+
+        myRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                snapshot.children.forEach {
+
+                    val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
+
+                    Log.d("Trigger Id", "onDataChange: ${alertTriggerId}")
+                    if(currentUserId == alertTriggerId){
+                        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
+                    }
+
+
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("TAG", "onCancelled: ${error.message.toString()} ")
+            }
+
+        })
+
+    }
+
+    override fun onNotificationBodyClick(view: View) {
+        findNavController().navigate(R.id.webViewFragment)
     }
 
 }

@@ -91,6 +91,11 @@
         android:name="com.lemzeeyyy.sayfe.fragments.SosTextFragment"
         android:label="fragment_sos_text"
         tools:layout="@layout/fragment_sos_text" />
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="com.lemzeeyyy.sayfe.fragments.WebViewFragment"
+        android:label="fragment_web_view"
+        tools:layout="@layout/fragment_web_view" />
 
 
 </navigation>

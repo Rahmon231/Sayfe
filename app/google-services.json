@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "606204150239",
+    "firebase_url": "https://fir-notification-demo-ccb40-default-rtdb.firebaseio.com",
     "project_id": "fir-notification-demo-ccb40",
     "storage_bucket": "fir-notification-demo-ccb40.appspot.com"
   },

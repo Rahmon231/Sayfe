@@ -10,7 +10,7 @@ import com.lemzeeyyy.sayfe.adapters.OutgoingAlertsRecyclerAdapter
 import com.lemzeeyyy.sayfe.adapters.ViewPagerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentActivitiesBinding
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
-import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.outgoingDataList
+
 
 
 class ActivitiesFragment : Fragment() {
