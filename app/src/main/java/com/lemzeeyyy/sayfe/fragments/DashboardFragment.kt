@@ -67,7 +67,8 @@ class DashboardFragment : Fragment() {
     private var exitAppToastStillShowing = false
 
     private val exitAppTimer = object : CountDownTimer(2000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {}
+        override fun onTick(millisUntilFinished: Long) {
+        }
         override fun onFinish() {
             exitAppToastStillShowing = false
         }
@@ -116,9 +117,6 @@ class DashboardFragment : Fragment() {
 
             }
         }
-
-
-
 
         SharedPrefs.init(requireContext())
 

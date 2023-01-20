@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".AccountSettings"
+    android:background="@color/dark_blue_color">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/account_settings_rel"
+        android:layout_marginStart="@dimen/margin_32">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/back_arrow_trigger"
+            android:src="@drawable/white_back_arrroq"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/margin_32"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Account"
+            android:textColor="@color/white"
+            android:layout_centerVertical="true"
+            android:textSize="24dp"
+            android:layout_marginStart="@dimen/margin_32"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:id="@+id/contacts_txt"
+            android:fontFamily="@font/outfit_bold"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        android:id="@+id/two_factor_rel"
+        app:layout_constraintTop_toBottomOf="@id/account_settings_rel"
+        android:layout_marginTop="41dp">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_32"
+            android:src="@drawable/vector"
+            android:id="@+id/two_factor_id"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/two_factor_id"
+            android:layout_marginStart="16dp"
+            android:textAlignment="center"
+            android:text="Two Factor Authentication"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/outfit_regular"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/change_number_rel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/two_factor_rel"
+        android:layout_marginTop="41dp">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_32"
+            android:src="@drawable/account_icon_settings"
+            android:id="@+id/change_number_settings_icon"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/change_number_settings_icon"
+            android:layout_marginStart="16dp"
+            android:textAlignment="center"
+            android:text="Change Number"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/outfit_regular"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/delete_my_acct"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/change_number_rel"
+        android:layout_marginTop="41dp">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_32"
+            android:src="@drawable/vector"
+            android:id="@+id/delete_acc_icon"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/delete_acc_icon"
+            android:layout_marginStart="16dp"
+            android:textAlignment="center"
+            android:text="Delete my Account"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/outfit_regular"/>
+    </RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

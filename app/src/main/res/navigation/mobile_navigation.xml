@@ -61,7 +61,11 @@
         android:id="@+id/nav_activities"
         android:name="com.lemzeeyyy.sayfe.fragments.ActivitiesFragment"
         android:label="fragment_activities"
-        tools:layout="@layout/fragment_activities" />
+        tools:layout="@layout/fragment_activities">
+        <action
+            android:id="@+id/action_incomimgAlertFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment" />
+    </fragment>
     <fragment
         android:id="@+id/nav_settings"
         android:name="com.lemzeeyyy.sayfe.fragments.SettingsFragment"
@@ -95,7 +99,24 @@
         android:id="@+id/webViewFragment"
         android:name="com.lemzeeyyy.sayfe.fragments.WebViewFragment"
         android:label="fragment_web_view"
-        tools:layout="@layout/fragment_web_view" />
+        tools:layout="@layout/fragment_web_view" >
+        <argument android:name="alertBody"/>
+    </fragment>
+    <fragment
+        android:id="@+id/accountSettings"
+        android:name="com.lemzeeyyy.sayfe.AccountSettings"
+        android:label="fragment_account_settings"
+        tools:layout="@layout/fragment_account_settings" />
+    <fragment
+        android:id="@+id/changeNumberFragment"
+        android:name="com.lemzeeyyy.sayfe.ChangeNumberFragment"
+        android:label="fragment_change_number"
+        tools:layout="@layout/fragment_change_number" />
+    <fragment
+        android:id="@+id/languageFragment"
+        android:name="com.lemzeeyyy.sayfe.LanguageFragment"
+        android:label="fragment_language"
+        tools:layout="@layout/fragment_language" />
 
 
 </navigation>

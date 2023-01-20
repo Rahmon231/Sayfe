@@ -46,7 +46,6 @@ class SignUpFragment : Fragment() {
         binding.agreeAndRegisterBtnSignUp.setOnClickListener {
             binding.progressSignup.visibility = View.VISIBLE
 
-
             val emailString : String = binding.emailEtSignUp.text!!.toString()
             val passwordString : String = binding.passwordEtSignUp.text!!.toString()
             val fullName : String = binding.fullNameEtSignUp.text.toString()
@@ -96,7 +95,6 @@ class SignUpFragment : Fragment() {
                 if (task.isSuccessful) {
                     binding.progressSignup.visibility = View.GONE
                     Toast.makeText(requireContext(),"Account created successfully",Toast.LENGTH_LONG).show()
-                    Navigation.findNavController(binding.signInTvSignup).navigate(R.id.addPhoneNumber)
                     FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { tokenTask ->
                         if (!tokenTask.isSuccessful) {
                             Log.w("TAG", "Fetching FCM registration token failed", task.exception)
@@ -110,21 +108,13 @@ class SignUpFragment : Fragment() {
 
                         Log.d("tokeennn", appToken)
                         Toast.makeText(requireContext(), appToken, Toast.LENGTH_SHORT).show()
-
-
                         val user = fAuth.currentUser
                         val currentUserId = user!!.uid
-                        val userInfo = hashMapOf(
-                            "userid" to currentUserId,
-                            "fullName" to fullName,
-                            "phoneNumber" to "",
-                            "app_token" to appToken
-                        )
 
                         val users = Users(phoneNumber = "",appToken,currentUserId,fullName)
                         collectionReference.add(users)
                             .addOnSuccessListener {
-
+                                Navigation.findNavController(binding.signInTvSignup).navigate(R.id.addPhoneNumber)
                             }
                             .addOnFailureListener {
                                 Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()

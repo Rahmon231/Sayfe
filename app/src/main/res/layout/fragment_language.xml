@@ -5,14 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.TriggersFragment"
+    tools:context=".LanguageFragment"
     android:background="@color/dark_blue_color">
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:id="@+id/triggers_rel"
+        android:id="@+id/languages_rel"
         android:layout_marginStart="@dimen/margin_32">
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -28,7 +29,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Triggers"
+            android:text="Languages"
             android:textColor="@color/white"
             android:layout_centerVertical="true"
             android:textSize="24dp"
@@ -41,25 +42,11 @@
 
     </RelativeLayout>
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="How would you like to trigger Sayfe in danger?"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/triggers_rel"
-        android:layout_marginTop="@dimen/margin_32"
-        android:textSize="16sp"
-        android:id="@+id/how_would_you_text"
-        android:fontFamily="@font/outfit_regular"
-
-        android:layout_marginStart="@dimen/margin_32"/>
-
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/how_would_you_text"
+        app:layout_constraintTop_toBottomOf="@id/languages_rel"
         android:layout_marginTop="40dp"
         android:layout_marginStart="@dimen/margin_32"
         android:id="@+id/triggers_radio_group"
@@ -69,9 +56,9 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Shake your phone"
+            android:text="English"
             android:paddingStart="20dp"
-            android:id="@+id/shake_trigger"
+            android:id="@+id/english"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:fontFamily="@font/outfit_regular"/>
@@ -79,8 +66,8 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Press the volume up button twice"
-            android:id="@+id/volume_trigger"
+            android:text="French"
+            android:id="@+id/french"
             android:textColor="@color/white"
             android:paddingStart="20dp"
             android:layout_marginTop="40dp"
@@ -90,8 +77,19 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap your screen twice"
-            android:id="@+id/screen_tap_trigger"
+            android:text="Czech"
+            android:id="@+id/czech"
+            android:textColor="@color/white"
+            android:paddingStart="20dp"
+            android:layout_marginTop="40dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/outfit_regular"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Portuguese"
+            android:id="@+id/portuguese"
             android:textColor="@color/white"
             android:paddingStart="20dp"
             android:layout_marginTop="40dp"

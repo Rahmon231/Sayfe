@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.os.Build
+import android.os.CountDownTimer
 import android.telephony.SmsManager
 import android.util.Log
 import android.view.KeyEvent
@@ -17,8 +18,12 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.database.SharedPrefs
@@ -35,16 +40,18 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 const val NOTIFICATION_URL = "https://fcm.googleapis.com/fcm/send"
 const val WEB_KEY = "key =AAAAjSSVQd8:APA91bGXkadZl3RJX9wdwsKQVE723byXjRYU2fK29jJtyykUjxWzxF_3nivclwlGT4z4VcvgDFIZvCMtcTI13gNptncMJxLDi5HALsBbsLoLvJ8Ybw5mOroDPybZ-wAZaxTQx0CsgxdI"
-private const val DOUBLE_CLICK_TIME_DELTA: Long = 300 //milliseconds
+
 class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val TAG = "AccessKeyDetector"
     private val database = Firebase.firestore
     private val fAuth = Firebase.auth
+    private var listItem = mutableListOf<Int>()
     private val collectionReference = database.collection("Guardian Angels")
     private val usersCollection = database.collection("Users")
     private var guardianList = mutableListOf<RecipientContact>()
@@ -56,6 +63,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val outgoingAlertDb = Firebase.database
     private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private var outgoingDataList = mutableListOf<OutgoingAlertData>()
+    private var senderName : String =""
 
     companion object{
          var appTokenList : MutableList<String> = mutableListOf()
@@ -66,30 +74,53 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
     override fun onKeyEvent(event: KeyEvent?): Boolean {
         val fAuth = Firebase.auth
-
         when(event?.keyCode){
             KeyEvent.KEYCODE_VOLUME_UP ->
             {
-                val clickTime = System.currentTimeMillis()
-                if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                    Toast.makeText(this,"Tapped twice",Toast.LENGTH_LONG).show()
-                    if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
-                        getCurrentLocation()
-
-//                        fAuth.currentUser?.uid?.let {
-//                           appTokenList =  getAppTokens(it)
-//                            Log.d("TOKENLIST", "onKeyEvent: $appTokenList")
-//                            Log.d("TOKENLIST", "onKeyEvent: ${getAppTokens(it)}")
-//                            // alertTriggerId = it
-//                        }
-
-                        fAuth.currentUser?.uid?.let {
-                            getGuardianAngelsAppToken(it)
-                           // alertTriggerId = it
+                val timer = object: CountDownTimer(300, 300) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        listItem.add(1)
+                        if(listItem.size == 4){
+                            Log.d("TAG", "onTick: ${listItem.size}")
+                            alertTriggerId = fAuth.currentUser?.uid.toString()
+                            Toast.makeText(this@AccessibilityKeyDetector,"The volume up was tapped twice",Toast.LENGTH_SHORT)
+                                .show()
+                            listItem.clear()
+                            if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
+                                getCurrentLocation()
+                                //sms functionality
+//                                fAuth.currentUser?.uid?.let {
+//                                    getGuardianAngelsListFromDb(it)
+//                                }
+                                fAuth.currentUser?.uid?.let {
+                                    getGuardianAngelsAppToken(it)
+                                    // alertTriggerId = it
+                                }
+                            }
+                            listItem.clear()
                         }
                     }
+
+                    override fun onFinish() {
+                        listItem.clear()
+                        Log.d("TAG", "onFinish: onfinish called ")
+                    }
                 }
-                lastClickTime = clickTime
+                timer.start()
+
+
+
+//                listItem.add(1)
+//                val clickTime = System.currentTimeMillis()
+//                Log.d(TAG, "onKeyEvent: ")
+//                if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA ) {
+//                    if (listItem.size % 4 == 0){
+//                        Toast.makeText(this,"Tapped twice",Toast.LENGTH_LONG).show()
+//
+//                    }
+//                }
+//
+//                lastClickTime = clickTime
             }
         }
 
@@ -137,8 +168,8 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
-                    guardianList.forEach {
-                       sendSMSSOS(it.number)
+                    guardianList.forEach {recipientContact->
+                       sendSMSSOS(recipientContact.number)
                     }
                 }
             }
@@ -149,6 +180,19 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
     private fun getGuardianAngelsAppToken(currentUserid: String){
         alertTriggerId = currentUserid
+        //8106811525
+        usersCollection.whereEqualTo("currentUserId",currentUserid)
+            .addSnapshotListener { value, error ->
+                value?.let {
+                    if(!it.isEmpty){
+                       for (snapshot : QueryDocumentSnapshot in value){
+                           val currentUser = snapshot.toObject(Users::class.java)
+                            senderName = currentUser.fullName
+                           Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
+                       }
+                    }
+                }
+            }
         collectionReference.document(currentUserid)
             .get()
             .addOnSuccessListener {
@@ -156,7 +200,8 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact ->
-                     usersCollection.whereEqualTo("phoneNumber",recipientContact.number).get()
+
+                     usersCollection.whereEqualTo("number",recipientContact.number).get()
                          .addOnSuccessListener {querySnapshot ->
                          querySnapshot.forEach {queryDocumentSnapshot ->
                              val users = queryDocumentSnapshot.toObject(Users::class.java)
@@ -178,8 +223,12 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                              }
 
 
-                             val outgoingAlertData = OutgoingAlertData(userName,
-                                 locationUrl,"6:00am","Sayfe SOS Alert",cityName)
+                             Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
+                             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                             val currentDate = sdf.format(Date())
+
+                             val outgoingAlertData = OutgoingAlertData(senderName,
+                                 locationUrl,currentDate,"Sayfe SOS Alert",cityName)
 
                              outgoingDataList.add(outgoingAlertData)
                              saveOutgoingAlertToDb(currentUserid, outgoingDataList)

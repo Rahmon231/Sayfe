@@ -63,6 +63,8 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
                     //update recycler view of devices with the uid in child of incoming alerts
                     Log.d("KEY", "onDataChange: ${it.key} ")
                     val currentUserId = fAuth.currentUser?.uid
+                    Log.d("CURRENT ID", "onDataChange: $currentUserId ")
+                    Log.d("it.key", "onDataChange: ${it.key} ")
                     if (currentUserId == it.key){
                         incomingAlertsRecyclerAdapter.updateDataList(incomingDataList)
                     }
@@ -77,8 +79,12 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
         })
     }
 
-    override fun onNotificationBodyClick(view: View) {
-        findNavController().navigate(R.id.webViewFragment)
+    override fun onNotificationBodyClick(view: View, alertBody : String) {
+        val action = ActivitiesFragmentDirections.actionIncomimgAlertFragmentToWebViewFragment(alertBody)
+
+        Log.d("ALertBodyCheck", "onNotificationBodyClick: ${alertBody.toString()}")
+        findNavController().navigate(action)
+
     }
 
 }

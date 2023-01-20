@@ -35,7 +35,7 @@ class OutgoingAlertsRecyclerAdapter(private val notificationBodyClickListener: N
         holder.alertTime.setText(dataItem.timestamp)
         holder.alertLocation.setText(dataItem.location)
         holder.alertBody.setOnClickListener {
-            notificationBodyClickListener.onNotificationBodyClick(it)
+            notificationBodyClickListener.onNotificationBodyClick(it,dataItem.alertBody)
         }
     }
 

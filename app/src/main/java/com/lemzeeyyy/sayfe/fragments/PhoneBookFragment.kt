@@ -1,6 +1,7 @@
 package com.lemzeeyyy.sayfe.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,16 +23,13 @@ import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 const val REQUEST_CONTACT = 10
 class PhoneBookFragment : Fragment(), CheckedContactListener {
 
-    companion object{
-        var recipientContacts : MutableList<RecipientContact> = ArrayList()
-    }
-
     private val viewModel: MainActivityViewModel by activityViewModels()
 
     private lateinit var binding : FragmentPhoneBookBinding
     private lateinit var adapter : PhonebookRecyclerAdapter
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
+    private var list = mutableListOf<RecipientContact>()
     private val collectionReference = database.collection("Guardian Angels")
 
 
@@ -48,7 +46,19 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
 
-        adapter = PhonebookRecyclerAdapter(this)
+        fAuth.currentUser?.uid?.let { viewModel.getGuardianAngelsListFromDb(currentUserid = it) }
+        viewModel.guardianLiveData.observe(viewLifecycleOwner){
+            list = it.guardianInfo
+            list.forEach {
+                Log.d("DB VALUEe", "onViewCreated: ${it.name}")
+            }
+
+        }
+        list.forEach {
+            Log.d("DB OUTSIDEW", "onViewCreated: ${it.name}")
+        }
+
+        adapter = PhonebookRecyclerAdapter(this,requireContext())
 
         viewModel.getPhoneBook()
         viewModel.userContactsLiveDataList.observe(viewLifecycleOwner){contactList->
@@ -77,25 +87,24 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private fun saveGuardianAngelsListToDb(checkedList: MutableList<RecipientContact>) {
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
-        val docData = GuardianData(checkedList)
-
-        collectionReference
-            .document(currentUserId)
-            .set(docData)
+        collectionReference.document(currentUserId)
+            .get()
             .addOnSuccessListener {
+                val data = it.toObject(GuardianData::class.java)
 
+                collectionReference
+                    .document(currentUserId)
+                    .set(GuardianData(checkedList))
             }
             .addOnFailureListener {
-
+                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
             }
     }
-
 
 
     override fun onContactClick(contacts: MutableList<RecipientContact>) {
         binding.addGuardianAngel.setOnClickListener {
             saveGuardianAngelsListToDb(contacts)
-            Toast.makeText(requireContext(),"Guardian Angles Contacts Saved",Toast.LENGTH_LONG).show()
         }
     }
 

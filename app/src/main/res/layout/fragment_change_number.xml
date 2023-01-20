@@ -1,25 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.AddPhoneNumberFragment"
+    tools:context=".ChangeNumberFragment"
     android:background="@color/dark_blue_color">
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="48dp"
-        android:id="@+id/setup_later_txt"
-        android:textSize="14sp"
-        android:layout_marginEnd="@dimen/margin_32"
-        android:fontFamily="@font/outfit_medium"
-        android:textColor="@color/blue_color"
-        android:text="Setup Later"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
@@ -27,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="24dp"
-        android:text="Add your phone number"
+        android:text="Change Phone Number"
         android:id="@+id/add_num_to_acct_txt"
         android:textColor="@color/white"
         android:textSize="32sp"
@@ -71,7 +57,7 @@
             app:ccp_defaultPhoneCode="234"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:id="@+id/country_code_et"
+            android:id="@+id/country_code_et_change"
             android:layout_weight="1"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -91,12 +77,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusable="true"
-               android:textSize="16sp"
+                android:textSize="16sp"
                 android:textAlignment="textStart"
-                android:id="@+id/phone_number_et"
+                android:id="@+id/phone_number_et_change"
                 android:textColor="@color/white"
-                android:inputType="phone" />
-
+                android:inputType="phone"/>
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
@@ -106,13 +91,15 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/continue_add_phone"
+        android:id="@+id/save_phone_num"
         app:layout_constraintTop_toBottomOf="@id/linear_add_phone"
         android:background="@drawable/button_blue_bg"
-        android:text="Continue"
+        android:text="Save"
         android:layout_marginTop="100dp"
         android:textColor="@color/white"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

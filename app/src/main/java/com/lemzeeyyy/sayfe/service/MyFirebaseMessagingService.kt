@@ -45,15 +45,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         Log.d("apptokencheck", "onMessageReceived: $appTokenList ")
 
+
+
         message.data["alertBody"]?.let { generateNotification(it,"Body") }
         val incomingAlertData = message.data["alertBody"]?.let {
             message.data["title"]?.let { it1 ->
                 message.data["location"]?.let { it2 ->
                     message.data["senderName"]?.let { it3 ->
-                        IncomingAlertData(
-                            it3,
-                            it,"6:00am", it1, it2
-                        )
+                        message.data["timestamp"]?.let { it4 ->
+                            IncomingAlertData(
+                                it3,
+                                it, it4, it1, it2
+                            )
+                        }
                     }
                 }
             }

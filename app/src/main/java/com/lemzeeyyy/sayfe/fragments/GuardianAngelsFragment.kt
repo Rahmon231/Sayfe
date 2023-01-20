@@ -54,7 +54,7 @@ class GuardianAngelsFragment : Fragment() {
         viewModel.getGuardianAngelsListFromDb(currentUserId)
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
             val dataList = it.guardianInfo
-            adapter.updateGuardianAngelsList(dataList)
+            adapter.updateGuardianAngelsList(dataList.toMutableList())
         }
         binding.guardianContactsRecycler.adapter = adapter
 

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".SettingsFragment"
+    tools:context=".fragments.SettingsFragment"
     android:background="@color/dark_blue_color">
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -76,6 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lemzy"
+            android:id="@+id/currrent_user_name"
             android:textSize="16dp"
             android:padding="4dp"
             android:textAlignment="center"
@@ -87,6 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
+            android:id="@+id/current_user_email"
             android:text="Lemzy@gail.com"
             android:textSize="14dp"
             android:layout_gravity="center"

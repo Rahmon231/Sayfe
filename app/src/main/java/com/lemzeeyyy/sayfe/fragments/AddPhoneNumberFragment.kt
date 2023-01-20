@@ -43,7 +43,7 @@ class AddPhoneNumberFragment : Fragment() {
         binding.continueAddPhone.setOnClickListener {
             val phoneString = binding.phoneNumberEt.text!!.toString()
             val countryCode = binding.countryCodeEt.selectedCountryCode.toString()
-            val phoneNumber = "$+$countryCode$phoneString"
+            val phoneNumber = "$countryCode$phoneString"
             savePhoneNumber(view,phoneNumber)
         }
     }
@@ -54,12 +54,17 @@ class AddPhoneNumberFragment : Fragment() {
         val user = fAuth.currentUser
          val currentUserId = user!!.uid
 
-        collectionReference.whereEqualTo("userid",currentUserId)
+        collectionReference.whereEqualTo("currentUserId",currentUserId)
             .addSnapshotListener { value, error ->
                 if(!value!!.isEmpty){
                     for( snapshot : QueryDocumentSnapshot in value){
                         val users = snapshot.toObject(Users::class.java)
-                        users.phoneNumber = phone
+                        users.phoneNumber = phone.filter {
+                            !it.isWhitespace()
+                        }
+                        users.number = users.phoneNumber.filter {
+                            !it.isWhitespace()
+                        }.takeLast(10)
                         collectionReference.document(snapshot.id)
                             .set(users)
                             .addOnSuccessListener {

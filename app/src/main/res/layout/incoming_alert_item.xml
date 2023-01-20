@@ -62,27 +62,34 @@
             android:layout_marginStart="4dp"
             />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="end"
             app:layout_constraintStart_toEndOf="@id/alert_time_text"
-            android:src="@drawable/location_icon_alert"
-            app:layout_constraintEnd_toStartOf="@id/alert_location_txt"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="124dp"/>
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ikeja"
-            android:id="@+id/alert_location_txt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:fontFamily="@font/outfit_regular"/>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/location_icon_alert"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ikeja"
+                android:id="@+id/alert_location_txt"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/outfit_regular"/>
+
+        </LinearLayout>
+
+
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -129,7 +136,6 @@
             android:id="@+id/alert_body"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:fontFamily="@font/outfit_regular"
             android:padding="10dp"

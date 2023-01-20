@@ -9,7 +9,8 @@ import com.lemzeeyyy.sayfe.NotificationBodyClickListener
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.model.IncomingAlertData
 
-class IncomingAlertsRecyclerAdapter(private val notificationBodyClickListener: NotificationBodyClickListener) : RecyclerView.Adapter<IncomingAlertsRecyclerAdapter.IncomingViewHolder>() {
+class IncomingAlertsRecyclerAdapter(private val notificationBodyClickListener: NotificationBodyClickListener)
+    : RecyclerView.Adapter<IncomingAlertsRecyclerAdapter.IncomingViewHolder>() {
 
     var dataList = listOf<IncomingAlertData>()
 
@@ -40,7 +41,7 @@ class IncomingAlertsRecyclerAdapter(private val notificationBodyClickListener: N
         holder.alertLocation.setText(dataItem.location)
         holder.contactName.setText(dataItem.senderName)
         holder.alertBody.setOnClickListener {
-            notificationBodyClickListener.onNotificationBodyClick(it)
+            notificationBodyClickListener.onNotificationBodyClick(it,dataItem.alertBody)
         }
     }
 

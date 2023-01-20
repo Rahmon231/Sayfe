@@ -15,11 +15,13 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSettingsBinding
+import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 
@@ -28,6 +30,10 @@ class SettingsFragment : Fragment() {
     private var storageRef = FirebaseStorage.getInstance().getReference();
 
     private val viewModel: MainActivityViewModel by activityViewModels()
+
+    private val database = Firebase.firestore
+
+    private val usersCollection = database.collection("Users")
 
     private var imagesRef: StorageReference = storageRef.child("profile_images")
 
@@ -53,9 +59,29 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         fAuth = Firebase.auth
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
+
+        usersCollection.whereEqualTo("currentUserId",currentUserId)
+            .addSnapshotListener { value, error ->
+                if (value != null) {
+                    for ( i in value){
+                        val users = i.toObject(Users::class.java)
+                        binding.currrentUserName.setText(users.fullName)
+                    }
+
+                }
+            }
+
+        binding.currentUserEmail.setText(fAuth.currentUser?.email ?: "Email empty?")
+
+
+        binding.accountSettingsSettings.setOnClickListener {
+            findNavController().navigate(R.id.accountSettings)
+        }
 
         viewModel.getImageUriFromDb(currentUserId)
         viewModel.userImageUri.observe(viewLifecycleOwner){
@@ -80,6 +106,9 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(R.id.signInFragment)
         }
 
+        binding.languageSettingsSettings.setOnClickListener {
+            findNavController().navigate(R.id.languageFragment)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -112,7 +141,6 @@ class SettingsFragment : Fragment() {
             .addOnFailureListener {
 
             }
-
     }
 
 }

@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
@@ -72,25 +73,24 @@ class SignInFragment : Fragment() {
                     Toast.makeText(requireContext(),"Success",Toast.LENGTH_SHORT).show()
                     val user = fAuth.currentUser
                     val currentUserId = user!!.uid
-                    collectionReference.whereEqualTo("userid",currentUserId)
+                    collectionReference.whereEqualTo("currentUserId",currentUserId)
                         .addSnapshotListener { value, error ->
-                            if(!value!!.isEmpty){
-                                for( snapshot : QueryDocumentSnapshot in value){
-                                    val users = snapshot.toObject(Users::class.java)
-                                    if (users.phoneNumber == ""){
-                                        findNavController().navigate(R.id.addPhoneNumber)
-                                    }
+                            value?.let {
+                                if(!it.isEmpty){
+                               for (snapshot : QueryDocumentSnapshot in value){
+                                   val users = snapshot.toObject(Users::class.java)
+                                   if (users.phoneNumber == "" || users.phoneNumber.isEmpty()){
+                                       findNavController().navigate(R.id.addPhoneNumber)
+                                   }
                                    else{
                                        findNavController().navigate(R.id.nav_home)
-                                    }
+                                   }
+                               }
+                           }
 
-                                }
+                       } ?: Toast.makeText(requireContext(),"current uid is empty",Toast.LENGTH_SHORT).show()
+                    }
 
-                            }
-                        }
-
-
-                    //go to dashboard
                 } else {
                     // If sign in fails, display a message to the user.
                     binding.progressSignin.visibility = View.GONE

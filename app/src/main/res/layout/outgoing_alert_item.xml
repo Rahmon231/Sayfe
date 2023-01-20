@@ -60,26 +60,33 @@
             android:layout_marginStart="4dp"
             />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/out_alert_time_text"
-            android:src="@drawable/location_icon_alert"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="124dp"/>
+            android:gravity="end">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ikeja"
-            android:id="@+id/out_alert_location_txt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:fontFamily="@font/outfit_regular"/>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="14dp"
+                android:src="@drawable/location_icon_alert"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ikeja"
+                android:id="@+id/out_alert_location_txt"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/outfit_regular"/>
+        </LinearLayout>
+
+
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -125,9 +132,6 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-           app:layout_constraintStart_toStartOf="@id/name_alert"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/name_alert"
             android:textSize="14sp"
             android:id="@+id/outgoing_alert_body"
             android:padding="10dp"
@@ -135,6 +139,9 @@
             android:textColor="@color/white"
             android:fontFamily="@font/outfit_regular"
             android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@id/name_alert"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/name_alert"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
