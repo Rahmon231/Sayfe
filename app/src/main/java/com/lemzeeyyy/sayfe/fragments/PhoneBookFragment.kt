@@ -91,10 +91,17 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
             .get()
             .addOnSuccessListener {
                 val data = it.toObject(GuardianData::class.java)
-
                 collectionReference
                     .document(currentUserId)
                     .set(GuardianData(checkedList))
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(),"Guardian angels added successfully",Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(),"Coudnt add the guardian angels",Toast.LENGTH_SHORT)
+                            .show()
+                    }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()

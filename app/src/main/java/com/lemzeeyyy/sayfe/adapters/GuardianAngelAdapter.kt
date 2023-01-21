@@ -42,7 +42,6 @@ class GuardianAngelAdapter : RecyclerView.Adapter<GuardianAngelAdapter.GuardianA
     override fun onBindViewHolder(holder: GuardianAngelViewHolder, position: Int) {
         val item = guardianList[position]
 
-
         holder.phoneNumber.setText(item.number)
         holder.phoneName.setText(item.name)
         holder.checkBox.visibility = View.INVISIBLE

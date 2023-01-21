@@ -32,7 +32,7 @@ class GuardianAngelsFragment : Fragment() {
     private val collectionReference = database.collection("Guardian Angels")
 
 
-            override fun onCreateView(
+    override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
