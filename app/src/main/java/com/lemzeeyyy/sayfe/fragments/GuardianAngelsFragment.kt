@@ -1,18 +1,23 @@
 package com.lemzeeyyy.sayfe.fragments
 
+import android.content.Context
+import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.EmptyGuardiansListFragment
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.adapters.GuardianAngelAdapter
@@ -39,32 +44,39 @@ class GuardianAngelsFragment : Fragment() {
         // Inflate the layout for this fragment
         binding =  FragmentGuardianAngelsBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
         fAuth = Firebase.auth
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
-
-
         adapter = GuardianAngelAdapter()
         viewModel.getGuardianAngelsListFromDb(currentUserId)
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
             val dataList = it.guardianInfo
+            if (dataList.isEmpty()){
+                binding.guardianListEmptyState.visibility = View.VISIBLE
+                binding.verticalEllipse.visibility = View.GONE
+            }else{
+                binding.guardianListEmptyState.visibility = View.GONE
+                binding.verticalEllipse.visibility = View.VISIBLE
+            }
             adapter.updateGuardianAngelsList(dataList.toMutableList())
         }
         binding.guardianContactsRecycler.adapter = adapter
 
 
         binding.backArrowGuardianAngel.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.nav_home)
+          findNavController().navigate(R.id.nav_home)
         }
 
         binding.verticalEllipse.setOnClickListener {
-            showPopup(view)
+            openBottomDialog()
+        }
+        binding.contactGuardianBtn.setOnClickListener {
+           findNavController().navigateUp()
         }
     }
 
@@ -105,5 +117,14 @@ class GuardianAngelsFragment : Fragment() {
         }
         popup.show()
     }
+
+    private fun openBottomDialog() {
+        val dialog = EmptyGuardiansListFragment()
+        dialog.setCancelable(true)
+        dialog.show(childFragmentManager, "NOTIFICATION SHEET")
+    }
+
+
+
 
 }

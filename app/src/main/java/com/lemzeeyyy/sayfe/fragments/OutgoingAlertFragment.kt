@@ -50,34 +50,34 @@ class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
         outgoingAlertsRecyclerAdapter = OutgoingAlertsRecyclerAdapter(notificationBodyListener)
         binding.outgoingRecycler.adapter = outgoingAlertsRecyclerAdapter
 
-//        myRef.addValueEventListener(object : ValueEventListener{
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//
-//                snapshot.children.forEach {
-//
-//                    val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
-//
-//                    Log.d("Trigger Id", "onDataChange: $alertTriggerId")
-//                    if(currentUserId == alertTriggerId){
-//                        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
-//                    }
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.d("TAG", "onCancelled: ${error.message.toString()} ")
-//            }
-//        }
-//        )
-        viewModel.getOutgoingAlertList()
-        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
-            Log.d("TAG", "onViewCreated: $alertTriggerId ")
-            if(currentUserId == alertTriggerId){
-                if (it != null) {
-                    outgoingAlertsRecyclerAdapter.updateDataList(it)
+        myRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                snapshot.children.forEach {
+
+                    val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
+                    if (currentUserId == it.key){
+                        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
+                    }
+
+
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("TAG", "onCancelled: ${error.message.toString()} ")
+            }
         }
+        )
+//        viewModel.getOutgoingAlertList()
+//        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
+//            Log.d("TAG", "onViewCreated: $alertTriggerId ")
+//            if(currentUserId == alertTriggerId){
+//                if (it != null) {
+//                    outgoingAlertsRecyclerAdapter.updateDataList(it)
+//                }
+//            }
+//        }
     }
 
     override fun onNotificationBodyClick(view: View,alertBody : String) {

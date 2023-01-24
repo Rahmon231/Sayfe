@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/nav_home"
@@ -14,11 +15,11 @@
 
     <item android:id="@+id/nav_phonebook"
        android:icon="@drawable/contact_icon"
-        android:title="Contacts"/>
+        android:title="Contacts" />
 
     <item
         android:id="@+id/nav_settings"
         android:icon="@drawable/ic_baseline_settings_24"
-        android:title="Settings"/>
+        android:title="Settings" />
 
 </menu>

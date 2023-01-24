@@ -44,9 +44,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         Log.d("apptokencheck", "onMessageReceived: $appTokenList ")
-
-
-
         message.data["alertBody"]?.let { generateNotification(it,"Body") }
         val incomingAlertData = message.data["alertBody"]?.let {
             message.data["title"]?.let { it1 ->
@@ -54,8 +51,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     message.data["senderName"]?.let { it3 ->
                         message.data["timestamp"]?.let { it4 ->
                             IncomingAlertData(
-                                it3,
-                                it, it4, it1, it2
+                                it3, it, it4, it1, it2
                             )
                         }
                     }
@@ -68,7 +64,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
         Log.d("tiger", "onMessageReceived: $incomingDataList")
         saveIncomingAlertToDb(incomingDataList)
-
     }
 
     private fun updateToken(token: String) {

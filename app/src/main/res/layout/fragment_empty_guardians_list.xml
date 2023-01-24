@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    android:layout_width="match_parent"
+    android:paddingTop="50dp"
+    android:background="@color/dark_blue_color"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/confirmation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you sure?"
+        android:textStyle="bold"
+        android:textSize="16sp"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <FrameLayout
+        android:id="@+id/frame_cancel"
+        android:layout_width="112dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/button_blue_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/frame_empty_now"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmation"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/outfit_light"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/frame_empty_now"
+        android:layout_width="112dp"
+        android:layout_height="40dp"
+        android:background="@drawable/button_blue_bg"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/frame_cancel"
+        app:layout_constraintTop_toTopOf="@id/frame_cancel">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/outfit_light"
+            android:text="EmptyNow"
+            android:textColor="@color/blue_color"
+            android:textSize="18sp" />
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

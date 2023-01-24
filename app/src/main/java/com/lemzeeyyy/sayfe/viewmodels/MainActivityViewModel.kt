@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -55,6 +56,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 snapshot.children.forEach {
 
                     val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
+
                     _outgoingAlertListLiveData.value = outgoingDataList
                 }
             }
@@ -74,7 +76,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     val incomingDataList = it.getValue<MutableList<IncomingAlertData>>()!!
                     _incomingAlertListLiveData.value = incomingDataList
                 }
-
             }
 
             override fun onCancelled(error: DatabaseError) {

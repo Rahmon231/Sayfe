@@ -117,6 +117,11 @@
         android:name="com.lemzeeyyy.sayfe.LanguageFragment"
         android:label="fragment_language"
         tools:layout="@layout/fragment_language" />
+    <fragment
+        android:id="@+id/emptyGuardiansListFragment"
+        android:name="com.lemzeeyyy.sayfe.EmptyGuardiansListFragment"
+        android:label="fragment_empty_guardians_list"
+        tools:layout="@layout/fragment_empty_guardians_list" />
 
 
 </navigation>

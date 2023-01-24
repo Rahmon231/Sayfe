@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.navigation.fragment.findNavController
+import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.FragmentTriggersBinding
 
@@ -66,6 +68,10 @@ class TriggersFragment : Fragment() {
                SharedPrefs.putBoolean("shake",false)
                SharedPrefs.putBoolean("tap",false)
            }
+        }
+
+        binding.backArrowTrigger.setOnClickListener {
+            findNavController().navigateUp()
         }
     }
 

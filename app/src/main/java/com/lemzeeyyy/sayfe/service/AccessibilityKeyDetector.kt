@@ -31,6 +31,11 @@ import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.network.NetworkObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -88,6 +93,12 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                             listItem.clear()
                             if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
                                 getCurrentLocation()
+                                val scope = CoroutineScope(Job() + Dispatchers.Main)
+                                scope.launch {
+                                   // sendsms("+447823927201", "body\n$locationUrl")
+                                  //  Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
+                                }
+
                                 //sms functionality
 //                                fAuth.currentUser?.uid?.let {
 //                                    getGuardianAngelsListFromDb(it)
@@ -103,24 +114,10 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
                     override fun onFinish() {
                         listItem.clear()
-                        Log.d("TAG", "onFinish: onfinish called ")
                     }
                 }
                 timer.start()
 
-
-
-//                listItem.add(1)
-//                val clickTime = System.currentTimeMillis()
-//                Log.d(TAG, "onKeyEvent: ")
-//                if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA ) {
-//                    if (listItem.size % 4 == 0){
-//                        Toast.makeText(this,"Tapped twice",Toast.LENGTH_LONG).show()
-//
-//                    }
-//                }
-//
-//                lastClickTime = clickTime
             }
         }
 
@@ -169,7 +166,11 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact->
-                       sendSMSSOS(recipientContact.number)
+                        val scope = CoroutineScope(Job() + Dispatchers.Main)
+                        scope.launch {
+                            sendsms(recipientContact.number,"body\n$locationUrl")
+                        }
+
                     }
                 }
             }
@@ -221,8 +222,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                      }
                                  }
                              }
-
-
                              Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
                              val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                              val currentDate = sdf.format(Date())
@@ -273,6 +272,10 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
         }
     }
 
+    private suspend fun sendsms(recipient: String, body: String){
+        NetworkObject.retrofitService.sendsms(recipient, body)
+    }
+
     private fun sendPushNotifier(users: Users, data: OutgoingAlertData) {
 
         val body = Gson().toJson(data)
@@ -315,24 +318,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     )
                 }
             })
-
-//        try {
-//            val header = HashMap<String, String>()
-//
-//            header["Content-Type"] = "application/json"
-//            header["Authorization"] = WEB_KEY
-//            val pushNotifier : PushNotifierBody = PushNotifierBody(appToken,data)
-//           CoroutineScope(Dispatchers.IO).launch {
-//               val request = ApiService.retrofitApiService.sendMsgPush(header,pushNotifier)
-//               Log.d(TAG, "sendPushNotifier: ${request.code()}")
-//               Log.d(TAG, "sendPushNotifier: ${request.body()}")
-//               Log.d(TAG, "sendPushNotifier: ${request.errorBody()}")
-//           }
-//
-//
-//        }catch (e: Exception){
-//            Log.d(TAG, "sendPushNotifier: ${e.toString()}")
-//        }
     }
 
 
@@ -354,11 +339,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
             if (task.isSuccessful) {
                 val location: Location? = task.result
                 if (location == null) {
-//                    Toast.makeText(
-//                       this,
-//                        "Location is Null",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
+                    Toast.makeText(this@AccessibilityKeyDetector,"Location not found",Toast.LENGTH_SHORT).show()
                 } else {
                     longitude = location.longitude
                     latitude = location.latitude

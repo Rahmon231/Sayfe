@@ -98,13 +98,12 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
             holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (holder.checkBox.isChecked){
                             if (checkedList.size < 5) {
+
                                 phoneBookData[position].number  = phoneBookData[position].number.filter {
                                     !it.isWhitespace()
                                 }.takeLast(10)
-
                                 checkedList.add(phoneBookData[position])
-
-                                    Log.d("ADDED", "onBindViewHolder: ${checkedList.size} ")
+                                Log.d("ADDED", "onBindViewHolder: ${checkedList.size} ")
 
                             }else{
                                 holder.checkBox.isChecked = false
@@ -113,10 +112,11 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
                             }
                         }
                         else{
-                            holder.checkBox.isEnabled = true
                             checkedList.remove(phoneBookData[position])
+                            holder.checkBox.isChecked = false
 
-                            Log.d("REMOVED", "onBindViewHolder: ${checkedList.size} ")
+
+                    Log.d("REMOVED", "onBindViewHolder: ${checkedList.size} ")
                         }
                     checkedContactListener.onContactClick(checkedList)
 

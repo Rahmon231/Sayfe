@@ -63,6 +63,39 @@
         app:layout_constraintTop_toBottomOf="@id/contact_list_rel_guar"
         />
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guardian_list_empty_state"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="4"
+            android:fontFamily="@font/outfit_regular"
+            android:textAlignment="center"
+            android:text="Guardian Angels List empty\n Click on the button below to \ngo home then\nnavigate to contacts to add guardians"
+            android:textColor="@color/white"
+            android:id="@+id/instruction_txt"
+            android:textSize="20sp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_blue_bg"
+            android:text="Home"
+            android:id="@+id/contact_guardian_btn"
+            android:textColor="@color/white"
+            android:layout_below="@id/instruction_txt"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+
 
 
 

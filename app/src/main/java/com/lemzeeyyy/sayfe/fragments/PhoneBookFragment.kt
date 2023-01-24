@@ -73,7 +73,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                     return@addTextChangedListener
                 }
                 val filteredContacts = contactList.filter {
-                    it.name.startsWith(substring.toString(),true)
+                    it.name.contains(substring.toString(),true)
                 }
                 adapter.updatePhonebookData(filteredContacts)
 

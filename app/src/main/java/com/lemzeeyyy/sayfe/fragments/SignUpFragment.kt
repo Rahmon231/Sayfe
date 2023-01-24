@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -79,7 +80,7 @@ class SignUpFragment : Fragment() {
         }
 
         binding.signInTvSignup.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.signInFragment)
+           findNavController().navigate(R.id.signInFragment)
         }
 
 
@@ -114,13 +115,11 @@ class SignUpFragment : Fragment() {
                         val users = Users(phoneNumber = "",appToken,currentUserId,fullName)
                         collectionReference.add(users)
                             .addOnSuccessListener {
-                                Navigation.findNavController(binding.signInTvSignup).navigate(R.id.addPhoneNumber)
+                                findNavController().navigate(R.id.addPhoneNumber)
                             }
                             .addOnFailureListener {
                                 Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()
                             }
-
-
                     })
 
 //
