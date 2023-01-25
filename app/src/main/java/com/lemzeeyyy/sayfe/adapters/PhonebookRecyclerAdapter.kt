@@ -102,6 +102,7 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
                                 phoneBookData[position].number  = phoneBookData[position].number.filter {
                                     !it.isWhitespace()
                                 }.takeLast(10)
+
                                 checkedList.add(phoneBookData[position])
                                 Log.d("ADDED", "onBindViewHolder: ${checkedList.size} ")
 
