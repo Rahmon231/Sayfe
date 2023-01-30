@@ -80,44 +80,6 @@ class GuardianAngelsFragment : Fragment() {
         }
     }
 
-    private fun emptyGuardianAngelList(checkedList: MutableList<RecipientContact>){
-        val user = fAuth.currentUser
-        val currentUserId = user!!.uid
-        val docData = GuardianData(listOf<RecipientContact>().toMutableList())
-
-        collectionReference
-            .document(currentUserId)
-            .set(docData)
-            .addOnSuccessListener {
-
-            }
-            .addOnFailureListener {
-
-            }
-    }
-
-    private fun showPopup(v : View){
-        fAuth = Firebase.auth
-        val user = fAuth.currentUser
-        val currentUserId = user!!.uid
-        val popup = PopupMenu(requireContext(), v)
-        val inflater: MenuInflater = popup.menuInflater
-        inflater.inflate(R.menu.delete_menu, popup.menu)
-        popup.setOnMenuItemClickListener { menuItem ->
-            when(menuItem.itemId){
-                R.id.action_delete -> {
-                    viewModel.guardianLiveData.observe(viewLifecycleOwner){
-                        adapter.updateGuardianAngelsList(listOf<RecipientContact>().toMutableList())
-                    }
-                    emptyGuardianAngelList(listOf<RecipientContact>().toMutableList())
-
-                }
-            }
-            true
-        }
-        popup.show()
-    }
-
     private fun openBottomDialog() {
         val dialog = EmptyGuardiansListFragment()
         dialog.setCancelable(true)

@@ -15,5 +15,6 @@
         tools:override="true">@color/white</color>
     <color name="back_arrow_bg">#E8ECF4</color>
     <color name="grey_start_end_icon_tint">#7A7A7A</color>
+    <color name="shimmer_bg">#E6E6E6</color>
 
 </resources>

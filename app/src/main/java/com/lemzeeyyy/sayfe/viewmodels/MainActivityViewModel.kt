@@ -170,7 +170,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             _userContactsLiveData.value  = ContactsState.Empty
             delay(1000)
-            val contacts : MutableList<RecipientContact> = ArrayList()
+            val contacts : MutableList<PhonebookContact> = ArrayList()
             val cr = context.contentResolver
             val query = cr.query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -185,11 +185,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         val name = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                         val number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
-                        contacts.add(RecipientContact(id,name, number))
+                        contacts.add(PhonebookContact(id,name, number))
                         val distinctContact = contacts.distinctBy {
                             it.id
                         }
-                        _userContactsLiveData.value = ContactsState.Success(distinctContact as MutableList<RecipientContact>)
+                        _userContactsLiveData.value = ContactsState.Success(distinctContact as MutableList<PhonebookContact>)
                         _contactStatus.value = PASSED
                     }
                 }

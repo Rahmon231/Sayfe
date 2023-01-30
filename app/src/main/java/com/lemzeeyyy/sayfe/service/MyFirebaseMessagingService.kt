@@ -71,7 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val collectionReference = database.collection("Users")
         var fAuth = Firebase.auth
         val user = fAuth.currentUser
-        val currentUserId = user!!.uid
+        val currentUserId = user?.uid
         collectionReference.whereEqualTo("userid", currentUserId)
             .addSnapshotListener { value, error ->
                 if (!value!!.isEmpty) {

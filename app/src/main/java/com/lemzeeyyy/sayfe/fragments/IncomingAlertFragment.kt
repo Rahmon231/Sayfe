@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -73,7 +74,8 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+              //  TODO("Not yet implemented")
+                Toast.makeText(requireContext(),error.message.toString(),Toast.LENGTH_SHORT).show()
             }
 
         })

@@ -160,9 +160,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
         collectionReference.document(currentUserid)
             .get()
             .addOnSuccessListener {
-
                 val data = it.toObject(GuardianData::class.java)
-
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact->
@@ -170,7 +168,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                         scope.launch {
                             sendsms(recipientContact.number,"body\n$locationUrl")
                         }
-
                     }
                 }
             }

@@ -19,4 +19,6 @@
       app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
       tools:listitem="@layout/incoming_alert_item"/>
 
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -122,6 +122,11 @@
         android:name="com.lemzeeyyy.sayfe.EmptyGuardiansListFragment"
         android:label="fragment_empty_guardians_list"
         tools:layout="@layout/fragment_empty_guardians_list" />
+    <fragment
+        android:id="@+id/accessibilityServiceSettings"
+        android:name="com.lemzeeyyy.sayfe.AccessibilityServiceSettings"
+        android:label="fragment_accessibility_service_settings"
+        tools:layout="@layout/fragment_accessibility_service_settings" />
 
 
 </navigation>

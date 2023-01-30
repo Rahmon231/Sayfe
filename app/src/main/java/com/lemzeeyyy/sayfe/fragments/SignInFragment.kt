@@ -62,7 +62,6 @@ class SignInFragment : Fragment() {
     }
 
     private fun signInUsers(email: String, password: String) {
-        var numberEmpty = true
         fAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
@@ -73,6 +72,7 @@ class SignInFragment : Fragment() {
                     Toast.makeText(requireContext(),"Success",Toast.LENGTH_SHORT).show()
                     val user = fAuth.currentUser
                     val currentUserId = user!!.uid
+                    Log.d("UID", "signInUsers: ${currentUserId} ")
                     collectionReference.whereEqualTo("currentUserId",currentUserId)
                         .addSnapshotListener { value, error ->
                             value?.let {

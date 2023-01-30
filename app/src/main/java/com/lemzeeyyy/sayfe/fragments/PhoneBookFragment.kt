@@ -1,40 +1,39 @@
 package com.lemzeeyyy.sayfe.fragments
 
-import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.CheckedContactListener
-import com.lemzeeyyy.sayfe.R
+import com.lemzeeyyy.sayfe.activities.MainActivity
+import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
 import com.lemzeeyyy.sayfe.adapters.PhonebookRecyclerAdapter
-import com.lemzeeyyy.sayfe.databinding.ActivityMainBinding.bind
-import com.lemzeeyyy.sayfe.databinding.AppBarMainBinding.bind
 import com.lemzeeyyy.sayfe.databinding.FragmentPhoneBookBinding
 import com.lemzeeyyy.sayfe.model.ContactsState
 import com.lemzeeyyy.sayfe.model.GuardianData
+import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.viewmodels.BUSY
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.viewmodels.PASSED
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 const val REQUEST_CONTACT = 10
 class PhoneBookFragment : Fragment(), CheckedContactListener {
 
-    var contactList = emptyList<RecipientContact>()
+    private var contactList = emptyList<PhonebookContact>()
 
     private val viewModel: MainActivityViewModel by activityViewModels()
 
@@ -42,9 +41,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private lateinit var adapter : PhonebookRecyclerAdapter
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
-    private var list = mutableListOf<RecipientContact>()
     private val collectionReference = database.collection("Guardian Angels")
-    private var isContained : Boolean = false
+    private var isDuplicate : Boolean = false
     private var duplicateNumber : String = ""
 
 
@@ -62,51 +60,66 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
         fAuth = Firebase.auth
         adapter = PhonebookRecyclerAdapter(this,requireContext())
+        binding.addGuardianAngel.setOnClickListener {
+            adapter.triggerCheckedListInterface()
+        }
         binding.allContactsRecycler.adapter = adapter
 
-        viewModel.getPhoneBook(requireActivity())
+        val readContactPermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
 
-//        viewModel.userContactsLiveDataList.observe(viewLifecycleOwner){contactList->
-//
-//            adapter.updatePhonebookData(contactList!!.distinctBy {
-//                it.name
-//            })
-        viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
-            when(it){
-                is ContactsState.Empty ->{
-                    binding.phoneBookEmptyState.visibility = View.VISIBLE
-                    binding.addGuardianAngel.visibility = View.GONE
-                    binding.allContactsRecycler.visibility = View.GONE
+
+        if (readContactPermission == PackageManager.PERMISSION_GRANTED )
+        {
+            viewModel.getPhoneBook(requireActivity())
+            viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
+                when(it){
+                    is ContactsState.Empty ->{
+                        binding.phoneBookEmptyState.visibility = View.GONE
+                        binding.addGuardianAngel.visibility = View.VISIBLE
+                        binding.allContactsRecycler.visibility = View.GONE
+                        binding.searchContactTvId.visibility = View.GONE
+                        binding.phonebookShimmer.visibility = View.VISIBLE
+                        binding.phonebookShimmer.startShimmer()
+                    }
+                    is ContactsState.Success ->{
+                        binding.phonebookShimmer.visibility = View.GONE
+                        binding.phonebookShimmer.stopShimmer()
+                        binding.phoneBookEmptyState.visibility = View.GONE
+                        binding.addGuardianAngel.visibility = View.VISIBLE
+                        binding.allContactsRecycler.visibility = View.VISIBLE
+                        binding.searchContactTvId.visibility = View.VISIBLE
+                        contactList = it.contacts
+                        adapter.updatePhonebookData(contactList.distinctBy { recipientData->
+                            recipientData.name
+                        })
+
+                    }
+                    else -> Unit
+
                 }
-                is ContactsState.Success ->{
-                    binding.phoneBookEmptyState.visibility = View.GONE
-                    binding.addGuardianAngel.visibility = View.VISIBLE
-                    binding.allContactsRecycler.visibility = View.VISIBLE
-                    contactList = it.contacts
-                    adapter.updatePhonebookData(contactList.distinctBy { recipientData->
-                        recipientData.name
+
+
+            }
+            binding.searchContactId.addTextChangedListener{substring->
+                if (substring.toString().isBlank()){
+                    adapter.updatePhonebookData(contactList.distinctBy { distinctContact->
+                        distinctContact.number
                     })
-
+                    return@addTextChangedListener
                 }
-                else -> Unit
+                val filteredContacts = contactList.filter {
+                    it.name.contains(substring.toString(),true)
+                }
+                adapter.updatePhonebookData(filteredContacts)
 
             }
-
-
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.WRITE_CONTACTS,
+                android.Manifest.permission.READ_CONTACTS),
+                PERMISSION_REQUEST
+            )
         }
-        binding.searchContactId.addTextChangedListener{substring->
-            if (substring.toString().isBlank()){
-                adapter.updatePhonebookData(contactList.distinctBy { distinctContact->
-                    distinctContact.number
-                })
-                return@addTextChangedListener
-            }
-            val filteredContacts = contactList.filter {
-                it.name.contains(substring.toString(),true)
-            }
-            adapter.updatePhonebookData(filteredContacts)
 
-        }
 
     }
 
@@ -119,11 +132,13 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 binding.phoneBookEmptyState.visibility = View.VISIBLE
                 binding.addGuardianAngel.visibility = View.GONE
                 binding.allContactsRecycler.visibility = View.GONE
+                binding.searchContactTvId.visibility = View.GONE
             }
             PASSED->{
                 binding.phoneBookEmptyState.visibility = View.GONE
                 binding.addGuardianAngel.visibility = View.VISIBLE
                 binding.allContactsRecycler.visibility = View.VISIBLE
+                binding.searchContactTvId.visibility = View.VISIBLE
             }
 
         }
@@ -133,53 +148,177 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private fun saveGuardianAngelsListToDb(checkedList: MutableList<RecipientContact>) {
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
+
         collectionReference.document(currentUserId)
             .get()
             .addOnSuccessListener {
-                val data = it.toObject(GuardianData::class.java)
-                collectionReference
-                    .document(currentUserId)
-                    .set(GuardianData(checkedList))
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(),"Guardian angels added successfully",Toast.LENGTH_SHORT)
-                            .show()
+                val doc = it.toObject(GuardianData::class.java)
+                if (doc != null) {
+                    doc.guardianInfo.forEach {
+                        Log.d("PREV DATA", "saveGuardianAngelsListToDb: ${it.name} ")
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(),"Unable to add guardian angels",Toast.LENGTH_SHORT)
-                            .show()
+                    checkedList.addAll(doc.guardianInfo)
+                    checkedList.forEach {
+                        it.name
                     }
+                    collectionReference
+                        .document(currentUserId)
+                        .set(GuardianData(checkedList))
+                        .addOnSuccessListener {
+                            Toast.makeText(requireContext(),"Guardian angels added successfully",Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(requireContext(),"Unable to add guardian angels",Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
+                }
+
             }
+
             .addOnFailureListener {
                 Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
             }
     }
 
+    private fun requestContactPermission() {
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                viewModel.getPhoneBook(requireActivity())
+                viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
+                    when(it){
+                        is ContactsState.Empty ->{
+                            binding.phoneBookEmptyState.visibility = View.GONE
+                            binding.addGuardianAngel.visibility = View.VISIBLE
+                            binding.allContactsRecycler.visibility = View.GONE
+                            binding.searchContactTvId.visibility = View.GONE
+                            binding.phonebookShimmer.visibility = View.VISIBLE
+                            binding.phonebookShimmer.startShimmer()
+                        }
+                        is ContactsState.Success ->{
+                            binding.phonebookShimmer.visibility = View.GONE
+                            binding.phonebookShimmer.stopShimmer()
+                            binding.phoneBookEmptyState.visibility = View.GONE
+                            binding.addGuardianAngel.visibility = View.VISIBLE
+                            binding.allContactsRecycler.visibility = View.VISIBLE
+                            binding.searchContactTvId.visibility = View.VISIBLE
+                            contactList = it.contacts
+                            adapter.updatePhonebookData(contactList.distinctBy { recipientData->
+                                recipientData.name
+                            })
+
+                        }
+                        else -> Unit
+
+                    }
+
+
+                }
+                binding.searchContactId.addTextChangedListener{substring->
+                    if (substring.toString().isBlank()){
+                        adapter.updatePhonebookData(contactList.distinctBy { distinctContact->
+                            distinctContact.number
+                        })
+                        return@addTextChangedListener
+                    }
+                    val filteredContacts = contactList.filter {
+                        it.name.contains(substring.toString(),true)
+                    }
+                    adapter.updatePhonebookData(filteredContacts)
+
+                }
+            } else {
+                //ask for permission
+            }
+        }
+    }
 
     override fun onContactClick(contacts: MutableList<RecipientContact>) {
-        binding.addGuardianAngel.setOnClickListener {
-            //Check if the checked item is in the list
-            //if true, dont add to the list(show a toast)
-            //else, add to the list
-            fAuth.currentUser?.uid?.let { it1 -> viewModel.getGuardianAngelsListFromDb(currentUserid = it1) }
+        fAuth.currentUser?.uid?.let { it1 -> viewModel.getGuardianAngelsListFromDb(currentUserid = it1) }
             viewModel.guardianLiveData.observe(viewLifecycleOwner){
                 val guardians = it.guardianInfo
-                guardians.forEach { databaseGurdians ->
-                    contacts.forEach { clickedContacts->
-                        if (databaseGurdians.number == clickedContacts.number) {
+                contacts.forEach { clickedContacts ->
+                    guardians.forEach { databaseGuardians ->
+                        if (clickedContacts.number == databaseGuardians.number){
                             duplicateNumber = clickedContacts.number
-                            isContained = true
+                            isDuplicate = true
                         }
                     }
                 }
              }
-            if (isContained) {
-                Toast.makeText(requireContext(), "$duplicateNumber has previously been added", Toast.LENGTH_SHORT).show()
-                Toast.makeText(requireContext(), "Duplicate found, please uncheck contacts already in list", Toast.LENGTH_SHORT).show()
-                isContained=false
-            }else{
-                saveGuardianAngelsListToDb(contacts)
-            }
+        if (isDuplicate) {
+            Toast.makeText(requireContext(), "$duplicateNumber has previously been added", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Duplicate found, please uncheck contacts already in list", Toast.LENGTH_SHORT).show()
+        }else{
+            saveGuardianAngelsListToDb(contacts)
+        }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        val readContactPermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
+
+        if (readContactPermission == PackageManager.PERMISSION_GRANTED )
+        {
+          //  Toast.makeText(requireContext(),"Permission granted",Toast.LENGTH_SHORT).show()
+            viewModel.getPhoneBook(requireActivity())
+            viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
+                when(it){
+                    is ContactsState.Empty ->{
+                        binding.phoneBookEmptyState.visibility = View.GONE
+                        binding.addGuardianAngel.visibility = View.VISIBLE
+                        binding.allContactsRecycler.visibility = View.GONE
+                        binding.searchContactTvId.visibility = View.GONE
+                        binding.phonebookShimmer.visibility = View.VISIBLE
+                        binding.phonebookShimmer.startShimmer()
+                    }
+                    is ContactsState.Success ->{
+                        binding.phonebookShimmer.visibility = View.GONE
+                        binding.phonebookShimmer.stopShimmer()
+                        binding.phoneBookEmptyState.visibility = View.GONE
+                        binding.addGuardianAngel.visibility = View.VISIBLE
+                        binding.allContactsRecycler.visibility = View.VISIBLE
+                        binding.searchContactTvId.visibility = View.VISIBLE
+                        contactList = it.contacts
+                        adapter.updatePhonebookData(contactList.distinctBy { recipientData->
+                            recipientData.name
+                        })
+
+                    }
+                    else -> Unit
+
+                }
+
+
+            }
+            binding.searchContactId.addTextChangedListener{substring->
+                if (substring.toString().isBlank()){
+                    adapter.updatePhonebookData(contactList.distinctBy { distinctContact->
+                        distinctContact.number
+                    })
+                    return@addTextChangedListener
+                }
+                val filteredContacts = contactList.filter {
+                    it.name.contains(substring.toString(),true)
+                }
+                adapter.updatePhonebookData(filteredContacts)
+
+            }
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.WRITE_CONTACTS,
+                android.Manifest.permission.READ_CONTACTS),
+                PERMISSION_REQUEST
+            )
         }
     }
 

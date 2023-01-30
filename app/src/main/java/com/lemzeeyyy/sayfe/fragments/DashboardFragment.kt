@@ -35,6 +35,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.AccessibilityServiceSettings
+import com.lemzeeyyy.sayfe.EmptyGuardiansListFragment
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
@@ -47,6 +49,7 @@ import kotlin.math.sqrt
 const val LOCATION_PERMISSION = 2001
 
 class DashboardFragment : Fragment() {
+
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MainActivityViewModel by activityViewModels()
@@ -107,6 +110,7 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         fAuth = Firebase.auth
         collectionReference.whereEqualTo("currentUserId",fAuth.currentUser?.uid).addSnapshotListener { value, error ->
             if (value != null) {
@@ -117,6 +121,8 @@ class DashboardFragment : Fragment() {
 
             }
         }
+
+
 
         SharedPrefs.init(requireContext())
 
@@ -140,7 +146,6 @@ class DashboardFragment : Fragment() {
             LocationServices.getFusedLocationProviderClient(requireActivity())
 
         getCurrentLocation()
-
 
         viewModel.getImageUriFromDb(currentUserId)
         viewModel.userImageUri.observe(viewLifecycleOwner) {
@@ -267,8 +272,6 @@ class DashboardFragment : Fragment() {
             return true
         }
         return false
-
-
     }
 
     override fun onRequestPermissionsResult(
@@ -369,6 +372,33 @@ class DashboardFragment : Fragment() {
         }
     }
 
+    private fun checkAccessibilityPermission(): Boolean {
+        var accessEnabled = 0
+        try {
+            accessEnabled =
+                Settings.Secure.getInt(requireActivity().contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
+        } catch (e: Settings.SettingNotFoundException) {
+            e.printStackTrace()
+        }
+        return if (accessEnabled == 0) {
+            /** if not construct intent to request permission  */
+//            Toast.makeText(requireContext(),"Permission not granted, to use the background service of this product, kindly grant permission",
+//                Toast.LENGTH_SHORT).show()
+            /** request permission via bottom sheet fragment  */
+
+            openAccessibilitySettingsDialog()
+            false
+        } else {
+            true
+        }
+    }
+
+    private fun openAccessibilitySettingsDialog() {
+        val dialog = AccessibilityServiceSettings()
+        dialog.setCancelable(true)
+        dialog.show(childFragmentManager, "NOTIFICATION SHEET")
+    }
+
     override fun onResume() {
         sensorManager?.registerListener(
             sensorListener, sensorManager!!.getDefaultSensor(
@@ -396,4 +426,10 @@ class DashboardFragment : Fragment() {
         super.onPause()
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        checkAccessibilityPermission()
+
+
+    }
 }
