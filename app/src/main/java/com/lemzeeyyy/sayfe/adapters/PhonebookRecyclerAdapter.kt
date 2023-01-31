@@ -33,8 +33,8 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
     private var phoneBookData = listOf<PhonebookContact>()
 
 
-    var checkedListFromDb : MutableList<RecipientContact> = mutableListOf()
-    private var checkedList : MutableList<RecipientContact> = mutableListOf()
+    var checkedListFromDb : MutableList<PhonebookContact> = mutableListOf()
+    private var checkedList : MutableList<PhonebookContact> = mutableListOf()
 
 
     fun updatePhonebookData(phoneBookData : List<PhonebookContact> ){
@@ -56,6 +56,7 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
             checkBox.setOnClickListener {
                 if (checkBox.isChecked ){
                     phoneBookData[adapterPosition].isChecked = true
+
                 }
                 else{
                     checkBox.isChecked = false
@@ -68,17 +69,17 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhonebookViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item,parent,false)
         fAuth = Firebase.auth
-        fAuth.currentUser?.uid?.let {
-            collectionReference.document(it)
-                .get()
-                .addOnSuccessListener {documentSnapshot->
-                    val data = documentSnapshot.toObject(GuardianData::class.java)
-                    if (data != null) {
-                        checkedListFromDb = data.guardianInfo
-                    }
-
-                }
-        }
+//        fAuth.currentUser?.uid?.let {
+//            collectionReference.document(it)
+//                .get()
+//                .addOnSuccessListener {documentSnapshot->
+//                    val data = documentSnapshot.toObject(GuardianData::class.java)
+//                    if (data != null) {
+//                        checkedListFromDb = data.guardianInfo
+//                    }
+//
+//                }
+//        }
             return PhonebookViewHolder(view)
     }
 
@@ -86,37 +87,23 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
         val checkedItem = phoneBookData[position]
         holder.phoneNumber.setText(checkedItem.number)
         holder.phoneName.setText(checkedItem.name)
+        holder.checkBox.isChecked = phoneBookData[position].isChecked
 
-        if (phoneBookData[position].isChecked){
+        if (checkedItem.isChecked){
+            if (checkedListFromDb.size < 5){
+                checkedItem.number = checkedItem.number.filter {
+                    !it.isWhitespace()
+                }.takeLast(10)
+                checkedListFromDb.addAll(checkedList)
 
+            } else{
+                Toast.makeText(context,"You cannot add more than 5 guardian angels",Toast.LENGTH_SHORT)
+                    .show()
+            }
+        } else{
+            //dont add to list
         }
-        else{
 
-        }
-
-
-//            holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-//                if (isChecked){
-//
-//                    checkedListFromDb.addAll(checkedList)
-//                            if (checkedListFromDb.size < 5) {
-//                                buttonView.isChecked = true
-//                                checkedItem.number  = checkedItem.number.filter {
-//                                    !it.isWhitespace()
-//                                }.takeLast(10)
-//                                checkedList.add(checkedItem)
-//                            }else{
-//                                buttonView.isChecked = false
-//                                Toast.makeText(context,"You can only add max of 5 angelis",Toast.LENGTH_SHORT)
-//                                    .show()
-//
-//                            }
-//                }
-//                else{
-//                    checkedList.remove(checkedItem)
-//                    buttonView.isChecked = false
-//                }
-//            }
             checkedList = mutableListOf()
         }
 

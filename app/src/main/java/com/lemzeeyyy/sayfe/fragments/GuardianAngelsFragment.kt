@@ -34,8 +34,6 @@ class GuardianAngelsFragment : Fragment() {
 
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
-    private val collectionReference = database.collection("Guardian Angels")
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
