@@ -112,35 +112,7 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
         holder.phoneName.setText(checkedItem.name)
 
         holder.checkBox.isChecked = checkedItem.isChecked
-
-
-
-//            holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-//                if (isChecked){
-//
-//                    checkedListFromDb.addAll(checkedList)
-//                            if (checkedListFromDb.size < 5) {
-//                                buttonView.isChecked = true
-//                                checkedItem.number  = checkedItem.number.filter {
-//                                    !it.isWhitespace()
-//                                }.takeLast(10)
-//                                checkedList.add(checkedItem)
-//                            }else{
-//                                buttonView.isChecked = false
-//                                Toast.makeText(context,"You can only add max of 5 angelis",Toast.LENGTH_SHORT)
-//                                    .show()
-//
-//                            }
-//                }
-//                else{
-//                    checkedList.remove(checkedItem)
-//                    buttonView.isChecked = false
-//                }
-//            }
-
-        }
-
-        //set empty state
+    }
 
 
     override fun getItemCount(): Int {

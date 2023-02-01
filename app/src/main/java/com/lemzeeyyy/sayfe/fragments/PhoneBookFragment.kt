@@ -245,6 +245,12 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     override fun onContactClick(contacts: MutableList<PhonebookContact>,dbContacts : MutableList<PhonebookContact>) {
 
+        contacts.forEach { clickedContacts ->
+            dbContacts.forEach { dbClickedContacts ->
+
+            }
+        }
+
             saveGuardianAngelsListToDb(contacts)
         //Check if clicked contact is contained in dbContacts
         //if true
