@@ -3,6 +3,7 @@ package com.lemzeeyyy.sayfe.viewmodels
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
@@ -37,8 +38,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val collectionReference = database.collection("Guardian Angels")
 
 
-    private val _guardianLiveData = MutableLiveData<MutableList<GuardianAngelData>>()
-    val guardianLiveData: LiveData<MutableList<GuardianAngelData>> get() = _guardianLiveData
+    private val _guardianLiveData = MutableLiveData<GuardianData>()
+    val guardianLiveData: LiveData<GuardianData> get() = _guardianLiveData
 
     private var _contactStatus = MutableLiveData<Int>()
     val currentWeatherStatus: LiveData<Int> get() = _contactStatus
@@ -103,7 +104,19 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
         collectionReference.document(currentUserid)
             .get()
+            .addOnSuccessListener {
+
+                val data = it.toObject(GuardianData::class.java)
+
+                data?.let { guardianData ->
+                    _guardianLiveData.value = guardianData
+                }
+            }
+            .addOnFailureListener {
+
+            }
     }
+
 
     fun getImageUriFromDb(currentUserid: String){
     var storageRef = FirebaseStorage.getInstance().getReference();

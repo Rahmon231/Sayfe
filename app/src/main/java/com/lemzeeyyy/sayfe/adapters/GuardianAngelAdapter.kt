@@ -10,15 +10,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
+import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
 
 class GuardianAngelAdapter : RecyclerView.Adapter<GuardianAngelAdapter.GuardianAngelViewHolder>() {
-    var guardianList : MutableList<RecipientContact> = ArrayList()
+    var guardianList : MutableList<PhonebookContact> = ArrayList()
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Guardian Angels")
 
-    fun updateGuardianAngelsList(guardianList: MutableList<RecipientContact>){
+    fun updateGuardianAngelsList(guardianList: MutableList<PhonebookContact>){
         this.guardianList = guardianList
         notifyDataSetChanged()
     }

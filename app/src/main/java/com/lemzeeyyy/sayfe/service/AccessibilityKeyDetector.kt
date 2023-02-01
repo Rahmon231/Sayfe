@@ -27,10 +27,7 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.database.SharedPrefs
-import com.lemzeeyyy.sayfe.model.GuardianData
-import com.lemzeeyyy.sayfe.model.OutgoingAlertData
-import com.lemzeeyyy.sayfe.model.RecipientContact
-import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.model.*
 import com.lemzeeyyy.sayfe.network.NetworkObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +56,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private var listItem = mutableListOf<Int>()
     private val collectionReference = database.collection("Guardian Angels")
     private val usersCollection = database.collection("Users")
-    private var guardianList = mutableListOf<RecipientContact>()
+    private var guardianList = mutableListOf<PhonebookContact>()
 
     private var latitude = 0.0
     private var longitude = 0.0

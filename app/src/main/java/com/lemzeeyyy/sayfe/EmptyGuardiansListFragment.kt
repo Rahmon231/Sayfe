@@ -16,6 +16,7 @@ import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.adapters.GuardianAngelAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentEmptyGuardiansListBinding
 import com.lemzeeyyy.sayfe.model.GuardianData
+import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.launch
@@ -60,7 +61,7 @@ class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
     private fun emptyGuardianAngelList(checkedList: MutableList<RecipientContact>){
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
-        val docData = GuardianData(listOf<RecipientContact>().toMutableList())
+        val docData = GuardianData(listOf<PhonebookContact>().toMutableList())
 
         collectionReference
             .document(currentUserId)

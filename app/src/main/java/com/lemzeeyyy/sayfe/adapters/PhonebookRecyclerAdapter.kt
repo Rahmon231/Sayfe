@@ -43,43 +43,66 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
     }
 
     fun triggerCheckedListInterface(){
-        checkedContactListener.onContactClick(checkedList)
+        checkedContactListener.onContactClick(checkedList,checkedListFromDb)
     }
 
 
     inner class PhonebookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         var phoneNumber = itemView.findViewById<TextView>(R.id.contact_phone_id)
         var phoneName = itemView.findViewById<TextView>(R.id.contact_name_id)
         var checkBox = itemView.findViewById<CheckBox>(R.id.choose_contact_checkbox)
 
-        init {
-            checkBox.setOnClickListener {
-                if (checkBox.isChecked ){
-                    phoneBookData[adapterPosition].isChecked = true
 
-                }
-                else{
-                    checkBox.isChecked = false
-                    phoneBookData[adapterPosition].isChecked = false
-                }
+
+        init {
+            fAuth = Firebase.auth
+            val user = fAuth.currentUser
+            val currentUserId = user?.uid
+            if (currentUserId != null) {
+                collectionReference.document(currentUserId)
+                    .get()
+                    .addOnSuccessListener {
+                        val docSnapshot = it.toObject(GuardianData::class.java)
+                        checkedListFromDb = docSnapshot?.guardianInfo ?: mutableListOf()
+                        checkBox.setOnClickListener {
+
+                            if (checkBox.isChecked ){
+                                if ((checkedListFromDb.size + checkedList.size) < 5){
+
+
+                                phoneBookData[adapterPosition].isChecked = true
+                                phoneBookData[adapterPosition].number =   phoneBookData[adapterPosition].number.filter {
+                                    !it.isWhitespace()
+                                }
+                                phoneBookData[adapterPosition].number = phoneBookData[adapterPosition].number.filter {
+                                    it.isDigit()
+                                }
+                                    checkedList.add(phoneBookData[adapterPosition])
+
+                                }else{
+                                    checkBox.isChecked = false
+                                    phoneBookData[adapterPosition].isChecked = false
+                                    Toast.makeText(context,"You can only add max of 5 guardian angels",Toast.LENGTH_SHORT).show()
+                                }
+
+
+                            }
+                            else{
+                                checkBox.isChecked = false
+                                phoneBookData[adapterPosition].isChecked = false
+                                checkedList.remove(phoneBookData[adapterPosition])
+                            }
+                        }
+                    }
             }
+
+
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhonebookViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item,parent,false)
-        fAuth = Firebase.auth
-//        fAuth.currentUser?.uid?.let {
-//            collectionReference.document(it)
-//                .get()
-//                .addOnSuccessListener {documentSnapshot->
-//                    val data = documentSnapshot.toObject(GuardianData::class.java)
-//                    if (data != null) {
-//                        checkedListFromDb = data.guardianInfo
-//                    }
-//
-//                }
-//        }
             return PhonebookViewHolder(view)
     }
 
@@ -87,24 +110,34 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
         val checkedItem = phoneBookData[position]
         holder.phoneNumber.setText(checkedItem.number)
         holder.phoneName.setText(checkedItem.name)
-        holder.checkBox.isChecked = phoneBookData[position].isChecked
 
-        if (checkedItem.isChecked){
-            if (checkedListFromDb.size < 5){
-                checkedItem.number = checkedItem.number.filter {
-                    !it.isWhitespace()
-                }.takeLast(10)
-                checkedListFromDb.addAll(checkedList)
+        holder.checkBox.isChecked = checkedItem.isChecked
 
-            } else{
-                Toast.makeText(context,"You cannot add more than 5 guardian angels",Toast.LENGTH_SHORT)
-                    .show()
-            }
-        } else{
-            //dont add to list
-        }
 
-            checkedList = mutableListOf()
+
+//            holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+//                if (isChecked){
+//
+//                    checkedListFromDb.addAll(checkedList)
+//                            if (checkedListFromDb.size < 5) {
+//                                buttonView.isChecked = true
+//                                checkedItem.number  = checkedItem.number.filter {
+//                                    !it.isWhitespace()
+//                                }.takeLast(10)
+//                                checkedList.add(checkedItem)
+//                            }else{
+//                                buttonView.isChecked = false
+//                                Toast.makeText(context,"You can only add max of 5 angelis",Toast.LENGTH_SHORT)
+//                                    .show()
+//
+//                            }
+//                }
+//                else{
+//                    checkedList.remove(checkedItem)
+//                    buttonView.isChecked = false
+//                }
+//            }
+
         }
 
         //set empty state

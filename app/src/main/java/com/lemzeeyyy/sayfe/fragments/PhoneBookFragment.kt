@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -22,7 +23,10 @@ import com.lemzeeyyy.sayfe.activities.MainActivity
 import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
 import com.lemzeeyyy.sayfe.adapters.PhonebookRecyclerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentPhoneBookBinding
-import com.lemzeeyyy.sayfe.model.*
+import com.lemzeeyyy.sayfe.model.ContactsState
+import com.lemzeeyyy.sayfe.model.GuardianData
+import com.lemzeeyyy.sayfe.model.PhonebookContact
+import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.viewmodels.BUSY
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.viewmodels.PASSED
@@ -31,6 +35,7 @@ const val REQUEST_CONTACT = 10
 class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     private var contactList = emptyList<PhonebookContact>()
+    private var guardianAngels = emptyList<PhonebookContact>()
 
     private val viewModel: MainActivityViewModel by activityViewModels()
 
@@ -144,23 +149,40 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     private fun saveGuardianAngelsListToDb(checkedList: MutableList<PhonebookContact>) {
         val user = fAuth.currentUser
-        val currentUserId = user?.uid
+        val currentUserId = user!!.uid
+        collectionReference.document(currentUserId)
+            .get()
+            .addOnSuccessListener {
+                val doc = it.toObject(GuardianData::class.java)
+                if (doc != null) {
 
-        if (currentUserId != null) {
-            collectionReference.document(currentUserId)
-                .get()
-                .addOnSuccessListener {
-
-
+                    checkedList.addAll(doc.guardianInfo)
+                    checkedList.forEach {
+                        it.name
                     }
+                    collectionReference
+                        .document(currentUserId)
+                        .set(GuardianData(checkedList))
+                        .addOnSuccessListener {
+                            Toast.makeText(requireContext(),"Guardian angels added successfully",Toast.LENGTH_SHORT)
+                                .show()
+                            findNavController().navigateUp()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(requireContext(),"Unable to add guardian angels",Toast.LENGTH_SHORT)
+                                .show()
+                        }
 
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
                 }
-        }
+
+            }
+
+            .addOnFailureListener {
+                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
+            }
     }
 
-    private fun requestPermission() {
+    private fun requestContactPermission() {
 
     }
 
@@ -221,16 +243,14 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         }
     }
 
-    override fun onContactClick(contacts: MutableList<PhonebookContact>) {
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
-        if (currentUserId != null) {
-            collectionReference.document(currentUserId)
-                .get()
-                .addOnSuccessListener {
+    override fun onContactClick(contacts: MutableList<PhonebookContact>,dbContacts : MutableList<PhonebookContact>) {
 
-                }
-        }
+            saveGuardianAngelsListToDb(contacts)
+        //Check if clicked contact is contained in dbContacts
+        //if true
+        //dont save else
+        //save
+
 
     }
 
