@@ -1,5 +1,6 @@
 package com.lemzeeyyy.sayfe.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -147,7 +148,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     }
 
-    private fun saveGuardianAngelsListToDb(checkedList: MutableList<PhonebookContact>) {
+    private fun saveGuardianAngelsListToDb(checkedList: MutableList<PhonebookContact>, context: Context) {
         val user = fAuth.currentUser
         val currentUserId = user!!.uid
         collectionReference.document(currentUserId)
@@ -164,12 +165,12 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                         .document(currentUserId)
                         .set(GuardianData(checkedList))
                         .addOnSuccessListener {
-                            Toast.makeText(requireContext(),"Guardian angels added successfully",Toast.LENGTH_SHORT)
+                            Toast.makeText(context,"Guardian angels added successfully",Toast.LENGTH_SHORT)
                                 .show()
                             findNavController().navigateUp()
                         }
                         .addOnFailureListener {
-                            Toast.makeText(requireContext(),"Unable to add guardian angels",Toast.LENGTH_SHORT)
+                            Toast.makeText(context,"Unable to add guardian angels",Toast.LENGTH_SHORT)
                                 .show()
                         }
 
@@ -244,12 +245,29 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     }
 
     override fun onContactClick(contacts: MutableList<PhonebookContact>,dbContacts : MutableList<PhonebookContact>) {
-
-            saveGuardianAngelsListToDb(contacts)
+        var alreadyContained = 0
         //Check if clicked contact is contained in dbContacts
         //if true
         //dont save else
         //save
+
+        dbContacts.forEach {
+            if (contacts.contains(it))
+                alreadyContained++
+            else {
+                contacts.add(it)
+            }
+        }
+
+        if (alreadyContained == 0)
+            saveGuardianAngelsListToDb(contacts,requireContext())
+        else {
+            Toast.makeText(context, "This number has previously been added", Toast.LENGTH_SHORT)
+                .show()
+            alreadyContained = 0
+        }
+
+
 
 
     }
