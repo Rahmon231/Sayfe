@@ -76,9 +76,11 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
                                 phoneBookData[adapterPosition].number =   phoneBookData[adapterPosition].number.filter {
                                     !it.isWhitespace()
                                 }
+
                                 phoneBookData[adapterPosition].number = phoneBookData[adapterPosition].number.filter {
                                     it.isDigit()
-                                }
+                                }.takeLast(10)
+
                                     checkedList.add(phoneBookData[adapterPosition])
 
                                 }else{

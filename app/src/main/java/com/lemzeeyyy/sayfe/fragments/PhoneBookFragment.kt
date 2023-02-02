@@ -268,6 +268,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 return
             }
         }
+    
         saveGuardianAngelsListToDb(contacts,requireContext())
 
 

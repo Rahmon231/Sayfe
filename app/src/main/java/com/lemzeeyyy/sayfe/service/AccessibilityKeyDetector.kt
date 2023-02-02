@@ -66,6 +66,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private var outgoingDataList = mutableListOf<OutgoingAlertData>()
     private var senderName : String =""
+    private var senderMessageBody : String =""
 
     companion object{
          var appTokenList : MutableList<String> = mutableListOf()
@@ -92,7 +93,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                 getCurrentLocation()
                                 val scope = CoroutineScope(Job() + Dispatchers.Main)
                                 scope.launch {
-                                    sendsms("+447823927201", "body\n$locationUrl")
+                                    sendsms("+447823927201", "$senderMessageBody \n$locationUrl")
                                     Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
                                 }
 
@@ -163,7 +164,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     guardianList.forEach {recipientContact->
                         val scope = CoroutineScope(Job() + Dispatchers.Main)
                         scope.launch {
-                            sendsms(recipientContact.number,"body\n$locationUrl")
+                            sendsms(recipientContact.number,"$senderMessageBody \n$locationUrl")
                         }
                     }
                 }
@@ -183,6 +184,8 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                        for (snapshot : QueryDocumentSnapshot in value){
                            val currentUser = snapshot.toObject(Users::class.java)
                             senderName = currentUser.fullName
+                           senderMessageBody = currentUser.userSOSText
+
                            Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
                        }
                     }
@@ -222,7 +225,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                              val currentDate = sdf.format(Date())
 
                              val outgoingAlertData = OutgoingAlertData(senderName,
-                                 locationUrl,currentDate,"Sayfe SOS Alert",cityName)
+                                 "$senderMessageBody \n$locationUrl",currentDate,"Sayfe SOS Alert",cityName)
 
                              outgoingDataList.add(outgoingAlertData)
                              saveOutgoingAlertToDb(currentUserid, outgoingDataList)
