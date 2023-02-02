@@ -44,6 +44,7 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
 
     fun triggerCheckedListInterface(){
         checkedContactListener.onContactClick(checkedList,checkedListFromDb)
+        Toast.makeText(context,"Triggered",Toast.LENGTH_SHORT).show()
     }
 
 
@@ -95,8 +96,9 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
                             }
                         }
                     }
+                checkedList = mutableListOf()
             }
-            checkedList = mutableListOf()
+
         }
 
     }

@@ -140,14 +140,16 @@ class DashboardFragment : Fragment() {
 
         fAuth = Firebase.auth
         val user = fAuth.currentUser
-        val currentUserId = user!!.uid
+        val currentUserId = user?.uid
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
 
         getCurrentLocation()
 
-        viewModel.getImageUriFromDb(currentUserId)
+        if (currentUserId != null) {
+            viewModel.getImageUriFromDb(currentUserId)
+        }
         viewModel.userImageUri.observe(viewLifecycleOwner) {
 
             if (it.equals(Uri.EMPTY)) {

@@ -150,37 +150,34 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     private fun saveGuardianAngelsListToDb(checkedList: MutableList<PhonebookContact>, context: Context) {
         val user = fAuth.currentUser
-        val currentUserId = user!!.uid
-        collectionReference.document(currentUserId)
-            .get()
-            .addOnSuccessListener {
-                val doc = it.toObject(GuardianData::class.java)
-                if (doc != null) {
+        val currentUserId = user?.uid
+        if (currentUserId != null) {
+            collectionReference.document(currentUserId)
+                .get()
+                .addOnSuccessListener {
+                    val doc = it.toObject(GuardianData::class.java)
+                    if (doc != null) {
+                        collectionReference
+                            .document(currentUserId)
+                            .set(GuardianData(checkedList))
+                            .addOnSuccessListener {
+                                Toast.makeText(context,"Guardian angels added successfully",Toast.LENGTH_SHORT)
+                                    .show()
+                                findNavController().navigateUp()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(context,"Unable to add guardian angels",Toast.LENGTH_SHORT)
+                                    .show()
+                            }
 
-                    checkedList.addAll(doc.guardianInfo)
-                    checkedList.forEach {
-                        it.name
                     }
-                    collectionReference
-                        .document(currentUserId)
-                        .set(GuardianData(checkedList))
-                        .addOnSuccessListener {
-                            Toast.makeText(context,"Guardian angels added successfully",Toast.LENGTH_SHORT)
-                                .show()
-                            findNavController().navigateUp()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(context,"Unable to add guardian angels",Toast.LENGTH_SHORT)
-                                .show()
-                        }
 
                 }
 
-            }
-
-            .addOnFailureListener {
-                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
-            }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
     private fun requestContactPermission() {
@@ -245,29 +242,33 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     }
 
     override fun onContactClick(contacts: MutableList<PhonebookContact>,dbContacts : MutableList<PhonebookContact>) {
+        Log.d("TAG", "onContactClick: Triggered")
         var alreadyContained = 0
+        var duplicateContact = mutableListOf<PhonebookContact>()
         //Check if clicked contact is contained in dbContacts
         //if true
-        //dont save else
+        //dont save the duplicate contact else
         //save
-
         dbContacts.forEach {
-            if (contacts.contains(it))
+            if (contacts.contains(it)) {
+                contacts.remove(it)
+                duplicateContact.add(it)
                 alreadyContained++
+            }
             else {
                 contacts.add(it)
             }
         }
-
-        if (alreadyContained == 0)
-            saveGuardianAngelsListToDb(contacts,requireContext())
-        else {
-            Toast.makeText(context, "This number has previously been added", Toast.LENGTH_SHORT)
-                .show()
-            alreadyContained = 0
+        if (duplicateContact.isNotEmpty()){
+            duplicateContact.forEach {
+                Toast.makeText(context, "${it.name} has previously been added, please uncheck and retry", Toast.LENGTH_SHORT)
+                    .show()
+                contacts.remove(it)
+                duplicateContact.clear()
+                return
+            }
         }
-
-
+        saveGuardianAngelsListToDb(contacts,requireContext())
 
 
     }
