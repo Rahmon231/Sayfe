@@ -384,10 +384,7 @@ class DashboardFragment : Fragment() {
         }
         return if (accessEnabled == 0) {
             /** if not construct intent to request permission  */
-//            Toast.makeText(requireContext(),"Permission not granted, to use the background service of this product, kindly grant permission",
-//                Toast.LENGTH_SHORT).show()
             /** request permission via bottom sheet fragment  */
-
             openAccessibilitySettingsDialog()
             false
         } else {

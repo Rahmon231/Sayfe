@@ -92,11 +92,11 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                 getCurrentLocation()
                                 val scope = CoroutineScope(Job() + Dispatchers.Main)
                                 scope.launch {
-                                   // sendsms("+447823927201", "body\n$locationUrl")
-                                  //  Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
+                                    sendsms("+447823927201", "body\n$locationUrl")
+                                    Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
                                 }
 
-                                //sms functionality
+                                //Manual SMS Functionality
 //                                fAuth.currentUser?.uid?.let {
 //                                    getGuardianAngelsListFromDb(it)
 //                                }
@@ -134,7 +134,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     }
 
     override fun onInterrupt() {
-        TODO("Not yet implemented")
+        Log.e(TAG, "onInterrupt: something went wrong")
     }
 
 
@@ -196,7 +196,8 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact ->
 
-                     usersCollection.whereEqualTo("number",recipientContact.number).get()
+                     usersCollection.whereEqualTo("number",recipientContact.number)
+                         .get()
                          .addOnSuccessListener {querySnapshot ->
                          querySnapshot.forEach {queryDocumentSnapshot ->
                              val users = queryDocumentSnapshot.toObject(Users::class.java)
@@ -239,6 +240,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
             }
     }
+
     private fun sendSMSSOS(phoneNumber : String) {
         try {
 

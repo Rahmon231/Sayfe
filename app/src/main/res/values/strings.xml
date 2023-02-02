@@ -3,5 +3,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="exit">press again to exit</string>
-    <string name="accessibility_service_label">sayfe accessibility service</string>
+    <string name="accessibility_service_label">Sayfe Service</string>
+    <string name="sayfe_service_description">This service allows the application to run in the background,
+        Hence, to get the best of this application, turn on Sayfe Service</string>
 </resources>
