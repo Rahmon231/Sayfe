@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.QueryDocumentSnapshot
@@ -38,12 +39,12 @@ class AddPhoneNumberFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
         binding.setupLaterTxt.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.nav_home)
+            findNavController().navigate(R.id.nav_home)
         }
         binding.continueAddPhone.setOnClickListener {
             val phoneString = binding.phoneNumberEt.text!!.toString()
             val countryCode = binding.countryCodeEt.selectedCountryCode.toString()
-            val phoneNumber = "$countryCode$phoneString"
+            val phoneNumber = "+$countryCode$phoneString"
             savePhoneNumber(view,phoneNumber)
         }
     }
@@ -79,7 +80,7 @@ class AddPhoneNumberFragment : Fragment() {
 
                 }
             }
-        Navigation.findNavController(view).navigate(R.id.nav_home)
+        findNavController().navigate(R.id.nav_home)
     }
 
 }

@@ -225,7 +225,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                              val currentDate = sdf.format(Date())
 
                              val outgoingAlertData = OutgoingAlertData(senderName,
-                                 "$senderMessageBody \n$locationUrl",currentDate,"Sayfe SOS Alert",cityName)
+                                 locationUrl,currentDate,"Sayfe SOS Alert",cityName)
 
                              outgoingDataList.add(outgoingAlertData)
                              saveOutgoingAlertToDb(currentUserid, outgoingDataList)

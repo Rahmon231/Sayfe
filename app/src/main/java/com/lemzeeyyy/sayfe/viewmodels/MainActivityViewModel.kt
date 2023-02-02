@@ -167,6 +167,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     @SuppressLint("Range")
     fun getPhoneBook(context: Activity) {
+        var standardContacts = mutableListOf<PhonebookContact>()
+        var nonStandardContacts = mutableListOf<PhonebookContact>()
+        var countryCode = ""
         viewModelScope.launch {
             _userContactsLiveData.value  = ContactsState.Empty
             delay(1000)
@@ -186,10 +189,40 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         val number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
                         contacts.add(PhonebookContact(id,name, number))
+
                         val distinctContact = contacts.distinctBy {
                             it.id
                         }
-                        _userContactsLiveData.value = ContactsState.Success(distinctContact as MutableList<PhonebookContact>)
+
+                        /*
+                        Check if a user's contact has country code or +
+                        if true
+                        add to list
+                        else
+                        append user country code
+                        add to list
+                        */
+
+                        nonStandardContacts.clear()
+                        standardContacts.clear()
+                        distinctContact.forEach {
+                            if (it.number.startsWith("+")){
+                                standardContacts.add(it)
+                            }else{
+                                it.number = "$countryCode${it.number}"
+                                nonStandardContacts.add(it)
+                            }
+
+                        }
+                        Log.d("Standard Numbers", "getPhoneBook: ${standardContacts.size}")
+                        Log.d("Distinct Numbers", "getPhoneBook: ${distinctContact.size}")
+                        Log.d("Non Standard Numbers", "getPhoneBook: ${standardContacts.size}")
+
+//                        standardContacts.forEach {
+//                            Log.d("Standard Numbers", "getPhoneBook: ${it.number}")
+//                        }
+
+                        _userContactsLiveData.value = ContactsState.Success(nonStandardContacts as MutableList<PhonebookContact>)
                         _contactStatus.value = PASSED
                     }
                 }

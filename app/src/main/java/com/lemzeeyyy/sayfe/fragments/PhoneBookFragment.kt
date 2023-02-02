@@ -192,7 +192,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                viewModel.getPhoneBook(requireActivity())
+             //   viewModel.getPhoneBook(requireActivity())
                 viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
                     when(it){
                         is ContactsState.Empty ->{
@@ -268,7 +268,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 return
             }
         }
-    
+
         saveGuardianAngelsListToDb(contacts,requireContext())
 
 
@@ -281,7 +281,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         if (readContactPermission == PackageManager.PERMISSION_GRANTED )
         {
           //  Toast.makeText(requireContext(),"Permission granted",Toast.LENGTH_SHORT).show()
-            viewModel.getPhoneBook(requireActivity())
+            //viewModel.getPhoneBook(requireActivity())
             viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
                 when(it){
                     is ContactsState.Empty ->{
