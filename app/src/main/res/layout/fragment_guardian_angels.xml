@@ -42,7 +42,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:id="@+id/vertical_ellipse"
-            android:src="@drawable/ic_baseline_more_vert_24"
+            android:src="@drawable/empty_guardianlist"
             android:layout_marginEnd="24dp"
             />
 
