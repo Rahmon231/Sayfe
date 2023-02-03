@@ -11,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -36,17 +37,21 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val outgoingAlertDb = Firebase.database
     private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private val collectionReference = database.collection("Guardian Angels")
+    private val userReference = database.collection("Users")
+    private val fAuth = Firebase.auth
 
 
     private val _guardianLiveData = MutableLiveData<GuardianData>()
     val guardianLiveData: LiveData<GuardianData> get() = _guardianLiveData
 
     private var _contactStatus = MutableLiveData<Int>()
-    val currentWeatherStatus: LiveData<Int> get() = _contactStatus
-
+    val contactStatus: LiveData<Int> get() = _contactStatus
 
     private val _userImageUri = MutableLiveData<Uri>()
     val userImageUri : LiveData<Uri> get() = _userImageUri
+
+    private var _currentUserCountryCode = MutableLiveData<String>()
+    val currentUserCountryCode: LiveData<String> get() = _currentUserCountryCode
 
 
 //    private val _userContactsLiveData = MutableLiveData<MutableList<RecipientContact>?>()
@@ -117,11 +122,25 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             }
     }
 
+    private fun getGetCountryCode(currentUserid: String) {
+
+        userReference.whereEqualTo("currentUserId",currentUserid)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                querySnapshot.forEach { queryDocumentSnapshot ->
+                    val users = queryDocumentSnapshot.toObject(Users::class.java)
+                    _currentUserCountryCode.value = users.countryCode
+                    Log.d("COUNTRY CODE FROM METHOD", "getGetCountryCode: ${_currentUserCountryCode.value} ")
+                }
+            }
+
+    }
+
 
     fun getImageUriFromDb(currentUserid: String){
-    var storageRef = FirebaseStorage.getInstance().getReference();
+    val storageRef = FirebaseStorage.getInstance().getReference();
 
-    var imagesRef: StorageReference = storageRef.child("profile_images").child(currentUserid)
+    val imagesRef: StorageReference = storageRef.child("profile_images").child(currentUserid)
     imagesRef.downloadUrl.addOnSuccessListener {
 
         _userImageUri.value = it
@@ -170,9 +189,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         var standardContacts = mutableListOf<PhonebookContact>()
         var nonStandardContacts = mutableListOf<PhonebookContact>()
         var convertedNonStandardContacts = mutableListOf<PhonebookContact>()
-        var countryCode = ""
+        val user = fAuth.currentUser
+        var countryCode : String? = ""
+
+
         viewModelScope.launch {
             _userContactsLiveData.value  = ContactsState.Empty
+            _contactStatus.value = BUSY
+
             delay(1000)
             val contacts : MutableList<PhonebookContact> = ArrayList()
             val cr = context.contentResolver
@@ -187,8 +211,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     while (query.moveToNext()){
                         val id = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NAME_RAW_CONTACT_ID))
                         val name = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                        val number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                        var number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
+                        if (number.startsWith("+")){
+                            number = query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                        }else{
+                            number = "+${query.getString(query.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))}"
+                        }
                         contacts.add(PhonebookContact(id,name, number))
 
                         val distinctContact = contacts.distinctBy {
@@ -204,38 +233,43 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         add to list
                         */
 
-                        countryCode = "234"
-                        nonStandardContacts.clear()
-                        standardContacts.clear()
-                        distinctContact.forEach {
-                            if (it.number.startsWith("+")){
-                                standardContacts.add(it)
-                            }else{
-                                nonStandardContacts.add(it)
-                            }
+                        val currentUserid = user?.uid
+//                        if (currentUserid!=null) {
+//                            getGetCountryCode(currentUserid)
+//                            countryCode = currentUserCountryCode.value
+//                           }
 
-                        }
+//                        nonStandardContacts.clear()
+//                        standardContacts.clear()
+//                        distinctContact.forEach {
+//                            if (it.number.startsWith("+")){
+//                                standardContacts.add(it)
+//                            }else{
+//                                nonStandardContacts.add(it)
+//                            }
+//
+//                        }
 
-                        convertedNonStandardContacts.clear()
-
-                        nonStandardContacts.forEach {
-                            convertedNonStandardContacts.add(PhonebookContact(
-                                it.id,
-                                it.name,
-                                "$countryCode${it.number}",
-                                it.phoneNumber,
-                                it.isChecked)
-                            )
-                        }
-                        convertedNonStandardContacts.addAll(standardContacts)
-
-                        Log.d("Non Standard Numbers", "getPhoneBook: ${standardContacts.size}")
-                        Log.d("Converted Non Standard Numbers", "getPhoneBook: ${convertedNonStandardContacts.size}")
-
-
-
-                        _userContactsLiveData.value = ContactsState.Success(convertedNonStandardContacts as MutableList<PhonebookContact>)
+//                        convertedNonStandardContacts.clear()
+//
+//                        nonStandardContacts.forEach {
+//                            convertedNonStandardContacts.add(PhonebookContact(
+//                                it.id,
+//                                it.name,
+//                                "+$countryCode${it.number}",
+//                                it.phoneNumber,
+//                                it.isChecked)
+//                            )
+//                        }
+//
+//                        convertedNonStandardContacts.addAll(standardContacts)
+//
+//                        convertedNonStandardContacts.distinctBy {
+//                            it.name.toSortedSet()
+//                        }
                         _contactStatus.value = PASSED
+                        _userContactsLiveData.value = ContactsState.Success(distinctContact as MutableList<PhonebookContact>)
+
                     }
                 }
             }

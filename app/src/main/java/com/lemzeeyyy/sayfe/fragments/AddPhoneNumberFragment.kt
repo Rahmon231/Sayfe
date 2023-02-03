@@ -45,12 +45,12 @@ class AddPhoneNumberFragment : Fragment() {
             val phoneString = binding.phoneNumberEt.text!!.toString()
             val countryCode = binding.countryCodeEt.selectedCountryCode.toString()
             val phoneNumber = "+$countryCode$phoneString"
-            savePhoneNumber(view,phoneNumber)
+            savePhoneNumber(view,phoneNumber,countryCode)
         }
     }
 
 
-    private fun savePhoneNumber(view: View, phone: String) {
+    private fun savePhoneNumber(view: View, phone: String,countryCode : String) {
         var addedSuccess = true
         val user = fAuth.currentUser
          val currentUserId = user!!.uid
@@ -66,6 +66,7 @@ class AddPhoneNumberFragment : Fragment() {
                         users.number = users.phoneNumber.filter {
                             !it.isWhitespace()
                         }.takeLast(10)
+                        users.countryCode = countryCode
                         collectionReference.document(snapshot.id)
                             .set(users)
                             .addOnSuccessListener {

@@ -97,10 +97,10 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                     Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
                                 }
 
-                                //Manual SMS Functionality
-//                                fAuth.currentUser?.uid?.let {
-//                                    getGuardianAngelsListFromDb(it)
-//                                }
+                              //  Manual SMS Functionality
+                                fAuth.currentUser?.uid?.let {
+                                    getGuardianAngelsListFromDb(it)
+                                }
                                 fAuth.currentUser?.uid?.let {
                                     getGuardianAngelsAppToken(it)
                                     // alertTriggerId = it
@@ -163,9 +163,12 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact->
                         val scope = CoroutineScope(Job() + Dispatchers.Main)
-                        scope.launch {
-                            sendsms(recipientContact.number,"$senderMessageBody \n$locationUrl")
-                        }
+//                        scope.launch {
+//                            sendsms(recipientContact.number,"$senderMessageBody \n$locationUrl")
+//
+//                        }
+                        sendSMSSOS(recipientContact.number,"$senderMessageBody \n$locationUrl")
+
                     }
                 }
             }
@@ -244,7 +247,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
             }
     }
 
-    private fun sendSMSSOS(phoneNumber : String) {
+    private fun sendSMSSOS(phoneNumber : String,body: String) {
         try {
 
             val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= 23) {
@@ -258,7 +261,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
             smsManager.sendTextMessage(
                         phoneNumber,
                         null,
-                        "SOS! \n$locationUrl",
+                        "$body \n$locationUrl",
                         null,
                         null
                     )

@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -31,12 +32,14 @@ import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.viewmodels.BUSY
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.viewmodels.PASSED
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val REQUEST_CONTACT = 10
 class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     private var contactList = emptyList<PhonebookContact>()
-    private var guardianAngels = emptyList<PhonebookContact>()
 
     private val viewModel: MainActivityViewModel by activityViewModels()
 
@@ -45,8 +48,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Guardian Angels")
-    private var isDuplicate : Boolean = false
-    private var duplicateNumber : String = ""
+
 
 
     override fun onCreateView(
@@ -63,6 +65,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
         fAuth = Firebase.auth
         adapter = PhonebookRecyclerAdapter(this,requireContext())
+
         binding.addGuardianAngel.setOnClickListener {
             adapter.triggerCheckedListInterface()
         }
@@ -74,28 +77,16 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         if (readContactPermission == PackageManager.PERMISSION_GRANTED )
         {
             viewModel.getPhoneBook(requireActivity())
+            viewModel.contactStatus.observe(viewLifecycleOwner){
+                updateContactView(it)
+            }
             viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
                 when(it){
-                    is ContactsState.Empty ->{
-                        binding.phoneBookEmptyState.visibility = View.GONE
-                        binding.addGuardianAngel.visibility = View.VISIBLE
-                        binding.allContactsRecycler.visibility = View.GONE
-                        binding.searchContactTvId.visibility = View.GONE
-                        binding.phonebookShimmer.visibility = View.VISIBLE
-                        binding.phonebookShimmer.startShimmer()
-                    }
                     is ContactsState.Success ->{
-                        binding.phonebookShimmer.visibility = View.GONE
-                        binding.phonebookShimmer.stopShimmer()
-                        binding.phoneBookEmptyState.visibility = View.GONE
-                        binding.addGuardianAngel.visibility = View.VISIBLE
-                        binding.allContactsRecycler.visibility = View.VISIBLE
-                        binding.searchContactTvId.visibility = View.VISIBLE
-                        contactList = it.contacts
-                        adapter.updatePhonebookData(contactList.distinctBy { recipientData->
-                            recipientData.name
-                        })
-
+                                contactList = it.contacts
+                                adapter.updatePhonebookData(contactList.distinctBy { recipientData->
+                                    recipientData.name
+                                })
                     }
                     else -> Unit
 
@@ -103,6 +94,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
 
             }
+
             binding.searchContactId.addTextChangedListener{substring->
                 if (substring.toString().isBlank()){
                     adapter.updatePhonebookData(contactList.distinctBy { distinctContact->
@@ -116,7 +108,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 adapter.updatePhonebookData(filteredContacts)
 
             }
-        } else {
+        }
+        else {
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.WRITE_CONTACTS,
                 android.Manifest.permission.READ_CONTACTS),
                 PERMISSION_REQUEST
@@ -133,12 +126,12 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         when(contactState){
             BUSY ->{
                 binding.phoneBookEmptyState.visibility = View.VISIBLE
-                binding.addGuardianAngel.visibility = View.GONE
-                binding.allContactsRecycler.visibility = View.GONE
-                binding.searchContactTvId.visibility = View.GONE
+                binding.addGuardianAngel.visibility = View.INVISIBLE
+                binding.allContactsRecycler.visibility = View.INVISIBLE
+                binding.searchContactTvId.visibility = View.INVISIBLE
             }
             PASSED->{
-                binding.phoneBookEmptyState.visibility = View.GONE
+                binding.phoneBookEmptyState.visibility = View.INVISIBLE
                 binding.addGuardianAngel.visibility = View.VISIBLE
                 binding.allContactsRecycler.visibility = View.VISIBLE
                 binding.searchContactTvId.visibility = View.VISIBLE
@@ -192,24 +185,31 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-             //   viewModel.getPhoneBook(requireActivity())
+                viewModel.getPhoneBook(requireActivity())
+                viewModel.getPhoneBook(requireActivity())
+                viewModel.contactStatus.observe(viewLifecycleOwner){
+                    updateContactView(it)
+                }
+                viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
+                    when(it){
+                        is ContactsState.Success ->{
+                            contactList = it.contacts
+                            adapter.updatePhonebookData(contactList.distinctBy { recipientData->
+                                recipientData.name
+                            })
+                        }
+                        else -> Unit
+
+                    }
+
+
+                }
                 viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
                     when(it){
                         is ContactsState.Empty ->{
-                            binding.phoneBookEmptyState.visibility = View.GONE
-                            binding.addGuardianAngel.visibility = View.VISIBLE
-                            binding.allContactsRecycler.visibility = View.GONE
-                            binding.searchContactTvId.visibility = View.GONE
-                            binding.phonebookShimmer.visibility = View.VISIBLE
-                            binding.phonebookShimmer.startShimmer()
+
                         }
                         is ContactsState.Success ->{
-                            binding.phonebookShimmer.visibility = View.GONE
-                            binding.phonebookShimmer.stopShimmer()
-                            binding.phoneBookEmptyState.visibility = View.GONE
-                            binding.addGuardianAngel.visibility = View.VISIBLE
-                            binding.allContactsRecycler.visibility = View.VISIBLE
-                            binding.searchContactTvId.visibility = View.VISIBLE
                             contactList = it.contacts
                             adapter.updatePhonebookData(contactList.distinctBy { recipientData->
                                 recipientData.name
@@ -281,24 +281,31 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         if (readContactPermission == PackageManager.PERMISSION_GRANTED )
         {
           //  Toast.makeText(requireContext(),"Permission granted",Toast.LENGTH_SHORT).show()
-            //viewModel.getPhoneBook(requireActivity())
+            viewModel.getPhoneBook(requireActivity())
+            viewModel.contactStatus.observe(viewLifecycleOwner){
+                updateContactView(it)
+            }
+            viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
+                when(it){
+                    is ContactsState.Success ->{
+                        contactList = it.contacts
+                        adapter.updatePhonebookData(contactList.distinctBy { recipientData->
+                            recipientData.name
+                        })
+                    }
+                    else -> Unit
+
+                }
+
+
+            }
+            viewModel.getPhoneBook(requireActivity())
             viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
                 when(it){
                     is ContactsState.Empty ->{
-                        binding.phoneBookEmptyState.visibility = View.GONE
-                        binding.addGuardianAngel.visibility = View.VISIBLE
-                        binding.allContactsRecycler.visibility = View.GONE
-                        binding.searchContactTvId.visibility = View.GONE
-                        binding.phonebookShimmer.visibility = View.VISIBLE
-                        binding.phonebookShimmer.startShimmer()
+
                     }
                     is ContactsState.Success ->{
-                        binding.phonebookShimmer.visibility = View.GONE
-                        binding.phonebookShimmer.stopShimmer()
-                        binding.phoneBookEmptyState.visibility = View.GONE
-                        binding.addGuardianAngel.visibility = View.VISIBLE
-                        binding.allContactsRecycler.visibility = View.VISIBLE
-                        binding.searchContactTvId.visibility = View.VISIBLE
                         contactList = it.contacts
                         adapter.updatePhonebookData(contactList.distinctBy { recipientData->
                             recipientData.name
