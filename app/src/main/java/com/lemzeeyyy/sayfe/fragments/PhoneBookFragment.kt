@@ -48,6 +48,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Guardian Angels")
+    private val usersReference = database.collection("Users")
+
 
 
 
@@ -129,12 +131,16 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 binding.addGuardianAngel.visibility = View.INVISIBLE
                 binding.allContactsRecycler.visibility = View.INVISIBLE
                 binding.searchContactTvId.visibility = View.INVISIBLE
+//                binding.phonebookShimmer.visibility = View.VISIBLE
+//                binding.phonebookShimmer.startShimmer()
             }
             PASSED->{
                 binding.phoneBookEmptyState.visibility = View.INVISIBLE
                 binding.addGuardianAngel.visibility = View.VISIBLE
                 binding.allContactsRecycler.visibility = View.VISIBLE
                 binding.searchContactTvId.visibility = View.VISIBLE
+//                binding.phonebookShimmer.visibility = View.INVISIBLE
+//                binding.phonebookShimmer.stopShimmer()
             }
 
         }
