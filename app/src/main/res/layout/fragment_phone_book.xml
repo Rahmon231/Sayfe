@@ -51,12 +51,42 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Saving Guardian Angels...."
+        android:textColor="@color/white"
+        app:fontFamily="@font/outfit_medium"
+        android:textSize="24dp"
+        android:visibility="gone"
+        android:id="@+id/phone_book_saving_state"
+        android:fontFamily="@font/outfit_regular"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:text="Contacts Empty....."
         android:textColor="@color/white"
         app:fontFamily="@font/outfit_medium"
         android:textSize="24dp"
         android:visibility="gone"
         android:id="@+id/phone_book_empty_state"
+        android:fontFamily="@font/outfit_regular"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Failed....."
+        android:textColor="@color/white"
+        app:fontFamily="@font/outfit_medium"
+        android:textSize="24dp"
+        android:visibility="gone"
+        android:id="@+id/phone_book_failed_state"
         android:fontFamily="@font/outfit_regular"/>
 
 

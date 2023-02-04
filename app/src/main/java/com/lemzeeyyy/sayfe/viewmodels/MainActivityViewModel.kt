@@ -235,8 +235,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                                     }
                                     contacts.add(PhonebookContact(id,name, number))
 
-                                    val distinctContact = contacts.distinctBy {
-                                        it.id
+                                    val distinctContact = contacts.distinctBy { distinct ->
+                                        distinct.id
                                     }
                                     if (distinctContact.isEmpty()){
                                         _contactStatus.value = EMPTY

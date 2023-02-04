@@ -133,6 +133,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 binding.addGuardianAngel.visibility = View.INVISIBLE
                 binding.allContactsRecycler.visibility = View.INVISIBLE
                 binding.searchContactTvId.visibility = View.INVISIBLE
+                binding.phoneBookSavingState.visibility = View.INVISIBLE
+                binding.phoneBookFailedState.visibility = View.INVISIBLE
             }
             EMPTY ->{
                 binding.phoneBookEmptyState.visibility = View.VISIBLE
@@ -140,6 +142,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 binding.addGuardianAngel.visibility = View.INVISIBLE
                 binding.allContactsRecycler.visibility = View.INVISIBLE
                 binding.searchContactTvId.visibility = View.INVISIBLE
+                binding.phoneBookSavingState.visibility = View.INVISIBLE
+                binding.phoneBookFailedState.visibility = View.INVISIBLE
             }
 
             PASSED->{
@@ -148,6 +152,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 binding.addGuardianAngel.visibility = View.VISIBLE
                 binding.allContactsRecycler.visibility = View.VISIBLE
                 binding.searchContactTvId.visibility = View.VISIBLE
+                binding.phoneBookSavingState.visibility = View.INVISIBLE
+                binding.phoneBookFailedState.visibility = View.INVISIBLE
             }
 
 
@@ -159,6 +165,13 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         val user = fAuth.currentUser
         val currentUserId = user?.uid
         if (currentUserId != null) {
+            binding.phoneBookSavingState.visibility = View.VISIBLE
+            binding.phoneBookLoadingState.visibility = View.INVISIBLE
+            binding.phoneBookEmptyState.visibility = View.INVISIBLE
+            binding.phoneBookLoadingState.visibility = View.INVISIBLE
+            binding.addGuardianAngel.visibility = View.INVISIBLE
+            binding.allContactsRecycler.visibility = View.INVISIBLE
+            binding.searchContactTvId.visibility = View.INVISIBLE
             collectionReference.document(currentUserId)
                 .get()
                 .addOnSuccessListener {
@@ -168,11 +181,25 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                             .document(currentUserId)
                             .set(GuardianData(checkedList))
                             .addOnSuccessListener {
+                                binding.phoneBookFailedState.visibility = View.INVISIBLE
+                                binding.phoneBookEmptyState.visibility = View.INVISIBLE
+                                binding.phoneBookLoadingState.visibility = View.INVISIBLE
+                                binding.addGuardianAngel.visibility = View.VISIBLE
+                                binding.allContactsRecycler.visibility = View.VISIBLE
+                                binding.searchContactTvId.visibility = View.VISIBLE
+                                binding.phoneBookSavingState.visibility = View.VISIBLE
                                 Toast.makeText(context,"Guardian angels added successfully",Toast.LENGTH_SHORT)
                                     .show()
                                 findNavController().navigateUp()
                             }
                             .addOnFailureListener {
+                                binding.phoneBookFailedState.visibility = View.VISIBLE
+                                binding.phoneBookEmptyState.visibility = View.INVISIBLE
+                                binding.phoneBookLoadingState.visibility = View.INVISIBLE
+                                binding.addGuardianAngel.visibility = View.INVISIBLE
+                                binding.allContactsRecycler.visibility = View.INVISIBLE
+                                binding.searchContactTvId.visibility = View.INVISIBLE
+                                binding.phoneBookSavingState.visibility = View.INVISIBLE
                                 Toast.makeText(context,"Unable to add guardian angels",Toast.LENGTH_SHORT)
                                     .show()
                             }
@@ -199,7 +226,6 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                viewModel.getPhoneBook(requireActivity())
                 viewModel.getPhoneBook(requireActivity())
                 viewModel.contactStatus.observe(viewLifecycleOwner){
                     updateContactView(it)
@@ -256,6 +282,10 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 }
             } else {
                 //ask for permission
+                ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.WRITE_CONTACTS,
+                    android.Manifest.permission.READ_CONTACTS),
+                    PERMISSION_REQUEST
+                )
             }
         }
     }
