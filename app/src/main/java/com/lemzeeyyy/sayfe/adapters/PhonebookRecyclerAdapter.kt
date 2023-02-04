@@ -43,7 +43,10 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
     }
 
     fun triggerCheckedListInterface(){
-        checkedContactListener.onContactClick(checkedList,checkedListFromDb)
+        if (checkedList.isNotEmpty()) {
+            checkedContactListener.onContactClick(checkedList, checkedListFromDb)
+        }else
+            Toast.makeText(context,"You haven't checked any contact",Toast.LENGTH_SHORT).show()
     }
 
 
