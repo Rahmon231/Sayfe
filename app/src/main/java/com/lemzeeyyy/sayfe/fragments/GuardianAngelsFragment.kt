@@ -21,13 +21,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.EmptyGuardiansListFragment
-import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.adapters.GuardianAngelAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentGuardianAngelsBinding
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
+import com.lemzeeyyy.sayfe.viewmodels.*
 
 
 class GuardianAngelsFragment : Fragment() {
@@ -54,18 +54,24 @@ class GuardianAngelsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
         val user = fAuth.currentUser
-        val currentUserId = user!!.uid
+        val currentUserId = user?.uid
         adapter = GuardianAngelAdapter()
-        viewModel.getGuardianAngelsListFromDb(currentUserId)
+        viewModel.guardianAngelsStatus.observe(viewLifecycleOwner){
+            updateGuardianAngelsView(it)
+        }
+        if (currentUserId != null) {
+            viewModel.getGuardianAngelsListFromDb(currentUserId)
+        }
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
             val dataList = it.guardianInfo
-            if (dataList.isEmpty()){
-                binding.guardianListEmptyState.visibility = View.VISIBLE
-                binding.verticalEllipse.visibility = View.GONE
-            }else{
-                binding.guardianListEmptyState.visibility = View.GONE
-                binding.verticalEllipse.visibility = View.VISIBLE
-            }
+//            if (dataList.isEmpty()){
+//                binding.guardianListEmptyState.visibility = View.VISIBLE
+//                binding.verticalEllipse.visibility = View.GONE
+//            }else{
+//
+//                binding.guardianListEmptyState.visibility = View.GONE
+//                binding.verticalEllipse.visibility = View.VISIBLE
+//            }
             adapter.updateGuardianAngelsList(dataList.toMutableList())
         }
         binding.guardianContactsRecycler.adapter = adapter
@@ -146,6 +152,40 @@ class GuardianAngelsFragment : Fragment() {
         val dialog = EmptyGuardiansListFragment()
         dialog.setCancelable(true)
         dialog.show(childFragmentManager, "NOTIFICATION SHEET")
+    }
+
+    private fun updateGuardianAngelsView(contactState: Int?) {
+        if (contactState == null)
+            return
+
+        when(contactState){
+            BUSY ->{
+               binding.guardianLoadingState.visibility = View.VISIBLE
+                binding.contactListRelGuar.visibility = View.INVISIBLE
+                binding.guardianContactsRecycler.visibility = View.INVISIBLE
+            }
+            EMPTY ->{
+                binding.guardianListEmptyState.visibility = View.VISIBLE
+                binding.verticalEllipse.visibility = View.GONE
+            }
+            PASSED ->{
+                binding.guardianContactsRecycler.visibility = View.VISIBLE
+                binding.guardianListEmptyState.visibility = View.INVISIBLE
+                binding.contactListRelGuar.visibility = View.VISIBLE
+                binding.guardianListEmptyState.visibility = View.INVISIBLE
+                binding.guardianLoadingState.visibility = View.INVISIBLE
+            }
+            FAILED -> {
+                binding.guardianFailedState.visibility = View.VISIBLE
+                binding.guardianListEmptyState.visibility = View.INVISIBLE
+                binding.contactListRelGuar.visibility = View.INVISIBLE
+                binding.guardianContactsRecycler.visibility = View.INVISIBLE
+                binding.guardianListEmptyState.visibility = View.INVISIBLE
+                binding.guardianLoadingState.visibility = View.INVISIBLE
+            }
+
+        }
+
     }
 
     private fun saveGuardianAngelsToDb(checkedList: MutableList<PhonebookContact>, context: Context) {

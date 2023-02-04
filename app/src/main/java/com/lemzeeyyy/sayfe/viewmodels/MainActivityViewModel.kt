@@ -31,6 +31,8 @@ import kotlinx.coroutines.launch
 
 const val BUSY = 1
 const val PASSED = 2
+const val EMPTY = 3
+const val FAILED = 4
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -47,6 +49,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private var _contactStatus = MutableLiveData<Int>()
     val contactStatus: LiveData<Int> get() = _contactStatus
+
+    private var _guardianAngelsStatus = MutableLiveData<Int>()
+    val guardianAngelsStatus: LiveData<Int> get() = _guardianAngelsStatus
 
     private val _userImageUri = MutableLiveData<Uri>()
     val userImageUri : LiveData<Uri> get() = _userImageUri
@@ -107,19 +112,25 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
 
     fun getGuardianAngelsListFromDb(currentUserid: String) {
-
+        _guardianAngelsStatus.value = BUSY
         collectionReference.document(currentUserid)
             .get()
             .addOnSuccessListener {
-
                 val data = it.toObject(GuardianData::class.java)
-
                 data?.let { guardianData ->
                     _guardianLiveData.value = guardianData
+                    _guardianLiveData.value?.guardianInfo?.let { guardianList->
+                        if (guardianList.isEmpty()){
+                            _guardianAngelsStatus.value = EMPTY
+                        }else{
+                            _guardianAngelsStatus.value = PASSED
+                        }
+                    }
+
                 }
             }
             .addOnFailureListener {
-
+                _guardianAngelsStatus.value = FAILED
             }
     }
 
@@ -227,8 +238,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                                     val distinctContact = contacts.distinctBy {
                                         it.id
                                     }
+                                    if (distinctContact.isEmpty()){
+                                        _contactStatus.value = EMPTY
+                                    }else{
+                                        _contactStatus.value = PASSED
+                                    }
 
-                                    _contactStatus.value = PASSED
+
                                     _userContactsLiveData.value = ContactsState.Success(distinctContact as MutableList<PhonebookContact>)
 
                                 }
