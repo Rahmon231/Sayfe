@@ -103,7 +103,6 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
 
         }
 
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhonebookViewHolder {
@@ -118,8 +117,6 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
 
         holder.checkBox.isChecked = checkedItem.isChecked
     }
-
-
 
 
     override fun getItemCount(): Int {
