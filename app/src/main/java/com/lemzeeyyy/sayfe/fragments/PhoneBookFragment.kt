@@ -30,6 +30,7 @@ import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.viewmodels.BUSY
+import com.lemzeeyyy.sayfe.viewmodels.EMPTY
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.viewmodels.PASSED
 import kotlinx.coroutines.CoroutineScope
@@ -127,21 +128,28 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
         when(contactState){
             BUSY ->{
-                binding.phoneBookEmptyState.visibility = View.VISIBLE
+                binding.phoneBookEmptyState.visibility = View.INVISIBLE
+                binding.phoneBookLoadingState.visibility = View.VISIBLE
                 binding.addGuardianAngel.visibility = View.INVISIBLE
                 binding.allContactsRecycler.visibility = View.INVISIBLE
                 binding.searchContactTvId.visibility = View.INVISIBLE
-//                binding.phonebookShimmer.visibility = View.VISIBLE
-//                binding.phonebookShimmer.startShimmer()
             }
+            EMPTY ->{
+                binding.phoneBookEmptyState.visibility = View.VISIBLE
+                binding.phoneBookLoadingState.visibility = View.INVISIBLE
+                binding.addGuardianAngel.visibility = View.INVISIBLE
+                binding.allContactsRecycler.visibility = View.INVISIBLE
+                binding.searchContactTvId.visibility = View.INVISIBLE
+            }
+
             PASSED->{
                 binding.phoneBookEmptyState.visibility = View.INVISIBLE
+                binding.phoneBookLoadingState.visibility = View.INVISIBLE
                 binding.addGuardianAngel.visibility = View.VISIBLE
                 binding.allContactsRecycler.visibility = View.VISIBLE
                 binding.searchContactTvId.visibility = View.VISIBLE
-//                binding.phonebookShimmer.visibility = View.INVISIBLE
-//                binding.phonebookShimmer.stopShimmer()
             }
+
 
         }
 
@@ -212,9 +220,14 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 }
                 viewModel.userContactsLiveDataList.observe(viewLifecycleOwner) {
                     when(it){
+
                         is ContactsState.Empty ->{
 
                         }
+                        is ContactsState.Failure ->{
+
+                        }
+
                         is ContactsState.Success ->{
                             contactList = it.contacts
                             adapter.updatePhonebookData(contactList.distinctBy { recipientData->
