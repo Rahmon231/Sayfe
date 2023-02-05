@@ -8,6 +8,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -17,6 +18,7 @@ import android.os.CountDownTimer
 import android.provider.Settings
 import android.telephony.SmsManager
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,17 +35,37 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firestore.v1.StructuredAggregationQuery.Aggregation.Count
+import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.AccessibilityServiceSettings
-import com.lemzeeyyy.sayfe.EmptyGuardiansListFragment
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
 import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.FragmentDashboardBinding
+import com.lemzeeyyy.sayfe.model.GuardianData
+import com.lemzeeyyy.sayfe.model.OutgoingAlertData
+import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
+import com.lemzeeyyy.sayfe.service.NOTIFICATION_URL
+import com.lemzeeyyy.sayfe.service.WEB_KEY
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONObject
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.sqrt
 
 const val LOCATION_PERMISSION = 2001
@@ -57,6 +79,8 @@ class DashboardFragment : Fragment() {
 
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Users")
+    private val guardianCollection = database.collection("Guardian Angels")
+
 
     // private var imageUri : Uri = Uri.EMPTY
     private lateinit var backPressedCallback: OnBackPressedCallback
@@ -68,6 +92,16 @@ class DashboardFragment : Fragment() {
     private var longitude: Double = 0.0
     private var locationUrl: String = ""
     private var exitAppToastStillShowing = false
+    private var senderName : String =""
+    private var senderMessageBody : String =""
+    private var guardianList = mutableListOf<PhonebookContact>()
+    private var outgoingDataList = mutableListOf<OutgoingAlertData>()
+    private val outgoingAlertDb = Firebase.database
+    private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
+    private var listItem = mutableListOf<Int>()
+    private var shakeTrigger : Boolean = false
+    private var volumeTrigger : Boolean = false
+    private var tapTrigger : Boolean = false
 
     private val exitAppTimer = object : CountDownTimer(2000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
@@ -125,6 +159,9 @@ class DashboardFragment : Fragment() {
 
 
         SharedPrefs.init(requireContext())
+         shakeTrigger = SharedPrefs.getBoolean("shake", false)
+         volumeTrigger = SharedPrefs.getBoolean("volume", false)
+         tapTrigger = SharedPrefs.getBoolean("tap", false)
 
         if (SharedPrefs.getBoolean("shake", false)) {
             binding.triggerModeText.setText("Shake your phone to trigger Sayfe")
@@ -138,9 +175,13 @@ class DashboardFragment : Fragment() {
         }
 
 
+
+
         fAuth = Firebase.auth
         val user = fAuth.currentUser
         val currentUserId = user?.uid
+
+
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -172,6 +213,7 @@ class DashboardFragment : Fragment() {
         binding.sosTextsDashboard.setOnClickListener {
             findNavController().navigate(R.id.sosTextFragment)
         }
+        getDoubleVolumeTap()
 
 
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -185,9 +227,126 @@ class DashboardFragment : Fragment() {
         acceleration = 10f
         currentAcceleration = SensorManager.GRAVITY_EARTH
         lastAcceleration = SensorManager.GRAVITY_EARTH
+
     }
 
 
+    private fun sendPushNotifier(users: Users, data: OutgoingAlertData) {
+
+        val body = Gson().toJson(data)
+
+        val jsonObj = JSONObject()
+        jsonObj.put("to", users.appToken)
+        //jsonObj.put("notification", jsonNotifier)
+        jsonObj.put("data", JSONObject(body))
+        jsonObj.put("title",data)
+        val request = okhttp3.Request.Builder()
+            .url(NOTIFICATION_URL)
+            .addHeader("Content-Type", "application/json")
+            .addHeader(
+                "Authorization",
+                WEB_KEY
+            )
+            .post(
+                jsonObj.toString().toRequestBody(
+                    "application/json; charset=utf-8".toMediaType()
+                )
+            ).build()
+
+        val logger = HttpLoggingInterceptor()
+        logger.level = HttpLoggingInterceptor.Level.BASIC
+        OkHttpClient.Builder().addInterceptor(logger)
+            .connectTimeout(120, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .build().newCall(request)
+            .enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.d("CLOUD_MSG", "onFailure-- $e")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    Log.d(
+                        "CLOUD_MSG", "onResponse-- $response +++ " +
+                                "${call.isExecuted()}====${response.isSuccessful}" +
+                                "--${response.code}===${response.body.toString()}" +
+                                "=${response.message}"
+                    )
+                }
+            })
+    }
+
+    private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
+        //8106811525
+        collectionReference.whereEqualTo("currentUserId",currentUserid)
+            .addSnapshotListener { value, error ->
+                value?.let {
+                    if(!it.isEmpty){
+                        for (snapshot : QueryDocumentSnapshot in value){
+                            val currentUser = snapshot.toObject(Users::class.java)
+                            senderName = currentUser.fullName
+                            senderMessageBody = currentUser.userSOSText
+
+                            Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
+                        }
+                    }
+                }
+            }
+        guardianCollection.document(currentUserid)
+            .get()
+            .addOnSuccessListener {
+                val data = it.toObject(GuardianData::class.java)
+                data?.let { guardianData ->
+                    guardianList = guardianData.guardianInfo
+                    guardianList.forEach {recipientContact ->
+
+                        collectionReference.whereEqualTo("number",recipientContact.number)
+                            .get()
+                            .addOnSuccessListener {querySnapshot ->
+                                querySnapshot.forEach {queryDocumentSnapshot ->
+                                    val users = queryDocumentSnapshot.toObject(Users::class.java)
+                                    val appToken = users.appToken
+                                    val userName = users.fullName
+                                    AccessibilityKeyDetector.appTokenList.add(appToken)
+                                    Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${AccessibilityKeyDetector.appTokenList}")
+                                    var cityName: String = ""
+                                    val geoCoder = Geocoder(requireContext(), Locale.getDefault())
+                                    val address = geoCoder.getFromLocation(latitude,longitude,1)
+                                    if (address != null) {
+                                        cityName = address[0].adminArea
+                                        if (cityName == null){
+                                            cityName = address[0].locality
+                                            if (cityName == null){
+                                                cityName = address[0].subAdminArea
+                                            }
+                                        }
+                                    }
+                                    Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
+                                    val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                                    val currentDate = sdf.format(Date())
+
+                                    val outgoingAlertData = OutgoingAlertData(senderName,
+                                        locationUrl,currentDate,"Sayfe SOS Alert",cityName)
+
+                                    outgoingDataList.add(outgoingAlertData)
+                                    saveOutgoingAlertToDb(currentUserid, outgoingDataList)
+                                    sendPushNotifier(users,outgoingAlertData)
+
+                                }
+                            }
+                            .addOnFailureListener{exception ->
+                                Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${exception.toString()}")
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener {
+
+            }
+    }
+
+    private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
+        myRef.child(currentUserid).setValue(outgoingAlertDataList)
+    }
 
     private fun getCurrentLocation() {
         if (checkPermissions()) {
@@ -295,8 +454,13 @@ class DashboardFragment : Fragment() {
 
 
 
-     fun sendSMSSOS() {
-        val currentUserId = fAuth.currentUser!!.uid
+     private fun sendSMSSOS() {
+
+         //Once triggered, check if guardian angels have app token, then send notification, else send only sms
+        val currentUserId = fAuth.currentUser?.uid
+         if (currentUserId != null) {
+             getGuardianAngelsAppTokenAndSendNotification(currentUserId)
+         }
         try {
 
             val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= 23) {
@@ -307,7 +471,9 @@ class DashboardFragment : Fragment() {
                 SmsManager.getDefault()
             }
 
-            viewModel.getGuardianAngelsListFromDb(currentUserId)
+            if (currentUserId != null) {
+                viewModel.getGuardianAngelsListFromDb(currentUserId)
+            }
             viewModel.guardianLiveData.observe(viewLifecycleOwner) {
                 val dataList = it.guardianInfo
 
@@ -333,16 +499,45 @@ class DashboardFragment : Fragment() {
         }
     }
 
+    private fun getDoubleVolumeTap(){
+        val timer = object : CountDownTimer(300,300){
+            override fun onTick(millisUntilFinished: Long) {
+                listItem.add(1)
+                Log.d("KOUNTER", "onTick: ${listItem.size}")
+                if (listItem.size == 2){
+                    if (!checkAccessibilityPermission() && volumeTrigger){
+                        Toast.makeText(requireContext(),"Volume Up Twice Detected",Toast.LENGTH_SHORT).show()
+                        sendSMSSOS()
+                    }
+                }
+            }
+
+            override fun onFinish() {
+                listItem.clear()
+            }
+
+        }
+        timer.start()
+    }
+
     fun triggerSayfe() {
         SharedPrefs.init(requireContext())
         val shakeTrigger = SharedPrefs.getBoolean("shake", false)
         val volumeTrigger = SharedPrefs.getBoolean("volume", false)
         val tapTrigger = SharedPrefs.getBoolean("tap", false)
 
-        if (shakeTrigger) {
-            sendSMSSOS()
-            return
+        if (!checkAccessibilityPermission()){
+            if (shakeTrigger) {
+                sendSMSSOS()
+                return
+            }
+            if (volumeTrigger){
+                getDoubleVolumeTap()
+                return
+            }
         }
+
+
 
     }
 
@@ -363,8 +558,10 @@ class DashboardFragment : Fragment() {
             acceleration = acceleration * 0.9f + delta
 
             if (acceleration > 12) {
-                Toast.makeText(requireContext(), "Shake event detected", Toast.LENGTH_SHORT).show()
-                triggerSayfe()
+               if (!checkAccessibilityPermission() && shakeTrigger){
+                   Toast.makeText(requireContext(), "Shake event detected", Toast.LENGTH_SHORT).show()
+                   sendSMSSOS()
+               }
                 return
             }
         }
@@ -431,4 +628,6 @@ class DashboardFragment : Fragment() {
 
 
     }
+
 }
+

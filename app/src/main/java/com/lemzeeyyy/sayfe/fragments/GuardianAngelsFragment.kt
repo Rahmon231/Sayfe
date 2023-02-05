@@ -64,14 +64,6 @@ class GuardianAngelsFragment : Fragment() {
         }
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
             val dataList = it.guardianInfo
-//            if (dataList.isEmpty()){
-//                binding.guardianListEmptyState.visibility = View.VISIBLE
-//                binding.verticalEllipse.visibility = View.GONE
-//            }else{
-//
-//                binding.guardianListEmptyState.visibility = View.GONE
-//                binding.verticalEllipse.visibility = View.VISIBLE
-//            }
             adapter.updateGuardianAngelsList(dataList.toMutableList())
         }
         binding.guardianContactsRecycler.adapter = adapter
@@ -97,6 +89,9 @@ class GuardianAngelsFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                viewModel.guardianAngelsStatus.observe(viewLifecycleOwner){
+                    updateGuardianAngelsView(it)
+                }
                 viewModel.guardianLiveData.observe(viewLifecycleOwner){
                     val contacts = it.guardianInfo
                     val deletedContacts = contacts[viewHolder.adapterPosition]

@@ -56,8 +56,6 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
         var phoneName = itemView.findViewById<TextView>(R.id.contact_name_id)
         var checkBox = itemView.findViewById<CheckBox>(R.id.choose_contact_checkbox)
 
-
-
         init {
             fAuth = Firebase.auth
             val user = fAuth.currentUser

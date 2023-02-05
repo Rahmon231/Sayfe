@@ -206,7 +206,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             _userContactsLiveData.value  = ContactsState.Empty
             _contactStatus.value = BUSY
             delay(1000)
-
             userReference.whereEqualTo("currentUserId",currentUserid)
                 .get()
                 .addOnSuccessListener {
@@ -248,9 +247,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                                     _userContactsLiveData.value = ContactsState.Success(distinctContact as MutableList<PhonebookContact>)
 
                                 }
+                                query.close()
                             }
                         }
-                        query?.close()
+
                     }
                 }.addOnFailureListener {
                     Log.d("TAG", "getPhoneBook: ${it.message.toString()}")

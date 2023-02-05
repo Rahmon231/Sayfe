@@ -18,11 +18,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.ActivityMainBinding
 
+const val DOUBLE_CLICK_TIME_DELTA = 300
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding : ActivityMainBinding
 
     private lateinit var navController: NavController
+
+    private var lastClickTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,11 +75,20 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
 
-        Log.d("AccessKeyDetector","Key pressed");
-        return super.onKeyDown(keyCode, event)
-    }
+//    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+//        val clickTime = System.currentTimeMillis()
+//        if (keyCode.equals(KeyEvent.KEYCODE_VOLUME_UP)){
+//            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+//                Toast.makeText(this@MainActivity,"Volume Up Tapped Twice",Toast.LENGTH_SHORT).show()
+//
+//            }
+//
+//        }
+//        lastClickTime = clickTime
+//
+//        return super.onKeyUp(keyCode, event)
+//    }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)

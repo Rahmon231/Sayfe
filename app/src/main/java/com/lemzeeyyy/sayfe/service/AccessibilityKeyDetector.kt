@@ -18,12 +18,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.database.SharedPrefs
@@ -102,7 +99,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                     getGuardianAngelsListFromDb(it)
                                 }
                                 fAuth.currentUser?.uid?.let {
-                                    getGuardianAngelsAppToken(it)
+                                    getGuardianAngelsAppTokenAndSendNotification(it)
                                     // alertTriggerId = it
                                 }
                             }
@@ -177,7 +174,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
             }
     }
 
-    private fun getGuardianAngelsAppToken(currentUserid: String){
+    private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
         alertTriggerId = currentUserid
         //8106811525
         usersCollection.whereEqualTo("currentUserId",currentUserid)
