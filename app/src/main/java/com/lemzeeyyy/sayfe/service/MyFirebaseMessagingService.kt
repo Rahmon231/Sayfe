@@ -24,6 +24,7 @@ import com.lemzeeyyy.sayfe.fragments.DashboardFragment
 import com.lemzeeyyy.sayfe.model.IncomingAlertData
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.alertTriggerId
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.appTokenList
 
 const val CHANNEL_ID = "notification_id"
@@ -31,9 +32,9 @@ const val CHANNEL_NAME = "notification channel name"
 const val NOTIFICATION_TITLE = "Title"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Sayfe Description"
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    private val outgoingAlertDb = Firebase.database
+    private val incomingAlertDb = Firebase.database
     private val fAuth = Firebase.auth
-    private val myRef = outgoingAlertDb.getReference("IncomingAlerts")
+    private val myRef = incomingAlertDb.getReference("IncomingAlerts")
     private var incomingDataList = mutableListOf<IncomingAlertData>()
 
     override fun onNewToken(token: String) {
@@ -44,14 +45,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         Log.d("apptokencheck", "onMessageReceived: $appTokenList ")
-        message.data["alertBody"]?.let { generateNotification(it,"Body") }
-        val incomingAlertData = message.data["alertBody"]?.let {
-            message.data["title"]?.let { it1 ->
-                message.data["location"]?.let { it2 ->
-                    message.data["senderName"]?.let { it3 ->
-                        message.data["timestamp"]?.let { it4 ->
+        message.data["alertBody"]?.let { generateNotification("Body",it) }
+        val incomingAlertData = message.data["alertBody"]?.let {body ->
+            message.data["title"]?.let { title ->
+                message.data["location"]?.let { locationUrl ->
+                    message.data["senderName"]?.let { senderName ->
+                        message.data["timestamp"]?.let { timeStamp ->
                             IncomingAlertData(
-                                it3, it, it4, it1, it2
+                                senderName, body, timeStamp, title, locationUrl
                             )
                         }
                     }
@@ -62,7 +63,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         if (incomingAlertData != null) {
             incomingDataList.add(incomingAlertData)
         }
-        Log.d("tiger", "onMessageReceived: $incomingDataList")
+        Log.d("check Message", "onMessageReceived: $incomingDataList")
         saveIncomingAlertToDb(incomingDataList)
     }
 
@@ -99,6 +100,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setVibrate(longArrayOf(1000,1000,1000,1000))
             .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
+            .setContentTitle(title)
+
 
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -142,7 +145,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun saveIncomingAlertToDb(incomingAlertDataList: MutableList<IncomingAlertData>){
         fAuth.currentUser?.uid?.let { myRef.child(it).setValue(incomingAlertDataList) }
-
     }
 
 
