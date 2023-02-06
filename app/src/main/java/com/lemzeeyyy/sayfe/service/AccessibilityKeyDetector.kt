@@ -173,24 +173,24 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
             }
     }
-
-    private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
-        alertTriggerId = currentUserid
-        //8106811525
+    private fun getSenderNameAndSosBody(currentUserid: String){
         usersCollection.whereEqualTo("currentUserId",currentUserid)
             .addSnapshotListener { value, error ->
                 value?.let {
                     if(!it.isEmpty){
-                       for (snapshot : QueryDocumentSnapshot in value){
-                           val currentUser = snapshot.toObject(Users::class.java)
+                        for (snapshot : QueryDocumentSnapshot in value){
+                            val currentUser = snapshot.toObject(Users::class.java)
                             senderName = currentUser.fullName
-                           senderMessageBody = currentUser.userSOSText
-
-                           Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
-                       }
+                            senderMessageBody = currentUser.userSOSText
+                        }
                     }
                 }
             }
+    }
+
+    private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
+        alertTriggerId = currentUserid
+        getSenderNameAndSosBody(currentUserid)
         collectionReference.document(currentUserid)
             .get()
             .addOnSuccessListener {
@@ -198,16 +198,16 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact ->
-
-                     usersCollection.whereEqualTo("number",recipientContact.number)
+                        usersCollection.whereEqualTo("number",recipientContact.number)
                          .get()
                          .addOnSuccessListener {querySnapshot ->
                          querySnapshot.forEach {queryDocumentSnapshot ->
                              val users = queryDocumentSnapshot.toObject(Users::class.java)
-                            val appToken = users.appToken
+                             val appToken = users.appToken
                              val userName = users.fullName
+                             Log.d("USER APP TOKEN", "getGuardianAngelsAppTokenAndSendNotification: $appToken")
+                             Log.d("USER NAME", "getGuardianAngelsAppTokenAndSendNotification: $userName")
                              appTokenList.add(appToken)
-                             Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${appTokenList}")
                              var cityName: String = ""
                              val geoCoder = Geocoder(this, Locale.getDefault())
                              val address = geoCoder.getFromLocation(latitude,longitude,1)
@@ -220,22 +220,18 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                      }
                                  }
                              }
-                             Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
                              val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                              val currentDate = sdf.format(Date())
-
-                             val outgoingAlertData = OutgoingAlertData(senderName,
-                                 locationUrl,currentDate,"Sayfe SOS Alert",cityName)
-
+                             val outgoingAlertData = OutgoingAlertData(senderName,locationUrl,currentDate,"Sayfe SOS Alert",cityName)
                              outgoingDataList.add(outgoingAlertData)
                              saveOutgoingAlertToDb(currentUserid, outgoingDataList)
                              sendPushNotifier(users,outgoingAlertData)
-
                          }
                      }
-                         .addOnFailureListener{exception ->
+                            .addOnFailureListener{exception ->
                              Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${exception.toString()}")
                          }
+                        appTokenList.clear()
                     }
                 }
             }
