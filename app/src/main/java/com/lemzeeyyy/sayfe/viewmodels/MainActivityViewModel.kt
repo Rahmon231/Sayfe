@@ -3,15 +3,14 @@ package com.lemzeeyyy.sayfe.viewmodels
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -24,9 +23,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.lemzeeyyy.sayfe.model.*
-import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val BUSY = 1
@@ -42,6 +38,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val collectionReference = database.collection("Guardian Angels")
     private val userReference = database.collection("Users")
     private val fAuth = Firebase.auth
+    private var isUserRegistered = false
 
 
     private val _guardianLiveData = MutableLiveData<GuardianData>()
@@ -62,6 +59,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private var _currentUserCountryCode = MutableLiveData<String>()
     val currentUserCountryCode: LiveData<String> get() = _currentUserCountryCode
 
+    private var _phoneNumber = MutableLiveData<String>()
+    val phoneNumber: LiveData<String> get() = _phoneNumber
+
 
 //    private val _userContactsLiveData = MutableLiveData<MutableList<RecipientContact>?>()
 //    val userContactsLiveDataList : LiveData<MutableList<RecipientContact>?> get() = _userContactsLiveData
@@ -76,6 +76,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private val _incomingAlertListLiveData = MutableLiveData<MutableList<IncomingAlertData>?>()
     val incomingAlertListLiveData : LiveData<MutableList<IncomingAlertData>?> get() = _incomingAlertListLiveData
+
+    private val _isRegistered = MutableLiveData<Boolean>()
+    val isRegistered: LiveData<Boolean> get() = _isRegistered
+
+    private val _isSaved = MutableLiveData<Boolean>()
+    val isSaved: LiveData<Boolean> get() = _isSaved
 
 
     fun getOutgoingAlertList(){
@@ -115,6 +121,25 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun updateShouldNavActivity(navigate : Boolean){
         _navigateToActivity.value = navigate
+    }
+
+    fun checkDuplicateRegisteredNumber(phoneNumber: String){
+        isUserRegistered = false
+        userReference.get().addOnSuccessListener { querySnapshot ->
+                querySnapshot.forEach { queryDocumentSnapshot ->
+                val users = queryDocumentSnapshot.toObject(Users::class.java)
+                    // Log.d("PHONE NUMBS", "CheckDuplicateRegisteredNumber: ${users.phoneNumber}")
+                   if (users.phoneNumber == phoneNumber){
+                       isUserRegistered = true
+                       return@forEach
+                   }
+                }
+
+            _isRegistered.value = isUserRegistered
+        }
+
+
+
     }
 
 
