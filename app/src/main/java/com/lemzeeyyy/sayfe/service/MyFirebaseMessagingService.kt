@@ -88,12 +88,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun generateNotification(title : String, message : String){
         val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("OPENEDBYNOTIFICATION",true)
         intent.action = "ACTIVITIES"
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(this,0,intent, PendingIntent.FLAG_IMMUTABLE)
-
         //channel id, channel name
-
         val builder : NotificationCompat.Builder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setAutoCancel(true)
             .setSmallIcon(R.drawable.ic_launcher_background)
@@ -101,9 +100,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
             .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
 
-
-        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+  val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,

@@ -5,17 +5,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.lemzeeyyy.sayfe.adapters.OutgoingAlertsRecyclerAdapter
 import com.lemzeeyyy.sayfe.adapters.ViewPagerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentActivitiesBinding
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
-
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 
 class ActivitiesFragment : Fragment() {
    private lateinit var binding : FragmentActivitiesBinding
-    val tab_items = arrayOf("Incoming Alerts", "Outgoing Alerts")
+    private val tab_items = arrayOf("Incoming Alerts", "Outgoing Alerts")
+    private val viewModel: MainActivityViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -31,6 +33,7 @@ class ActivitiesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
         binding.viewPager.adapter = ViewPagerAdapter(this)
         TabLayoutMediator(binding.tabLayout,binding.viewPager){
                 tab,position ->
@@ -38,4 +41,8 @@ class ActivitiesFragment : Fragment() {
         }.attach()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.updateShouldNavActivity(false)
+    }
 }

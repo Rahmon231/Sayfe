@@ -145,6 +145,15 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
+        viewModel.navigateToActivity.observe(viewLifecycleOwner){
+            Log.d("openedByNotification", "onViewCreated: $it")
+        if (it) {
+            findNavController().navigate(R.id.nav_activities)
+        }
+        }
+
         fAuth = Firebase.auth
         collectionReference.whereEqualTo("currentUserId",fAuth.currentUser?.uid).addSnapshotListener { value, error ->
             if (value != null) {
@@ -213,7 +222,7 @@ class DashboardFragment : Fragment() {
         binding.sosTextsDashboard.setOnClickListener {
             findNavController().navigate(R.id.sosTextFragment)
         }
-        getDoubleVolumeTap()
+
 
 
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager

@@ -47,6 +47,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _guardianLiveData = MutableLiveData<GuardianData>()
     val guardianLiveData: LiveData<GuardianData> get() = _guardianLiveData
 
+    private val _navigateToActivity = MutableLiveData<Boolean>()
+    val navigateToActivity : LiveData<Boolean> get() = _navigateToActivity
+
     private var _contactStatus = MutableLiveData<Int>()
     val contactStatus: LiveData<Int> get() = _contactStatus
 
@@ -108,6 +111,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             }
 
         })
+    }
+
+    fun updateShouldNavActivity(navigate : Boolean){
+        _navigateToActivity.value = navigate
     }
 
 
@@ -205,7 +212,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             val currentUserid = user?.uid
             _userContactsLiveData.value  = ContactsState.Empty
             _contactStatus.value = BUSY
-            delay(1000)
+            //delay(100)
             userReference.whereEqualTo("currentUserId",currentUserid)
                 .get()
                 .addOnSuccessListener {
