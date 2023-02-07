@@ -6,8 +6,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
@@ -17,6 +19,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.ActivityMainBinding
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 const val DOUBLE_CLICK_TIME_DELTA = 300
 class MainActivity : AppCompatActivity() {
@@ -27,18 +30,25 @@ class MainActivity : AppCompatActivity() {
 
     private var lastClickTime: Long = 0
 
+    private val viewModel: MainActivityViewModel by viewModels()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
        // checkAccessibilityPermission()
+        val openedByNotification = intent.getBooleanExtra("OPENEDBYNOTIFICATION",false)
+        if (openedByNotification){
+            viewModel.updateShouldNavActivity(true)
+        }
+
 
         val navView: BottomNavigationView = binding.navViewBtm
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home,R.id.nav_activities,R.id.nav_phonebook,R.id.nav_settings
-            )
+                R.id.nav_home,R.id.nav_activities,R.id.nav_phonebook,R.id.nav_settings)
         )
 
         val fragmentContainerView =

@@ -145,6 +145,12 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.navigateToActivity.observe(viewLifecycleOwner){
+        if (it) {
+            findNavController().navigate(R.id.nav_activities)
+        }
+        }
+
         fAuth = Firebase.auth
         collectionReference.whereEqualTo("currentUserId",fAuth.currentUser?.uid).addSnapshotListener { value, error ->
             if (value != null) {
