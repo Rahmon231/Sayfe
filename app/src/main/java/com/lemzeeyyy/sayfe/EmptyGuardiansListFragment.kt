@@ -44,11 +44,13 @@ class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
         adapter = GuardianAngelAdapter()
         fAuth = Firebase.auth
         val user = fAuth.currentUser
-        val currentUserId = user!!.uid
+        val currentUserId = user?.uid
 
-        viewModel.getGuardianAngelsListFromDb(currentUserId)
+//        if (currentUserId != null) {
+//            viewModel.getGuardianAngelsListFromDb(currentUserId)
+//        }
         binding.frameEmptyNow.setOnClickListener {
-            emptyGuardianAngelList(listOf<RecipientContact>().toMutableList())
+            emptyGuardianAngelList()
             findNavController().navigate(R.id.guardianAngelsFragment)
             dismiss()
         }
@@ -58,20 +60,22 @@ class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
         }
 
     }
-    private fun emptyGuardianAngelList(checkedList: MutableList<RecipientContact>){
+    private fun emptyGuardianAngelList(){
         val user = fAuth.currentUser
-        val currentUserId = user!!.uid
-        val docData = GuardianData(listOf<PhonebookContact>().toMutableList())
+        val currentUserId = user?.uid
+        val docData = GuardianData(mutableListOf())
 
-        collectionReference
-            .document(currentUserId)
-            .set(docData)
-            .addOnSuccessListener {
+        if (currentUserId != null) {
+            collectionReference
+                .document(currentUserId)
+                .set(docData)
+                .addOnSuccessListener {
 
-            }
-            .addOnFailureListener {
+                }
+                .addOnFailureListener {
 
-            }
+                }
+        }
     }
 
 }

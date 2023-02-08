@@ -164,9 +164,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private fun saveGuardianAngelsListToDb(checkedList: MutableList<PhonebookContact>, context: Context) {
         val user = fAuth.currentUser
         val currentUserId = user?.uid
-        Log.d("KORENTUID", "saveGuardianAngelsListToDb: $currentUserId")
         if (currentUserId != null) {
-            Log.d("KORENTUID", "saveGuardianAngelsListToDb: $currentUserId")
             binding.phoneBookSavingState.visibility = View.VISIBLE
             binding.phoneBookLoadingState.visibility = View.INVISIBLE
             binding.phoneBookEmptyState.visibility = View.INVISIBLE
@@ -174,16 +172,12 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
             binding.addGuardianAngel.visibility = View.INVISIBLE
             binding.allContactsRecycler.visibility = View.INVISIBLE
             binding.searchContactTvId.visibility = View.INVISIBLE
-            Log.d("KORENTUID", "saveGuardianAngelsListToDb: $currentUserId")
+
             collectionReference.document(currentUserId)
                 .get()
                 .addOnSuccessListener {
-                    Log.d("SUCCESS", "saveGuardianAngelsListToDb: $currentUserId")
+                    Log.d("IS SUCCESS?", "saveGuardianAngelsListToDb: SUCCESS ")
                     val doc = it.toObject(GuardianData::class.java)
-                    Log.d("SUCCESSDOC?", "saveGuardianAngelsListToDb: $doc")
-                    if (doc != null) {
-
-                        Log.d("SUCCESSDOC", "saveGuardianAngelsListToDb: $currentUserId")
                         collectionReference
                             .document(currentUserId)
                             .set(GuardianData(checkedList))
@@ -194,7 +188,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                                 binding.addGuardianAngel.visibility = View.VISIBLE
                                 binding.allContactsRecycler.visibility = View.VISIBLE
                                 binding.searchContactTvId.visibility = View.VISIBLE
-                                binding.phoneBookSavingState.visibility = View.VISIBLE
+                                binding.phoneBookSavingState.visibility = View.INVISIBLE
                                 Toast.makeText(context,"Guardian angels added successfully",Toast.LENGTH_SHORT)
                                     .show()
                                 findNavController().navigateUp()
@@ -211,7 +205,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                                     .show()
                             }
 
-                    }
+
 
                 }
 
@@ -299,32 +293,14 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     override fun onContactClick(contacts: MutableList<PhonebookContact>,dbContacts : MutableList<PhonebookContact>) {
         Log.d("TAG", "onContactClick: Triggered")
-        var alreadyContained = 0
-        var duplicateContact = mutableListOf<PhonebookContact>()
-        //Check if clicked contact is contained in dbContacts
-        //if true
-        //dont save the duplicate contact else
-        //save
         dbContacts.forEach {
             if (contacts.contains(it)) {
                 contacts.remove(it)
-                duplicateContact.add(it)
-                alreadyContained++
             }
             else {
                 contacts.add(it)
             }
         }
-        if (duplicateContact.isNotEmpty()){
-            duplicateContact.forEach {
-                Toast.makeText(context, "${it.name} has previously been added, please uncheck and retry", Toast.LENGTH_SHORT)
-                    .show()
-                contacts.remove(it)
-                duplicateContact.clear()
-                return
-            }
-        }
-
         saveGuardianAngelsListToDb(contacts,requireContext())
 
 

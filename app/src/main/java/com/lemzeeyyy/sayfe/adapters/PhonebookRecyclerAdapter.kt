@@ -43,6 +43,14 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
     }
 
     fun triggerCheckedListInterface(){
+
+        checkedListFromDb.forEach {
+            if (checkedList.contains(it)){
+                Toast.makeText(context, "${it.name} has previously been added, please uncheck and retry", Toast.LENGTH_SHORT)
+                    .show()
+                return
+            }
+        }
         if (checkedList.isNotEmpty()) {
             checkedContactListener.onContactClick(checkedList, checkedListFromDb)
         }else
@@ -77,9 +85,15 @@ class PhonebookRecyclerAdapter(private val checkedContactListener: CheckedContac
                                     !it.isWhitespace()
                                 }
 
-                                phoneBookData[adapterPosition].number = phoneBookData[adapterPosition].number.filter {
-                                    it.isDigit()
-                                }
+//                                phoneBookData[adapterPosition].number = phoneBookData[adapterPosition].number.filter {
+//                                    it.isDigit()
+//                                }
+                                    phoneBookData[adapterPosition].number = phoneBookData[adapterPosition].number.replace(
+                                        "-",""
+                                    )
+                                    phoneBookData[adapterPosition].number =   phoneBookData[adapterPosition].number.filter {
+                                        !it.isWhitespace()
+                                    }
 
                                     checkedList.add(phoneBookData[adapterPosition])
 

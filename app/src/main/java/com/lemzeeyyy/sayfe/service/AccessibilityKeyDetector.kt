@@ -198,7 +198,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                 data?.let { guardianData ->
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact ->
-                        usersCollection.whereEqualTo("number",recipientContact.number)
+                        usersCollection.whereEqualTo("phoneNumber",recipientContact.number)
                          .get()
                          .addOnSuccessListener {querySnapshot ->
                          querySnapshot.forEach {queryDocumentSnapshot ->
