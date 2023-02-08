@@ -129,7 +129,9 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
         when(contactState){
             BUSY ->{
                 binding.phoneBookEmptyState.visibility = View.INVISIBLE
-                binding.phoneBookLoadingState.visibility = View.VISIBLE
+                //binding.phoneBookLoadingState.visibility = View.VISIBLE
+                binding.phonebookShimmer.visibility  = View.VISIBLE
+                binding.phonebookShimmer.stopShimmer()
                 binding.addGuardianAngel.visibility = View.INVISIBLE
                 binding.allContactsRecycler.visibility = View.INVISIBLE
                 binding.searchContactTvId.visibility = View.INVISIBLE
@@ -138,6 +140,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
             }
             EMPTY ->{
                 binding.phoneBookEmptyState.visibility = View.VISIBLE
+                binding.phonebookShimmer.visibility  = View.INVISIBLE
+                binding.phonebookShimmer.stopShimmer()
                 binding.phoneBookLoadingState.visibility = View.INVISIBLE
                 binding.addGuardianAngel.visibility = View.INVISIBLE
                 binding.allContactsRecycler.visibility = View.INVISIBLE
@@ -154,6 +158,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 binding.searchContactTvId.visibility = View.VISIBLE
                 binding.phoneBookSavingState.visibility = View.INVISIBLE
                 binding.phoneBookFailedState.visibility = View.INVISIBLE
+                binding.phonebookShimmer.visibility  = View.INVISIBLE
+                binding.phonebookShimmer.stopShimmer()
             }
 
 
@@ -176,8 +182,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
             collectionReference.document(currentUserId)
                 .get()
                 .addOnSuccessListener {
-                    Log.d("IS SUCCESS?", "saveGuardianAngelsListToDb: SUCCESS ")
-                    val doc = it.toObject(GuardianData::class.java)
+
                         collectionReference
                             .document(currentUserId)
                             .set(GuardianData(checkedList))

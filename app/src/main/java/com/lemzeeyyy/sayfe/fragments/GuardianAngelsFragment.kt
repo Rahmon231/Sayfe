@@ -155,7 +155,9 @@ class GuardianAngelsFragment : Fragment() {
 
         when(contactState){
             BUSY ->{
-               binding.guardianLoadingState.visibility = View.VISIBLE
+                binding.guardianShimmer.visibility = View.VISIBLE
+                binding.guardianShimmer.startShimmer()
+              // binding.guardianLoadingState.visibility = View.VISIBLE
                 binding.contactListRelGuar.visibility = View.INVISIBLE
                 binding.guardianContactsRecycler.visibility = View.INVISIBLE
             }
@@ -163,6 +165,8 @@ class GuardianAngelsFragment : Fragment() {
                 binding.guardianListEmptyState.visibility = View.VISIBLE
                 binding.verticalEllipse.visibility = View.INVISIBLE
                 binding.guardianLoadingState.visibility = View.INVISIBLE
+                binding.guardianShimmer.visibility = View.INVISIBLE
+                binding.guardianShimmer.stopShimmer()
 
             }
             PASSED ->{
@@ -171,6 +175,8 @@ class GuardianAngelsFragment : Fragment() {
                 binding.contactListRelGuar.visibility = View.VISIBLE
                 binding.guardianListEmptyState.visibility = View.INVISIBLE
                 binding.guardianLoadingState.visibility = View.INVISIBLE
+                binding.guardianShimmer.visibility = View.INVISIBLE
+                binding.guardianShimmer.stopShimmer()
             }
             FAILED -> {
                 binding.guardianFailedState.visibility = View.VISIBLE
@@ -179,6 +185,8 @@ class GuardianAngelsFragment : Fragment() {
                 binding.guardianContactsRecycler.visibility = View.INVISIBLE
                 binding.guardianListEmptyState.visibility = View.INVISIBLE
                 binding.guardianLoadingState.visibility = View.INVISIBLE
+                binding.guardianShimmer.visibility = View.INVISIBLE
+                binding.guardianShimmer.stopShimmer()
             }
 
         }

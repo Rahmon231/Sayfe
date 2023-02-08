@@ -52,6 +52,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/shimmer_bg"
+        android:visibility="invisible"
         android:id="@+id/shimmer_choose_contact_checkbox"
         android:layout_marginEnd="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
