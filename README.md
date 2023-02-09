@@ -24,3 +24,5 @@ With its easy-to-use design and quick access trigger, this app provides a simple
 - [ksp](https://github.com/google/ksp): Kotlin Symbol Processing API.
 - [Material-Components](https://github.com/material-components/material-components-android): Material design components for building ripple animation, and CardView.
 
+## Architecture
+**Sayfe** is based on the MVVM with clean architecture and the Repository pattern, which follows the [Google's official architecture guidance](https://developer.android.com/topic/architecture).
