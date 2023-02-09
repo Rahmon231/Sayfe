@@ -68,6 +68,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
         fAuth = Firebase.auth
         adapter = PhonebookRecyclerAdapter(this,requireContext())
+        viewModel.getPhoneBook(requireActivity())
 
         binding.addGuardianAngel.setOnClickListener {
             adapter.triggerCheckedListInterface()
@@ -79,7 +80,6 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
         if (readContactPermission == PackageManager.PERMISSION_GRANTED )
         {
-            viewModel.getPhoneBook(requireActivity())
             viewModel.contactStatus.observe(viewLifecycleOwner){
                 updateContactView(it)
             }

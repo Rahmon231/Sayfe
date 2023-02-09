@@ -26,10 +26,7 @@ import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.model.*
 import com.lemzeeyyy.sayfe.network.NetworkObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -57,6 +54,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
     private var latitude = 0.0
     private var longitude = 0.0
+    private var counter = 0
     private var locationUrl = ""
     var lastClickTime: Long = 0
     private val outgoingAlertDb = Firebase.database
@@ -89,15 +87,11 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                             if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
                                 getCurrentLocation()
                                 val scope = CoroutineScope(Job() + Dispatchers.Main)
-                                scope.launch {
-                                    sendsms("+447823927201", "$senderMessageBody \n$locationUrl")
-                                    Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
-                                }
-
-                              //  Manual SMS Functionality
+                                //  Manual SMS Functionality
                                 fAuth.currentUser?.uid?.let {
                                     getGuardianAngelsListFromDb(it)
                                 }
+
                                 fAuth.currentUser?.uid?.let {
                                     getGuardianAngelsAppTokenAndSendNotification(it)
                                     // alertTriggerId = it
@@ -160,11 +154,22 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     guardianList = guardianData.guardianInfo
                     guardianList.forEach {recipientContact->
                         val scope = CoroutineScope(Job() + Dispatchers.Main)
+                        scope.launch {
+                            while (counter < 3) {
+                                //sendsms
+                                counter++
+                                delay(120000) // 2 minutes
+                                 sendsms(recipientContact.number, "$senderMessageBody \n$locationUrl")
+                                Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
+                            }
+
+
+                        }
 //                        scope.launch {
 //                            sendsms(recipientContact.number,"$senderMessageBody \n$locationUrl")
 //
 //                        }
-                        sendSMSSOS(recipientContact.number,"$senderMessageBody \n$locationUrl")
+                      //  sendSMSSOS(recipientContact.number,"$senderMessageBody \n$locationUrl")
 
                     }
                 }
