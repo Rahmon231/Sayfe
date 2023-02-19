@@ -48,6 +48,7 @@ const val REQUEST_CONTACT = 10
 class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     private var contactList = emptyList<PhonebookContact>()
+    private var distinctNumber = emptyList<PhonebookContact>()
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding : FragmentPhoneBookBinding
     private lateinit var adapter : PhonebookRecyclerAdapter
@@ -208,16 +209,17 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                         contactList = it.distinctBy { distinctById->
                             distinctById.id
                         }
-                        adapter.updatePhonebookData(contactList)
+                        distinctNumber = contactList.distinctBy { distinctByNumber->
+                            distinctByNumber.number
+                        }
+                        adapter.updatePhonebookData(distinctNumber)
 
                         binding.searchContactId.addTextChangedListener{substring->
                             if (substring.toString().isBlank()){
-                                adapter.updatePhonebookData(contactList.distinctBy { distinctContact->
-                                    distinctContact.number
-                                })
+                                adapter.updatePhonebookData(distinctNumber)
                                 return@addTextChangedListener
                             }
-                            val filteredContacts = contactList.filter {filtered->
+                            val filteredContacts = distinctNumber.filter {filtered->
                                 filtered.name.contains(substring.toString(),true)
                             }
                             adapter.updatePhonebookData(filteredContacts)
