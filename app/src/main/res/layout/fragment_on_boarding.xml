@@ -1,81 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/dark_blue_color"
+tools:context=".fragments.OnBoardingFragment">
+
+<androidx.viewpager.widget.ViewPager
+    android:id="@+id/viewpager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_blue_color"
+    android:layout_marginBottom="250dp"/>
 
-    tools:context=".OnBoardingFragment">
+<FrameLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    android:id="@+id/dot_frame"
+    app:layout_constraintBottom_toTopOf="@id/bottom_layout"
+    app:layout_constraintTop_toBottomOf="@id/viewpager"
+    android:layout_centerHorizontal="true">
 
-    <ImageView
-        android:id="@+id/dotted_circle"
+    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+        android:id="@+id/dots_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_32"
-        android:src="@drawable/dotted_circle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:dotsColor="@color/white"
+        app:dotsCornerRadius="8dp"
+        app:dotsSize="5dp"
+        app:dotsSpacing="4dp"
+        app:dotsWidthFactor="6"
+        app:progressMode="true"
+        app:selectedDotColor="@color/blue_color"/>
 
-    <TextView
-        android:id="@+id/welcome_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:fontFamily="@font/outfit_regular"
-        android:text="Welcome to Sayfe"
-        android:textColor="@color/white"
-        android:layout_marginStart="@dimen/margin_32"
-        android:layout_marginEnd="@dimen/margin_32"
-        android:textSize="32sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dotted_circle" />
+</FrameLayout>
 
-    <TextView
-        android:id="@+id/create_text_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/outfit_thin"
-        android:layout_marginStart="@dimen/margin_32"
-        android:layout_marginEnd="@dimen/margin_32"
-        android:text="Create and send out alerts of insecurity with ease"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/welcome_id" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/get_started_btn_id"
+<FrameLayout
+    android:layout_width="match_parent"
+    android:id="@+id/bottom_layout"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    android:layout_alignParentBottom="true"
+    android:layout_marginBottom="70dp"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="get started"
-        android:background="@drawable/button_blue_bg"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/white"
-        android:layout_marginStart="@dimen/margin_32"
-        android:layout_marginEnd="@dimen/margin_32"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_text_id" />
+        android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/signin_btn_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Sign In"
-        android:background="@drawable/button_transparent_bg"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="@dimen/margin_32"
-        android:layout_marginEnd="@dimen/margin_32"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cont_btn"
+            android:layout_width="match_parent"
+            android:background="@drawable/button_blue_bg"
+            android:layout_height="50dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:textColor="@color/white"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="continue" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/skip_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="32dp"
+            android:textColor="@color/white"
+            android:background="@drawable/button_transparent_bg"
+            android:layout_marginEnd="32dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/cont_btn"
+            android:text="skip" />
+    </RelativeLayout>
+
+</FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/get_started_btn_id"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/location_rational_img"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/location_access_denied_img"
+        android:visibility="gone"
         />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,49 +20,8 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         activityScope.launch {
-            delay(3000)
             val intent = Intent(this@SplashActivity,MainActivity::class.java)
             startActivity(intent)
-        }
-       // requestPermission()
-
-
-    }
-
-    private fun requestPermission() {
-        val readContactPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS)
-        val writeContactPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS)
-        val messagePermissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.SEND_SMS)
-
-        if (readContactPermission == PackageManager.PERMISSION_GRANTED && writeContactPermission ==  PackageManager.PERMISSION_GRANTED
-            && messagePermissionCheck == PackageManager.PERMISSION_GRANTED )
-        {
-            val intent: Intent = Intent(this@SplashActivity,MainActivity::class.java)
-            startActivity(intent)
-
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_CONTACTS, android.Manifest.permission.READ_CONTACTS,
-                android.Manifest.permission.SEND_SMS),
-                PERMISSION_REQUEST
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                val intent: Intent = Intent(this@SplashActivity,MainActivity::class.java)
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "You don't have required permission to use this message",
-                    Toast.LENGTH_SHORT).show();
-            }
         }
     }
 }

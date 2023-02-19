@@ -18,7 +18,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lemzeeyyy.sayfe.R
+import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.ActivityMainBinding
+import com.lemzeeyyy.sayfe.fragments.DashboardFragment
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 const val DOUBLE_CLICK_TIME_DELTA = 300
@@ -38,15 +40,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
        // checkAccessibilityPermission()
-        val openedByNotification = intent.getBooleanExtra("OPENEDBYNOTIFICATION",false)
-
-
 
         val navView: BottomNavigationView = binding.navViewBtm
 
         val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,R.id.nav_activities,R.id.nav_phonebook,R.id.nav_settings)
+            setOf(R.id.nav_home,R.id.nav_activities,R.id.nav_phonebook,R.id.nav_settings)
         )
 
         val fragmentContainerView =
@@ -56,19 +54,8 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             binding.navViewBtm.isVisible = appBarConfiguration.topLevelDestinations.contains(destination.id)
-            Log.d("openedByNotification", "onCreate: $openedByNotification")
-            if (openedByNotification){
-                viewModel.updateShouldNavActivity(true)
-            }
         }
         navView.setupWithNavController(navController)
-
-
-
-
-
-
-
     }
     private fun checkAccessibilityPermission(): Boolean {
         var accessEnabled = 0
@@ -95,19 +82,18 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-//    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-//        val clickTime = System.currentTimeMillis()
-//        if (keyCode.equals(KeyEvent.KEYCODE_VOLUME_UP)){
-//            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-//                Toast.makeText(this@MainActivity,"Volume Up Tapped Twice",Toast.LENGTH_SHORT).show()
-//
-//            }
-//
-//        }
-//        lastClickTime = clickTime
-//
-//        return super.onKeyUp(keyCode, event)
-//    }
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        val clickTime = System.currentTimeMillis()
+        if (keyCode.equals(KeyEvent.KEYCODE_VOLUME_UP)){
+            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                Toast.makeText(this@MainActivity,"Volume Up Tapped Twice",Toast.LENGTH_SHORT).show()
+                //Send Broadcast
+            }
+        }
+        lastClickTime = clickTime
+
+        return super.onKeyUp(keyCode, event)
+    }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)

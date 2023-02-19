@@ -6,4 +6,20 @@
     <string name="accessibility_service_label">Sayfe Service</string>
     <string name="sayfe_service_description">This service allows the application to run in the background,
         Hence, to get the best of this application, turn on Sayfe Service</string>
+    <string name="contact_permission_denied">Cannot Fetch Contacts because the permission to fetch contacts was denied</string>
+    <string name="onboarding_page_demo">onboarding page demo</string>
+    <string name="welcome_txt">Welcome to Sayfe \nCreate and send out alerts of insecurity with ease by tapping on volume up button twice</string>
+    <string name="getStarted">GET STARTED</string>
+    <string name="continueForm">CONTINUE</string>
+    <string name="open_settings">GOTO SETTINGS</string>
+    <string name="skip">SKIP</string>
+    <string name="location_permission_txt">To use Sayfe location-based features, please grant permission
+        for the app to access your location and send sms once you\'re prompted . This will allow the app to send your real-time location to
+        your selected contacts during an emergency, providing them with accurate information to assist you.</string>
+
+    <string name="accessibility_permission_text">To use Sayfe discreet SOS feature triggered via the volume up button,
+        please grant the Sayfe accessibility service permission in the settings once prompted. This will allow the app to function seamlessly in the background,
+        immediately sending your location information to your selected contacts in case of an emergency.""</string>
+    <string name="incoming_alert_txt">Nothing to see here, when you send a notification, it will appear here</string>
+    <string name="outgoing_alert_txt">Nothing to see here, when you receive a notification, it will appear here</string>
 </resources>
