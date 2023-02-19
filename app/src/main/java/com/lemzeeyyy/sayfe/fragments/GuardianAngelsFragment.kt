@@ -35,7 +35,6 @@ class GuardianAngelsFragment : Fragment() {
     private lateinit var binding : FragmentGuardianAngelsBinding
     private lateinit var adapter : GuardianAngelAdapter
      private val viewModel: MainActivityViewModel by activityViewModels()
-
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Guardian Angels")
@@ -53,21 +52,19 @@ class GuardianAngelsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
+
         adapter = GuardianAngelAdapter()
+
+        binding.guardianContactsRecycler.adapter = adapter
         viewModel.guardianAngelsStatus.observe(viewLifecycleOwner){
             updateGuardianAngelsView(it)
         }
-        if (currentUserId != null) {
-            viewModel.getGuardianAngelsListFromDb(currentUserId)
-        }
+
+        viewModel.getGuardianAngels()
         viewModel.guardianLiveData.observe(viewLifecycleOwner){
             val dataList = it.guardianInfo
             adapter.updateGuardianAngelsList(dataList.toMutableList())
         }
-        binding.guardianContactsRecycler.adapter = adapter
-
 
         binding.backArrowGuardianAngel.setOnClickListener {
           findNavController().navigate(R.id.nav_home)
@@ -79,6 +76,7 @@ class GuardianAngelsFragment : Fragment() {
         binding.contactGuardianBtn.setOnClickListener {
            findNavController().navigateUp()
         }
+
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT){
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -139,8 +137,8 @@ class GuardianAngelsFragment : Fragment() {
 
             }
 
-        }).attachToRecyclerView(binding.guardianContactsRecycler)
-
+        })
+            .attachToRecyclerView(binding.guardianContactsRecycler)
     }
 
     private fun openBottomDialog() {
