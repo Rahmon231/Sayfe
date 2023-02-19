@@ -74,6 +74,8 @@ dependencies {
     //country code picker
     implementation 'com.hbb20:ccp:2.5.0'
 
+    //dots indicator
+    implementation("com.tbuonomo:dotsindicator:4.3")
     //round image
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
@@ -83,14 +85,14 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.10'
 
-
-
-
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
 
     // define any required OkHttp artifacts without version
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    //dexter permission
+    implementation 'com.karumi:dexter:6.2.3'
 
 
 
