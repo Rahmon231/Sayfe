@@ -136,7 +136,6 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return binding.root
@@ -144,15 +143,7 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
-        viewModel.navigateToActivity.observe(viewLifecycleOwner){
-            Log.d("openedByNotification", "onViewCreated: $it")
-        if (it) {
-            findNavController().navigate(R.id.nav_activities)
-        }
-        }
+        checkAccessibilityPermission()
 
         fAuth = Firebase.auth
         collectionReference.whereEqualTo("currentUserId",fAuth.currentUser?.uid).addSnapshotListener { value, error ->
@@ -165,28 +156,11 @@ class DashboardFragment : Fragment() {
             }
         }
 
-
-
         SharedPrefs.init(requireContext())
          shakeTrigger = SharedPrefs.getBoolean("shake", false)
          volumeTrigger = SharedPrefs.getBoolean("volume", false)
          tapTrigger = SharedPrefs.getBoolean("tap", false)
 
-        if (SharedPrefs.getBoolean("shake", false)) {
-            binding.triggerModeText.setText("Shake your phone to trigger Sayfe")
-        } else if (SharedPrefs.getBoolean("tap", false)) {
-            binding.triggerModeText.setText("Tap Screen twice to trigger sayfe")
-        } else if (SharedPrefs.getBoolean("volume",false)){
-            binding.triggerModeText.setText("Press volume up button twice to trigger sayfe")
-        }
-        else {
-            binding.triggerModeText.setText("Press volume up button twice to trigger sayfe")
-        }
-
-
-
-
-        fAuth = Firebase.auth
         val user = fAuth.currentUser
         val currentUserId = user?.uid
 
@@ -197,9 +171,7 @@ class DashboardFragment : Fragment() {
 
         getCurrentLocation()
 
-        if (currentUserId != null) {
-            viewModel.getImageUriFromDb(currentUserId)
-        }
+
         viewModel.userImageUri.observe(viewLifecycleOwner) {
 
             if (it.equals(Uri.EMPTY)) {
@@ -236,6 +208,8 @@ class DashboardFragment : Fragment() {
         acceleration = 10f
         currentAcceleration = SensorManager.GRAVITY_EARTH
         lastAcceleration = SensorManager.GRAVITY_EARTH
+
+        triggerSayfe()
 
     }
 
@@ -285,7 +259,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
-        //8106811525
+
         collectionReference.whereEqualTo("currentUserId",currentUserid)
             .addSnapshotListener { value, error ->
                 value?.let {
@@ -329,7 +303,6 @@ class DashboardFragment : Fragment() {
                                             }
                                         }
                                     }
-                                    Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
                                     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                                     val currentDate = sdf.format(Date())
 
@@ -343,7 +316,7 @@ class DashboardFragment : Fragment() {
                                 }
                             }
                             .addOnFailureListener{exception ->
-                                Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${exception.toString()}")
+                                Log.d("APPTOKEN EXCEPTION", "getGuardianAngelsAppToken: ${exception.toString()}")
                             }
                     }
                 }
@@ -368,18 +341,14 @@ class DashboardFragment : Fragment() {
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
-                    requestPermission()
+                    //requestPermission()
                     return
                 }
                 fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val location: Location? = task.result
                         if (location == null) {
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "Location is Null ke",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
+                            Log.d("Location is null", "getCurrentLocation: location null ")
                         } else {
                             longitude = location.longitude
                             latitude = location.latitude
@@ -405,7 +374,7 @@ class DashboardFragment : Fragment() {
             }
         } else {
             //request permission
-            requestPermission()
+            //requestPermission()
         }
     }
 
@@ -456,6 +425,7 @@ class DashboardFragment : Fragment() {
             getCurrentLocation()
         } else {
             Toast.makeText(requireContext(), "Denied", Toast.LENGTH_SHORT).show()
+            locationUrl = ""
         }
     }
 
@@ -463,73 +433,80 @@ class DashboardFragment : Fragment() {
 
 
 
-     private fun sendSMSSOS() {
+    private fun sendSMSSOS() {
 
-         //Once triggered, check if guardian angels have app token, then send notification, else send only sms
         val currentUserId = fAuth.currentUser?.uid
          if (currentUserId != null) {
              getGuardianAngelsAppTokenAndSendNotification(currentUserId)
          }
-        try {
 
-            val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= 23) {
+         if (ContextCompat.checkSelfPermission(requireContext(),android.Manifest.permission.SEND_SMS)
+             == PackageManager.PERMISSION_GRANTED){
+             try {
 
-                requireActivity().getSystemService(SmsManager::class.java)
-            } else {
+                 val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= 23) {
 
-                SmsManager.getDefault()
-            }
+                     requireActivity().getSystemService(SmsManager::class.java)
+                 } else {
+                     SmsManager.getDefault()
+                 }
 
-            if (currentUserId != null) {
-                viewModel.getGuardianAngelsListFromDb(currentUserId)
-            }
-            viewModel.guardianLiveData.observe(viewLifecycleOwner) {
-                val dataList = it.guardianInfo
+                 viewModel.guardianLiveData.observe(viewLifecycleOwner) {
+                     val dataList = it.guardianInfo
+                     if (dataList.isEmpty()){
+                         return@observe
+                     }
 
-                dataList.forEach { recipientContact ->
+                     dataList.forEach { recipientContact ->
 
-                    val guardianPhone = recipientContact.number
+                         val guardianPhone = recipientContact.number
 
-                    smsManager.sendTextMessage(
-                        guardianPhone,
-                        null,
-                        "SOS! \n$locationUrl",
-                        null,
-                        null
-                    )
-                }
-            }
+                         smsManager.sendTextMessage(
+                             guardianPhone,
+                             null,
+                             "SOS! \n${locationUrl}",
+                             null,
+                             null
+                         )
+                     }
+                     Toast.makeText(requireContext(), "Message Sent", Toast.LENGTH_LONG).show()
+                 }
 
-            Toast.makeText(requireContext(), "Message Sent", Toast.LENGTH_LONG).show()
+             } catch (e: Exception) {
+                 Toast.makeText(requireContext(), e.message.toString(), Toast.LENGTH_LONG)
+                     .show()
+             }
+         }else{
+             Toast.makeText(requireContext(),"You haven't granted permission to send sms",Toast.LENGTH_SHORT).show()
+         }
 
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), e.message.toString(), Toast.LENGTH_LONG)
-                .show()
-        }
     }
 
-    private fun getDoubleVolumeTap(){
-        val timer = object : CountDownTimer(300,300){
-            override fun onTick(millisUntilFinished: Long) {
-                listItem.add(1)
-                Log.d("KOUNTER", "onTick: ${listItem.size}")
-                if (listItem.size == 2){
-                    if (!checkAccessibilityPermission() && volumeTrigger){
-                        Toast.makeText(requireContext(),"Volume Up Twice Detected",Toast.LENGTH_SHORT).show()
-                        sendSMSSOS()
-                    }
-                }
-            }
-
-            override fun onFinish() {
-                listItem.clear()
-            }
-
-        }
-        timer.start()
+      private fun getDoubleVolumeTap(){
+//        val timer = object : CountDownTimer(300,300){
+//            override fun onTick(millisUntilFinished: Long) {
+//                listItem.add(1)
+//                Log.d("KOUNTER", "onTick: ${listItem.size}")
+//                if (listItem.size == 2){
+//                    if (!checkAccessibilityPermission() && volumeTrigger){
+//                        Toast.makeText(requireContext(),"Volume Up Twice Detected",Toast.LENGTH_SHORT).show()
+//                        sendSMSSOS()
+//                    }
+//                }
+//            }
+//
+//            override fun onFinish() {
+//                listItem.clear()
+//            }
+//
+//        }
+//        timer.start()
+         if (!checkAccessibilityPermission() && volumeTrigger){
+             sendSMSSOS()
+         }
     }
 
-    fun triggerSayfe() {
+    private fun triggerSayfe() {
         SharedPrefs.init(requireContext())
         val shakeTrigger = SharedPrefs.getBoolean("shake", false)
         val volumeTrigger = SharedPrefs.getBoolean("volume", false)
@@ -591,9 +568,22 @@ class DashboardFragment : Fragment() {
         return if (accessEnabled == 0) {
             /** if not construct intent to request permission  */
             /** request permission via bottom sheet fragment  */
-            openAccessibilitySettingsDialog()
+            binding.triggerModeText.setText("Sayfe background service is off, click here to on")
+            binding.triggerModeText.setOnClickListener {
+                openAccessibilitySettingsDialog()
+            }
             false
         } else {
+            if (SharedPrefs.getBoolean("shake", false)) {
+            binding.triggerModeText.setText("Shake your phone to trigger Sayfe")
+        } else if (SharedPrefs.getBoolean("tap", false)) {
+            binding.triggerModeText.setText("Tap Screen twice to trigger sayfe")
+        } else if (SharedPrefs.getBoolean("volume",false)){
+            binding.triggerModeText.setText("Press volume up button twice to trigger sayfe")
+        }
+        else {
+            binding.triggerModeText.setText("Press volume up button twice to trigger sayfe")
+        }
             true
         }
     }
@@ -605,6 +595,16 @@ class DashboardFragment : Fragment() {
     }
 
     override fun onResume() {
+        viewModel.userImageUri.observe(viewLifecycleOwner) {
+
+            if (it.equals(Uri.EMPTY)) {
+                binding.profileImage.setImageResource(R.drawable.profile_image)
+            } else {
+                Glide.with(requireActivity()).load(it).into(binding.profileImage)
+            }
+
+        }
+        checkAccessibilityPermission()
         sensorManager?.registerListener(
             sensorListener, sensorManager!!.getDefaultSensor(
                 Sensor.TYPE_ACCELEROMETER
@@ -613,30 +613,8 @@ class DashboardFragment : Fragment() {
         super.onResume()
     }
 
-    override fun onPause() {
-        sensorManager!!.unregisterListener(sensorListener)
-        // fAuth = Firebase.auth
-//        val user = fAuth.currentUser
-//        val currentUserId = user!!.uid
-//        viewModel.getImageUriFromDb(currentUserId)
-//        viewModel.userImageUri.observe(viewLifecycleOwner){
-//
-//            if (it.equals(Uri.EMPTY)){
-//                binding.profileImage.setImageResource(R.drawable.profile_image)
-//            }else{
-//                Glide.with(requireActivity()).load(it).into(binding.profileImage)
-//            }
-//
-//        }
-        super.onPause()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        checkAccessibilityPermission()
 
 
-    }
 
 }
 
