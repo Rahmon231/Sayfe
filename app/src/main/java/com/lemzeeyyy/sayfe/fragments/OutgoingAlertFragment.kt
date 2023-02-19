@@ -22,7 +22,7 @@ import com.lemzeeyyy.sayfe.databinding.FragmentOutgoingAlertBinding
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.alertTriggerId
-import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import com.lemzeeyyy.sayfe.viewmodels.*
 
 
 class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
@@ -50,40 +50,69 @@ class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
         outgoingAlertsRecyclerAdapter = OutgoingAlertsRecyclerAdapter(notificationBodyListener)
         binding.outgoingRecycler.adapter = outgoingAlertsRecyclerAdapter
 
-        myRef.addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
+        viewModel.outgoingDataList()
+        viewModel.outgoingDataStatus.observe(viewLifecycleOwner){
+            updateViewForOutgoingState(it)
+        }
 
-                snapshot.children.forEach {
+        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){outgoingDataList->
+            if (outgoingDataList != null) {
+                if (outgoingDataList.size == 0 ){
+                    //binding.emptyOutgoingAlert.visibility = View.VISIBLE
+                    return@observe
+                }
+                outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
+            }
 
-                    val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
-                    if (currentUserId == it.key){
-                        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
-                    }
+        }
 
+//        myRef.addValueEventListener(object : ValueEventListener{
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                snapshot.children.forEach {
+//                    val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
+//                    if (currentUserId == it.key){
+//                        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
+//                    }
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.d("TAG", "onCancelled: ${error.message.toString()} ")
+//            }
+//        })
+    }
 
+    private fun updateViewForOutgoingState(contactState: Int?) {
+            if (contactState == null)
+                return
+
+            when(contactState){
+                BUSY -> {
+                    binding.emptyOutgoingAlert.visibility = View.INVISIBLE
+                    binding.outgoingRecycler.visibility = View.INVISIBLE
+                    binding.loadingOutgoing.visibility = View.VISIBLE
+                }
+                EMPTY ->{
+                    binding.emptyOutgoingAlert.visibility = View.VISIBLE
+                    binding.outgoingRecycler.visibility = View.INVISIBLE
+                    binding.loadingOutgoing.visibility = View.INVISIBLE
+                }
+                PASSED ->{
+                    binding.outgoingRecycler.visibility = View.VISIBLE
+                    binding.emptyOutgoingAlert.visibility = View.INVISIBLE
+                    binding.loadingOutgoing.visibility = View.INVISIBLE
+                }
+                FAILED ->{
+                    binding.emptyOutgoingAlert.visibility = View.INVISIBLE
+                    binding.outgoingRecycler.visibility = View.INVISIBLE
+                    binding.loadingOutgoing.visibility = View.INVISIBLE
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("TAG", "onCancelled: ${error.message.toString()} ")
-            }
-        }
-        )
-//        viewModel.getOutgoingAlertList()
-//        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
-//            Log.d("TAG", "onViewCreated: $alertTriggerId ")
-//            if(currentUserId == alertTriggerId){
-//                if (it != null) {
-//                    outgoingAlertsRecyclerAdapter.updateDataList(it)
-//                }
-//            }
-//        }
     }
 
     override fun onNotificationBodyClick(view: View,alertBody : String) {
         val action = ActivitiesFragmentDirections.actionIncomimgAlertFragmentToWebViewFragment(alertBody)
-
-        Log.d("ALertBodyCheck", "onNotificationBodyClick: ${alertBody.toString()}")
         findNavController().navigate(action)
     }
 

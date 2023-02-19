@@ -19,4 +19,57 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/outgoing_alert_item"/>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/empty_outgoing_alert"
+        android:visibility="gone">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/empty_notification"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/outgoing_image_id"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/outgoing_image_id"
+            android:textAlignment="center"
+            app:fontFamily="@font/outfit_regular"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:layout_marginTop="10dp"
+            android:text="@string/incoming_alert_txt"
+            android:gravity="center"
+            android:padding="5dp"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorDirectionCircular="clockwise"
+        app:trackColor="@color/blue_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:indeterminate="true"
+        android:layout_marginTop="5dp"
+        app:indicatorColor="@color/dark_blue_color"
+        android:visibility="gone"
+        android:id="@+id/loading_outgoing"/>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
