@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -41,6 +43,8 @@ class SettingsFragment : Fragment() {
 
     private lateinit var binding : FragmentSettingsBinding
 
+    private lateinit var backPressedCallback: OnBackPressedCallback
+
 
     companion object{
         var imageUri : Uri = Uri.EMPTY
@@ -53,6 +57,10 @@ class SettingsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding =  FragmentSettingsBinding.inflate(inflater, container, false)
+        backPressedCallback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            findNavController().navigate(SettingsFragmentDirections.actionNavSettingsToNavHome())
+        }
+        backPressedCallback.isEnabled = true
         return binding.root
     }
 
@@ -83,7 +91,6 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(R.id.accountSettings)
         }
 
-        viewModel.getImageUriFromDb(currentUserId)
         viewModel.userImageUri.observe(viewLifecycleOwner){
             if (it.equals(Uri.EMPTY)){
                 binding.profileImageSettings.setImageResource(R.drawable.profile_image)
@@ -92,6 +99,7 @@ class SettingsFragment : Fragment() {
             }
 
         }
+
         binding.fabBtnUploadPic.setOnClickListener {
 
             val i = Intent()
@@ -117,12 +125,12 @@ class SettingsFragment : Fragment() {
              data?.let {
                   imageUri= data.data!!
                  if(imageUri!=null){
-                     Log.d("henny", "onActivityResult: ${imageUri}")
                      saveImageUri(imageUri)
                      binding.profileImageSettings.setImageURI(imageUri)
                      Toast.makeText(requireContext(),"Image Uploaded Successfully",Toast.LENGTH_LONG)
                          .show()
                  }
+
              }
         }
     }
