@@ -29,20 +29,6 @@
 
     </RelativeLayout>
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:text="Loading Contacts....."
-        android:textColor="@color/white"
-        app:fontFamily="@font/outfit_medium"
-        android:textSize="24dp"
-        android:visibility="gone"
-        android:id="@+id/phone_book_loading_state"
-        android:fontFamily="@font/outfit_regular"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
@@ -59,20 +45,57 @@
         android:id="@+id/phone_book_saving_state"
         android:fontFamily="@font/outfit_regular"/>
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:text="Contacts Empty....."
-        android:textColor="@color/white"
-        app:fontFamily="@font/outfit_medium"
-        android:textSize="24dp"
+        android:layout_marginTop="10dp"
         android:visibility="gone"
+        android:id="@+id/empty_state_imagee"
+        android:src="@drawable/no_permission"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:id="@+id/phone_book_empty_state"
-        android:fontFamily="@font/outfit_regular"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            app:fontFamily="@font/outfit_medium"
+            android:textSize="24dp"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/no_permission_text"
+            android:text="@string/contact_permission_denied"
+            />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/no_permission_text"
+            android:layout_marginTop="10dp"
+            android:id="@+id/empty_state_image"
+            android:src="@drawable/location_access_denied_img"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
@@ -141,7 +164,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_contact_tv_id"
+        app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginTop="@dimen/margin_32">
@@ -177,6 +200,20 @@
 
 
     </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        android:padding="10dp"
+        android:background="@drawable/button_transparent_bg"
+        android:text="Allow Permission"
+        android:textColor="@color/white"
+        android:id="@+id/allow_permission_btn"
+        />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
