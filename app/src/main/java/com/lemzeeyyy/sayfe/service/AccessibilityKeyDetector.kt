@@ -224,7 +224,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     }
 
     private fun getCurrentLocation(){
-         var fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+         val fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -264,8 +264,8 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private fun getCityName(lon : Double,lat : Double) : String{
         var cityName: String = ""
         val geoCoder = Geocoder(this, Locale.getDefault())
-        val address = geoCoder.getFromLocation(lat,lon,1)
-        if (address != null) {
+        val address = geoCoder.getFromLocation(lat,lon,1) ?: return ""
+        try {
             cityName = address[0].adminArea
             if (cityName == null){
                 cityName = address[0].locality
@@ -273,14 +273,20 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     cityName = address[0].subAdminArea
                 }
             }
-        }else{
+        }catch (e:Exception){
             cityName = ""
+            Log.d("City Name Exception", "getCityName: ${e.message}")
         }
         return cityName
     }
 
     private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
-        myRef.child(currentUserid).setValue(outgoingAlertDataList)
+        val scope = CoroutineScope(Job() + Dispatchers.Main)
+        scope.launch {
+            outgoingAlertDataList.addAll(SayfeRepository.getOutgoingAlertList(currentUserid))
+           SayfeRepository.saveOutgoingData(currentUserid,outgoingAlertDataList)
+        }
+
     }
 
     override fun onLocationChanged(p0: Location) {

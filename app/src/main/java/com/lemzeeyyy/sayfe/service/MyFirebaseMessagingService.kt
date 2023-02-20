@@ -24,8 +24,13 @@ import com.lemzeeyyy.sayfe.fragments.DashboardFragment
 import com.lemzeeyyy.sayfe.model.IncomingAlertData
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.alertTriggerId
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.appTokenList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 const val CHANNEL_ID = "notification_id"
 const val CHANNEL_NAME = "notification channel name"
@@ -105,47 +110,25 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
   val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(notificationChannel)
         }
         notificationManager.notify(0,builder.build())
-
     }
 
-
-    private fun makeStatusNotification(message: String, context: Context) {
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            val name = CHANNEL_NAME
-            val description = VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, name, importance)
-            channel.description = description
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-
-            notificationManager?.createNotificationChannel(channel)
-        }
-
-
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(NOTIFICATION_TITLE)
-            .setContentText(message)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setVibrate(LongArray(0))
-
-
-        NotificationManagerCompat.from(context).notify(123, builder.build())
-    }
 
     private fun saveIncomingAlertToDb(incomingAlertDataList: MutableList<IncomingAlertData>){
-        fAuth.currentUser?.uid?.let { myRef.child(it).setValue(incomingAlertDataList) }
+
+        val scope = CoroutineScope(Job() + Dispatchers.Main)
+        scope.launch {
+            fAuth.currentUser?.uid?.let {
+                incomingAlertDataList.addAll(SayfeRepository.getIncomingAlertList(it))
+                myRef.child(it).setValue(incomingAlertDataList)
+            }
+        }
+
     }
 
 

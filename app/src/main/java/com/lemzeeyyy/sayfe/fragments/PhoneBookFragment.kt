@@ -286,6 +286,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
             }
         }
     }
+
+
     override fun onContactClick(contacts: MutableList<PhonebookContact>,dbContacts : MutableList<PhonebookContact>) {
         Log.d("TAG", "onContactClick: Triggered")
         dbContacts.forEach {
