@@ -14,6 +14,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -30,9 +31,9 @@ object SayfeRepository {
         try {
             val result = myRef.get().await()
             result.children.forEach {
-                if (currentUserid == it.key)
-
-                outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
+                if (currentUserid == it.key) {
+                    outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
+                }
               //  it.key?.let { it1 -> key.add(it1) }
             }
 
@@ -52,8 +53,9 @@ object SayfeRepository {
         try {
             val result = myRef.get().await()
             result.children.forEach {
-                if (currentUserid == it.key)
-                incomingDataList = it.getValue<MutableList<IncomingAlertData>>()!!
+                if (currentUserid == it.key) {
+                    incomingDataList = it.getValue<MutableList<IncomingAlertData>>()!!
+                }
                 //it.key?.let { it1 -> key.add(it1) }
             }
 
@@ -200,5 +202,89 @@ object SayfeRepository {
         }
 
         return distinctContact
+    }
+
+
+    suspend fun getGuardianList(currentUserid: String) : MutableList<PhonebookContact>{
+         val database = Firebase.firestore
+         val collectionReference = database.collection("Guardian Angels")
+        var guardianAngelsList = mutableListOf<PhonebookContact>()
+        try {
+            val data = collectionReference.document(currentUserid).get().await().toObject(GuardianData::class.java)
+            if (data!=null){
+               guardianAngelsList = data.guardianInfo
+            }
+        }catch (e:Exception){
+            Log.d("Guardian List Exception", "getGuardianList: ${e.message} ")
+        }
+       return guardianAngelsList
+    }
+
+    suspend fun getRegisteredGuardianAngels(currentUserid: String) : MutableList<Users>{
+        val database = Firebase.firestore
+        val collectionReference = database.collection("Guardian Angels")
+        val usersCollection = database.collection("Users")
+        var users = Users()
+        val usersList = mutableListOf<Users>()
+        try {
+            val data = collectionReference.document(currentUserid).get().await().toObject(GuardianData::class.java)
+            data?.let {
+                it.guardianInfo.forEach { guardians ->
+                    val querySnapshot = usersCollection.whereEqualTo("phoneNumber",guardians.number).get().await()
+                    querySnapshot.forEach { queryDocSnapshot ->
+                        users = queryDocSnapshot.toObject(Users::class.java)
+                        usersList.add(users)
+                    }
+                }
+            }
+        }catch (e:Exception){
+            Log.d("Registered Guardian Users Exception", "getGuardianList: ${e.message} ")
+        }
+        return usersList
+    }
+
+    suspend fun getNotificationSender(currentUserid: String) : String{
+        val database = Firebase.firestore
+        val usersCollection = database.collection("Users")
+        var userName = ""
+        try {
+            val querySnapshot = usersCollection.whereEqualTo("currentUserId",currentUserid).get().await()
+
+            querySnapshot.forEach { queryDocSnapshot ->
+                val users = queryDocSnapshot.toObject(Users::class.java)
+                userName = users.fullName
+            }
+        }catch (e:Exception){
+            Log.d("Notification Sender UserName Exception", "getNotificationSender: ${e.message}")
+        }
+        return userName
+    }
+
+    suspend fun getUserSosText(currentUserid: String) : String{
+        val database = Firebase.firestore
+        val usersCollection = database.collection("Users")
+        var sos = ""
+        try {
+            val querySnapshot = usersCollection.whereEqualTo("currentUserId",currentUserid).get().await()
+
+            querySnapshot.forEach { queryDocSnapshot ->
+                val users = queryDocSnapshot.toObject(Users::class.java)
+                sos = users.userSOSText
+            }
+        }catch (e:Exception){
+            Log.d("Notification Sender UserName Exception", "getNotificationSender: ${e.message}")
+        }
+        return sos
+    }
+
+    suspend fun saveOutgoingData(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
+         val outgoingAlertDb = Firebase.database
+         val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
+        myRef.child(currentUserid).setValue(outgoingAlertDataList)
+    }
+    suspend fun saveIncomingData(currentUserid: String, incomingAlertDataList: MutableList<OutgoingAlertData>){
+        val incomingAlertDb = Firebase.database
+        val myRef = incomingAlertDb.getReference("IncomingAlerts")
+        myRef.child(currentUserid).setValue(incomingAlertDataList)
     }
 }
