@@ -78,14 +78,6 @@ class DashboardFragment : Fragment() {
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MainActivityViewModel by activityViewModels()
-    private lateinit var fAuth: FirebaseAuth
-
-    private val database = Firebase.firestore
-    private val collectionReference = database.collection("Users")
-    private val guardianCollection = database.collection("Guardian Angels")
-
-
-    // private var imageUri : Uri = Uri.EMPTY
     private lateinit var backPressedCallback: OnBackPressedCallback
     private var sensorManager: SensorManager? = null
     private var acceleration = 0f
@@ -147,12 +139,9 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkAccessibilityPermission()
-        fAuth = Firebase.auth
-        val currentUser = fAuth.currentUser
-        val currentUserid = currentUser?.uid
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val userName = currentUserid?.let { SayfeRepository.getNotificationSender(it) }
+            val userName =  SayfeRepository.getNotificationSender(SayfeRepository.getCurrentUid())
             binding.userNameHome.setText(userName.toString())
         }
 
@@ -414,27 +403,30 @@ class DashboardFragment : Fragment() {
     }
 
       private fun getDoubleVolumeTap(){
-          fAuth = Firebase.auth
-          val currentUser = fAuth.currentUser
-          val currentUserid = currentUser?.uid
 
-         if (!checkAccessibilityPermission() && volumeTrigger){
-             //sendSMSSOS()
-             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-             val currentDate = sdf.format(Date())
-             val cityName = getCityName(longitude,latitude)
-             val outgoingAlertData = OutgoingAlertData(senderName,
-                 locationUrl,currentDate,"Sayfe SOS Alert",cityName)
-             outgoingDataList.add(outgoingAlertData)
-             if (currentUserid != null) {
-                 saveOutgoingAlertToDb(currentUserid, outgoingDataList)
-             }
-             viewModel.users.observe(viewLifecycleOwner){
-                 it?.forEach {user->
-                     sendPushNotifier(user,outgoingAlertData)
-                 }
-             }
-         }
+          viewLifecycleOwner.lifecycleScope.launch {
+              val currentUserid = SayfeRepository.getCurrentUid()
+              if (!checkAccessibilityPermission() && volumeTrigger){
+                  //sendSMSSOS()
+                  val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                  val currentDate = sdf.format(Date())
+                  val cityName = getCityName(longitude,latitude)
+                  val outgoingAlertData = OutgoingAlertData(senderName,
+                      locationUrl,currentDate,"Sayfe SOS Alert",cityName)
+                  outgoingDataList.add(outgoingAlertData)
+                  if (currentUserid != null) {
+                      saveOutgoingAlertToDb(currentUserid, outgoingDataList)
+                  }
+                  viewModel.users.observe(viewLifecycleOwner){
+                      it?.forEach {user->
+                          sendPushNotifier(user,outgoingAlertData)
+                      }
+                  }
+              }
+          }
+
+
+
     }
 
     private fun getCityName(lon : Double,lat : Double) : String{

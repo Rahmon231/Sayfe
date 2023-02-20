@@ -36,12 +36,7 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
 
     private lateinit var binding : FragmentIncomingAlertBinding
     private lateinit var incomingAlertsRecyclerAdapter: IncomingAlertsRecyclerAdapter
-    private val incomingAlertDb = Firebase.database
-    private var fAuth = Firebase.auth
-    private val database = Firebase.firestore
     private val viewModel: MainActivityViewModel by activityViewModels()
-
-    private val myRef = incomingAlertDb.getReference("IncomingAlerts")
     private lateinit var notificationBodyListener : NotificationBodyClickListener
 
     override fun onCreateView(
@@ -54,9 +49,6 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fAuth = Firebase.auth
-        val currentUser = fAuth.currentUser
-        val currentUserId = currentUser?.uid
         notificationBodyListener = this
         incomingAlertsRecyclerAdapter = IncomingAlertsRecyclerAdapter(notificationBodyListener)
         binding.incomingRecycler.adapter = incomingAlertsRecyclerAdapter
@@ -69,7 +61,6 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
         viewModel.incomingDataStatus.observe(viewLifecycleOwner){
             updateViewForIncomingAlerts(it)
         }
-        viewModel.incomingDataList()
         viewModel.incomingAlertListLiveData.observe(viewLifecycleOwner){incomingAlertList->
             if (incomingAlertList!=null){
                 if (incomingAlertList.size == 0){
@@ -82,24 +73,6 @@ class IncomingAlertFragment : Fragment(),NotificationBodyClickListener {
 
         }
 
-//        myRef.addValueEventListener(object : ValueEventListener{
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//               //Update recyclerView for only targeted appID
-//                //update recycler view of devices with the uid in child of incoming alerts
-//                snapshot.children.forEach {
-//                    val incomingDataList = it.getValue<MutableList<IncomingAlertData>>()
-//                    if (currentUserId == it.key){
-//                        if (incomingDataList != null) {
-//                            incomingAlertsRecyclerAdapter.updateDataList(incomingDataList)
-//                        }
-//                    }
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Toast.makeText(requireContext(),error.message.toString(),Toast.LENGTH_SHORT).show()
-//            }
-//        })
     }
 
     private fun updateViewForIncomingAlerts(contactState: Int?) {

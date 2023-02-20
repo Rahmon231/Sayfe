@@ -123,7 +123,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val scope = CoroutineScope(Job() + Dispatchers.Main)
         scope.launch {
-            fAuth.currentUser?.uid?.let {
+            SayfeRepository.getCurrentUid().let {
                 incomingAlertDataList.addAll(SayfeRepository.getIncomingAlertList(it))
                 myRef.child(it).setValue(incomingAlertDataList)
             }

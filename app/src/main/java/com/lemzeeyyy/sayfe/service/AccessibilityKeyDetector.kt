@@ -79,7 +79,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                 val scope = CoroutineScope(Job() + Dispatchers.Main)
 
                                 scope.launch {
-                                    fAuth.currentUser?.uid?.let {
+                                    SayfeRepository.getCurrentUid().let {
                                         val usersList = SayfeRepository.getRegisteredGuardianAngels(it)
                                         val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                                         val currentDate = sdf.format(Date())

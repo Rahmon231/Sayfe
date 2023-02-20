@@ -19,12 +19,11 @@ const val FAILED = 4
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val fAuth = Firebase.auth
-    private var currentUser = fAuth.currentUser
-    private var currentUserid = currentUser?.uid
-
     private val _guardianLiveData = MutableLiveData<GuardianData>()
     val guardianLiveData: LiveData<GuardianData> get() = _guardianLiveData
+
+    private val _currentUserid = MutableLiveData<String>()
+    val currentUserID : LiveData<String> get() = _currentUserid
 
     private val _triggerApp = MutableLiveData<Boolean>()
     val triggerApp : LiveData<Boolean> get() = _triggerApp
@@ -66,9 +65,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
         viewModelScope.launch {
 
-            _userImageUri.value = currentUserid?.let { SayfeRepository.getImageUriFromDb(it) }
+            _userImageUri.value = SayfeRepository.getImageUriFromDb(SayfeRepository.getCurrentUid())
 
-            _users.value = currentUserid?.let { SayfeRepository.getRegisteredGuardianAngels(it) }
+            _users.value = SayfeRepository.getRegisteredGuardianAngels(SayfeRepository.getCurrentUid())
+
+            _currentUserid.value = SayfeRepository.getCurrentUid()
 
            // _outgoingAlertListLiveData.value = currentUserid?.let { SayfeRepository.getOutgoingAlertList(it) }
 
@@ -89,8 +90,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getPhoneBook(){
         viewModelScope.launch {
-            _userContactsLiveData.value =
-                currentUserid?.let { SayfeRepository.getPhoneBook(getApplication(), it) }
+            _userContactsLiveData.value =  SayfeRepository.getPhoneBook(getApplication(), SayfeRepository.getCurrentUid())
             if (_userContactsLiveData.value?.isNotEmpty() == true){
                 _contactStatus.value = PASSED
             }else{
@@ -103,8 +103,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             try {
                 _guardianAngelsStatus.value = BUSY
-                _guardianLiveData.value = currentUserid?.let {
-                    SayfeRepository.getGuardianAngelsListFromDb(it) }
+                _guardianLiveData.value =  SayfeRepository.getGuardianAngelsListFromDb(SayfeRepository.getCurrentUid())
                 if (_guardianLiveData.value?.guardianInfo?.isEmpty() == true){
                     _guardianAngelsStatus.value = EMPTY
                 }else{
@@ -121,7 +120,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         _incomingDataStatus.value = BUSY
         viewModelScope.launch {
             try {
-                _incomingAlertListLiveData.value = currentUserid?.let { SayfeRepository.getIncomingAlertList(it) }
+                _incomingAlertListLiveData.value =  SayfeRepository.getIncomingAlertList(SayfeRepository.getCurrentUid())
                 if (_incomingAlertListLiveData.value?.isEmpty() == true){
                     _incomingDataStatus.value = EMPTY
                 }else{
@@ -138,7 +137,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         _outgoingDataStatus.value = BUSY
         viewModelScope.launch {
             try {
-                _outgoingAlertListLiveData.value = currentUserid?.let { SayfeRepository.getOutgoingAlertList(it) }
+                _outgoingAlertListLiveData.value =  SayfeRepository.getOutgoingAlertList(SayfeRepository.getCurrentUid())
                 if (_outgoingAlertListLiveData.value?.isEmpty() == true){
                     _outgoingDataStatus.value = EMPTY
                 }else{

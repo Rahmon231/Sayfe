@@ -28,9 +28,7 @@ import com.lemzeeyyy.sayfe.viewmodels.*
 class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
     private lateinit var binding : FragmentOutgoingAlertBinding
     private lateinit var outgoingAlertsRecyclerAdapter: OutgoingAlertsRecyclerAdapter
-    private val outgoingAlertDb = Firebase.database
     private val fAuth = Firebase.auth
-    private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private lateinit var notificationBodyListener : NotificationBodyClickListener
     private val viewModel: MainActivityViewModel by activityViewModels()
 
@@ -46,7 +44,6 @@ class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         notificationBodyListener = this
-        val currentUserId = fAuth.currentUser?.uid
         outgoingAlertsRecyclerAdapter = OutgoingAlertsRecyclerAdapter(notificationBodyListener)
         binding.outgoingRecycler.adapter = outgoingAlertsRecyclerAdapter
 
@@ -66,20 +63,6 @@ class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
 
         }
 
-//        myRef.addValueEventListener(object : ValueEventListener{
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                snapshot.children.forEach {
-//                    val outgoingDataList = it.getValue<MutableList<OutgoingAlertData>>()!!
-//                    if (currentUserId == it.key){
-//                        outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
-//                    }
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.d("TAG", "onCancelled: ${error.message.toString()} ")
-//            }
-//        })
     }
 
     private fun updateViewForOutgoingState(contactState: Int?) {

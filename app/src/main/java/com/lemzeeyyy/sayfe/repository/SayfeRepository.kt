@@ -282,9 +282,20 @@ object SayfeRepository {
          val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
         myRef.child(currentUserid).setValue(outgoingAlertDataList)
     }
+
     suspend fun saveIncomingData(currentUserid: String, incomingAlertDataList: MutableList<OutgoingAlertData>){
         val incomingAlertDb = Firebase.database
         val myRef = incomingAlertDb.getReference("IncomingAlerts")
         myRef.child(currentUserid).setValue(incomingAlertDataList)
+    }
+
+    suspend fun getCurrentUid():String{
+        val fauth = Firebase.auth
+        val currentUser = fauth.currentUser
+        var currentUserId = ""
+       if (currentUser!=null){
+            currentUserId = currentUser.uid
+       }
+        return currentUserId
     }
 }
