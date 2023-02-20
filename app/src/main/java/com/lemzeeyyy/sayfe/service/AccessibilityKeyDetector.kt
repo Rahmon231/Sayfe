@@ -26,6 +26,7 @@ import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.model.*
 import com.lemzeeyyy.sayfe.network.NetworkObject
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import kotlinx.coroutines.*
 import okhttp3.Call
 import okhttp3.Callback
@@ -45,30 +46,19 @@ const val WEB_KEY = "key =AAAAjSSVQd8:APA91bGXkadZl3RJX9wdwsKQVE723byXjRYU2fK29j
 
 class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val TAG = "AccessKeyDetector"
-    private val database = Firebase.firestore
-    private val fAuth = Firebase.auth
     private var listItem = mutableListOf<Int>()
-    private val collectionReference = database.collection("Guardian Angels")
-    private val usersCollection = database.collection("Users")
-    private var guardianList = mutableListOf<PhonebookContact>()
-
     private var latitude = 0.0
     private var longitude = 0.0
     private var counter = 0
     private var locationUrl = ""
-    var lastClickTime: Long = 0
     private val outgoingAlertDb = Firebase.database
     private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private var outgoingDataList = mutableListOf<OutgoingAlertData>()
-    private var senderName : String =""
-    private var senderMessageBody : String =""
 
     companion object{
          var appTokenList : MutableList<String> = mutableListOf()
         var alertTriggerId : String = ""
     }
-
-
 
     override fun onKeyEvent(event: KeyEvent?): Boolean {
         val fAuth = Firebase.auth
@@ -87,15 +77,28 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                             if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
                                 getCurrentLocation()
                                 val scope = CoroutineScope(Job() + Dispatchers.Main)
-                                //  Manual SMS Functionality
-                                fAuth.currentUser?.uid?.let {
-                                    getGuardianAngelsListFromDb(it)
+
+                                scope.launch {
+                                    fAuth.currentUser?.uid?.let {
+                                        val usersList = SayfeRepository.getRegisteredGuardianAngels(it)
+                                        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                                        val currentDate = sdf.format(Date())
+                                        val citName = getCityName(longitude,latitude)
+                                        val senderNam = SayfeRepository.getNotificationSender(it)
+                                        val sos = SayfeRepository.getUserSosText(it)
+                                        val outgoingAlertData = OutgoingAlertData(senderNam,locationUrl,currentDate,"Sayfe SOS Alert",citName)
+                                        outgoingDataList.add(outgoingAlertData)
+                                        Log.d(TAG, "onTick: $citName")
+
+                                        saveOutgoingAlertToDb(it, outgoingDataList)
+                                        usersList.forEach {user->
+                                            Log.d(TAG, "onTick: ${user.fullName}")
+                                            sendPushNotifier(user,outgoingAlertData)
+                                        }
+                                    }
+                                    sendSmsFromBackEnd("+447823927201","\n$locationUrl")
                                 }
 
-                                fAuth.currentUser?.uid?.let {
-                                    getGuardianAngelsAppTokenAndSendNotification(it)
-                                    // alertTriggerId = it
-                                }
                             }
                             listItem.clear()
                         }
@@ -144,107 +147,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
         super.onServiceConnected()
     }
 
-    private fun getGuardianAngelsListFromDb(currentUserid: String) {
-
-        collectionReference.document(currentUserid)
-            .get()
-            .addOnSuccessListener {
-                val data = it.toObject(GuardianData::class.java)
-                data?.let { guardianData ->
-                    guardianList = guardianData.guardianInfo
-                    guardianList.forEach {recipientContact->
-                        val scope = CoroutineScope(Job() + Dispatchers.Main)
-                        scope.launch {
-                            while (counter < 3) {
-                                //sendsms
-                                counter++
-                                delay(120000) // 2 minutes
-                                 sendsms(recipientContact.number, "$senderMessageBody \n$locationUrl")
-                                Toast.makeText(this@AccessibilityKeyDetector, "sms sent successfully", Toast.LENGTH_LONG).show()
-                            }
-
-
-                        }
-//                        scope.launch {
-//                            sendsms(recipientContact.number,"$senderMessageBody \n$locationUrl")
-//
-//                        }
-                      //  sendSMSSOS(recipientContact.number,"$senderMessageBody \n$locationUrl")
-
-                    }
-                }
-            }
-            .addOnFailureListener {
-
-            }
-    }
-    private fun getSenderNameAndSosBody(currentUserid: String){
-        usersCollection.whereEqualTo("currentUserId",currentUserid)
-            .addSnapshotListener { value, error ->
-                value?.let {
-                    if(!it.isEmpty){
-                        for (snapshot : QueryDocumentSnapshot in value){
-                            val currentUser = snapshot.toObject(Users::class.java)
-                            senderName = currentUser.fullName
-                            senderMessageBody = currentUser.userSOSText
-                        }
-                    }
-                }
-            }
-    }
-
-    private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
-        alertTriggerId = currentUserid
-        getSenderNameAndSosBody(currentUserid)
-        collectionReference.document(currentUserid)
-            .get()
-            .addOnSuccessListener {
-                val data = it.toObject(GuardianData::class.java)
-                data?.let { guardianData ->
-                    guardianList = guardianData.guardianInfo
-                    guardianList.forEach {recipientContact ->
-                        usersCollection.whereEqualTo("phoneNumber",recipientContact.number)
-                         .get()
-                         .addOnSuccessListener {querySnapshot ->
-                         querySnapshot.forEach {queryDocumentSnapshot ->
-                             val users = queryDocumentSnapshot.toObject(Users::class.java)
-                             val appToken = users.appToken
-                             val userName = users.fullName
-                             Log.d("USER APP TOKEN", "getGuardianAngelsAppTokenAndSendNotification: $appToken")
-                             Log.d("USER NAME", "getGuardianAngelsAppTokenAndSendNotification: $userName")
-                             appTokenList.add(appToken)
-                             var cityName: String = ""
-                             val geoCoder = Geocoder(this, Locale.getDefault())
-                             val address = geoCoder.getFromLocation(latitude,longitude,1)
-                             if (address != null) {
-                                 cityName = address[0].adminArea
-                                 if (cityName == null){
-                                     cityName = address[0].locality
-                                     if (cityName == null){
-                                         cityName = address[0].subAdminArea
-                                     }
-                                 }
-                             }
-                             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-                             val currentDate = sdf.format(Date())
-                             val outgoingAlertData = OutgoingAlertData(senderName,locationUrl,currentDate,"Sayfe SOS Alert",cityName)
-                             outgoingDataList.add(outgoingAlertData)
-                             saveOutgoingAlertToDb(currentUserid, outgoingDataList)
-                             sendPushNotifier(users,outgoingAlertData)
-                         }
-                     }
-                            .addOnFailureListener{exception ->
-                             Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${exception.toString()}")
-                         }
-                        appTokenList.clear()
-                    }
-                }
-            }
-            .addOnFailureListener {
-
-            }
-    }
-
     private fun sendSMSSOS(phoneNumber : String,body: String) {
         try {
 
@@ -272,11 +174,12 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
         }
     }
 
-    private suspend fun sendsms(recipient: String, body: String){
+    private suspend fun sendSmsFromBackEnd(recipient: String, body: String){
         NetworkObject.retrofitService.sendsms(recipient, body)
     }
 
     private fun sendPushNotifier(users: Users, data: OutgoingAlertData) {
+        Log.d(TAG, "sendPushNotifier: ${users.currentUserId}")
 
         val body = Gson().toJson(data)
 
@@ -320,7 +223,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
             })
     }
 
-
     private fun getCurrentLocation(){
          var fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(
@@ -331,6 +233,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            locationUrl = ""
 
             Log.d(TAG, "getCurrentLocation: No permission enabled")
             return
@@ -356,6 +259,24 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                     .show()
             }
         }
+    }
+
+    private fun getCityName(lon : Double,lat : Double) : String{
+        var cityName: String = ""
+        val geoCoder = Geocoder(this, Locale.getDefault())
+        val address = geoCoder.getFromLocation(lat,lon,1)
+        if (address != null) {
+            cityName = address[0].adminArea
+            if (cityName == null){
+                cityName = address[0].locality
+                if (cityName == null){
+                    cityName = address[0].subAdminArea
+                }
+            }
+        }else{
+            cityName = ""
+        }
+        return cityName
     }
 
     private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){

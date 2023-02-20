@@ -29,6 +29,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -51,9 +52,11 @@ import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
 import com.lemzeeyyy.sayfe.service.NOTIFICATION_URL
 import com.lemzeeyyy.sayfe.service.WEB_KEY
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -144,26 +147,20 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkAccessibilityPermission()
-
         fAuth = Firebase.auth
-        collectionReference.whereEqualTo("currentUserId",fAuth.currentUser?.uid).addSnapshotListener { value, error ->
-            if (value != null) {
-                for ( i in value){
-                    val users = i.toObject(Users::class.java)
-                    binding.userNameHome.setText(users.fullName)
-                }
+        val currentUser = fAuth.currentUser
+        val currentUserid = currentUser?.uid
 
-            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val userName = currentUserid?.let { SayfeRepository.getNotificationSender(it) }
+            binding.userNameHome.setText(userName.toString())
         }
+
 
         SharedPrefs.init(requireContext())
          shakeTrigger = SharedPrefs.getBoolean("shake", false)
          volumeTrigger = SharedPrefs.getBoolean("volume", false)
          tapTrigger = SharedPrefs.getBoolean("tap", false)
-
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
-
 
 
         fusedLocationProviderClient =
@@ -184,7 +181,6 @@ class DashboardFragment : Fragment() {
 
         binding.alertBeneficiaryDashboard.setOnClickListener {
             findNavController().navigate(R.id.guardianAngelsFragment)
-
         }
 
         binding.triggersDashboard.setOnClickListener {
@@ -194,8 +190,6 @@ class DashboardFragment : Fragment() {
         binding.sosTextsDashboard.setOnClickListener {
             findNavController().navigate(R.id.sosTextFragment)
         }
-
-
 
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
@@ -209,10 +203,18 @@ class DashboardFragment : Fragment() {
         currentAcceleration = SensorManager.GRAVITY_EARTH
         lastAcceleration = SensorManager.GRAVITY_EARTH
 
-        triggerSayfe()
+        viewModel.triggerApp.observe(viewLifecycleOwner){
+            if (it==null){
+                return@observe
+            }
+            if (it){
+                triggerSayfe()
+            }
+        }
+        viewModel.updateShouldTriggerApp(false)
+
 
     }
-
 
     private fun sendPushNotifier(users: Users, data: OutgoingAlertData) {
 
@@ -258,76 +260,14 @@ class DashboardFragment : Fragment() {
             })
     }
 
-    private fun getGuardianAngelsAppTokenAndSendNotification(currentUserid: String){
-
-        collectionReference.whereEqualTo("currentUserId",currentUserid)
-            .addSnapshotListener { value, error ->
-                value?.let {
-                    if(!it.isEmpty){
-                        for (snapshot : QueryDocumentSnapshot in value){
-                            val currentUser = snapshot.toObject(Users::class.java)
-                            senderName = currentUser.fullName
-                            senderMessageBody = currentUser.userSOSText
-
-                            Log.d("SENDER", "getGuardianAngelsAppToken: $senderName")
-                        }
-                    }
-                }
-            }
-        guardianCollection.document(currentUserid)
-            .get()
-            .addOnSuccessListener {
-                val data = it.toObject(GuardianData::class.java)
-                data?.let { guardianData ->
-                    guardianList = guardianData.guardianInfo
-                    guardianList.forEach {recipientContact ->
-
-                        collectionReference.whereEqualTo("number",recipientContact.number)
-                            .get()
-                            .addOnSuccessListener {querySnapshot ->
-                                querySnapshot.forEach {queryDocumentSnapshot ->
-                                    val users = queryDocumentSnapshot.toObject(Users::class.java)
-                                    val appToken = users.appToken
-                                    val userName = users.fullName
-                                    AccessibilityKeyDetector.appTokenList.add(appToken)
-                                    Log.d("APPTOKEN", "getGuardianAngelsAppToken: ${AccessibilityKeyDetector.appTokenList}")
-                                    var cityName: String = ""
-                                    val geoCoder = Geocoder(requireContext(), Locale.getDefault())
-                                    val address = geoCoder.getFromLocation(latitude,longitude,1)
-                                    if (address != null) {
-                                        cityName = address[0].adminArea
-                                        if (cityName == null){
-                                            cityName = address[0].locality
-                                            if (cityName == null){
-                                                cityName = address[0].subAdminArea
-                                            }
-                                        }
-                                    }
-                                    val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-                                    val currentDate = sdf.format(Date())
-
-                                    val outgoingAlertData = OutgoingAlertData(senderName,
-                                        locationUrl,currentDate,"Sayfe SOS Alert",cityName)
-
-                                    outgoingDataList.add(outgoingAlertData)
-                                    saveOutgoingAlertToDb(currentUserid, outgoingDataList)
-                                    sendPushNotifier(users,outgoingAlertData)
-
-                                }
-                            }
-                            .addOnFailureListener{exception ->
-                                Log.d("APPTOKEN EXCEPTION", "getGuardianAngelsAppToken: ${exception.toString()}")
-                            }
-                    }
-                }
-            }
-            .addOnFailureListener {
-
-            }
-    }
-
     private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
-        myRef.child(currentUserid).setValue(outgoingAlertDataList)
+        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
+            if (it != null) {
+                outgoingAlertDataList.addAll(it)
+            }
+            myRef.child(currentUserid).setValue(outgoingAlertDataList)
+        }
+
     }
 
     private fun getCurrentLocation() {
@@ -431,21 +371,12 @@ class DashboardFragment : Fragment() {
 
 
 
-
-
     private fun sendSMSSOS() {
-
-        val currentUserId = fAuth.currentUser?.uid
-         if (currentUserId != null) {
-             getGuardianAngelsAppTokenAndSendNotification(currentUserId)
-         }
 
          if (ContextCompat.checkSelfPermission(requireContext(),android.Manifest.permission.SEND_SMS)
              == PackageManager.PERMISSION_GRANTED){
              try {
-
                  val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= 23) {
-
                      requireActivity().getSystemService(SmsManager::class.java)
                  } else {
                      SmsManager.getDefault()
@@ -483,27 +414,49 @@ class DashboardFragment : Fragment() {
     }
 
       private fun getDoubleVolumeTap(){
-//        val timer = object : CountDownTimer(300,300){
-//            override fun onTick(millisUntilFinished: Long) {
-//                listItem.add(1)
-//                Log.d("KOUNTER", "onTick: ${listItem.size}")
-//                if (listItem.size == 2){
-//                    if (!checkAccessibilityPermission() && volumeTrigger){
-//                        Toast.makeText(requireContext(),"Volume Up Twice Detected",Toast.LENGTH_SHORT).show()
-//                        sendSMSSOS()
-//                    }
-//                }
-//            }
-//
-//            override fun onFinish() {
-//                listItem.clear()
-//            }
-//
-//        }
-//        timer.start()
+          fAuth = Firebase.auth
+          val currentUser = fAuth.currentUser
+          val currentUserid = currentUser?.uid
+
          if (!checkAccessibilityPermission() && volumeTrigger){
-             sendSMSSOS()
+             //sendSMSSOS()
+             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+             val currentDate = sdf.format(Date())
+             val cityName = getCityName(longitude,latitude)
+             val outgoingAlertData = OutgoingAlertData(senderName,
+                 locationUrl,currentDate,"Sayfe SOS Alert",cityName)
+             outgoingDataList.add(outgoingAlertData)
+             if (currentUserid != null) {
+                 saveOutgoingAlertToDb(currentUserid, outgoingDataList)
+             }
+             viewModel.users.observe(viewLifecycleOwner){
+                 it?.forEach {user->
+                     sendPushNotifier(user,outgoingAlertData)
+                 }
+             }
          }
+    }
+
+    private fun getCityName(lon : Double,lat : Double) : String{
+        getCurrentLocation()
+        var cityName: String = ""
+        val geoCoder = Geocoder(requireContext(), Locale.getDefault())
+        val address = geoCoder.getFromLocation(lat,lon,1) ?: return ""
+
+        try {
+            cityName = address[0].adminArea
+            if (cityName == null){
+                cityName = address[0].locality
+                if (cityName == null){
+                    cityName = address[0].subAdminArea
+                }
+            }
+        }catch (e:Exception){
+            cityName = ""
+            Log.d("City Name Exception", "getCityName: ${e.message}")
+        }
+
+        return cityName
     }
 
     private fun triggerSayfe() {
@@ -612,8 +565,6 @@ class DashboardFragment : Fragment() {
         )
         super.onResume()
     }
-
-
 
 
 }

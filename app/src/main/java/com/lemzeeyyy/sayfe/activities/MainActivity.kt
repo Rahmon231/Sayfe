@@ -22,6 +22,10 @@ import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.ActivityMainBinding
 import com.lemzeeyyy.sayfe.fragments.DashboardFragment
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val DOUBLE_CLICK_TIME_DELTA = 300
 class MainActivity : AppCompatActivity() {
@@ -39,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-       // checkAccessibilityPermission()
 
         val navView: BottomNavigationView = binding.navViewBtm
 
@@ -57,26 +60,6 @@ class MainActivity : AppCompatActivity() {
         }
         navView.setupWithNavController(navController)
     }
-    private fun checkAccessibilityPermission(): Boolean {
-        var accessEnabled = 0
-        try {
-            accessEnabled =
-                Settings.Secure.getInt(this.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
-        } catch (e: Settings.SettingNotFoundException) {
-            e.printStackTrace()
-        }
-        return if (accessEnabled == 0) {
-            /** if not construct intent to request permission  */
-            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            /** request permission via start activity for result  */
-
-            startActivity(intent)
-            false
-        } else {
-            true
-        }
-    }
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
@@ -86,8 +69,10 @@ class MainActivity : AppCompatActivity() {
         val clickTime = System.currentTimeMillis()
         if (keyCode.equals(KeyEvent.KEYCODE_VOLUME_UP)){
             if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                Toast.makeText(this@MainActivity,"Volume Up Tapped Twice",Toast.LENGTH_SHORT).show()
-                //Send Broadcast
+                CoroutineScope(Dispatchers.Main).launch {
+                    Toast.makeText(this@MainActivity,"Double Clicked",Toast.LENGTH_SHORT).show()
+                   viewModel.updateShouldTriggerApp(true)
+                }
             }
         }
         lastClickTime = clickTime

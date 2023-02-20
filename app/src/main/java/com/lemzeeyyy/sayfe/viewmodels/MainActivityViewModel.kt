@@ -2,21 +2,12 @@ package com.lemzeeyyy.sayfe.viewmodels
 
 import android.app.Application
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.lemzeeyyy.sayfe.model.*
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import kotlinx.coroutines.launch
@@ -35,8 +26,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _guardianLiveData = MutableLiveData<GuardianData>()
     val guardianLiveData: LiveData<GuardianData> get() = _guardianLiveData
 
-    private val _navigateToActivity = MutableLiveData<Boolean>()
-    val navigateToActivity : LiveData<Boolean> get() = _navigateToActivity
+    private val _triggerApp = MutableLiveData<Boolean>()
+    val triggerApp : LiveData<Boolean> get() = _triggerApp
 
     private var _contactStatus = MutableLiveData<Int>()
     val contactStatus: LiveData<Int> get() = _contactStatus
@@ -59,6 +50,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _userContactsLiveData = MutableLiveData<MutableList<PhonebookContact>?>()
     val userContactsLiveDataList : LiveData<MutableList<PhonebookContact>?> get() = _userContactsLiveData
 
+    private val _users = MutableLiveData<MutableList<Users>?>()
+    val users : LiveData<MutableList<Users>?> get() = _users
+
     private val _outgoingAlertListLiveData = MutableLiveData<MutableList<OutgoingAlertData>?>()
     val outgoingAlertListLiveData : LiveData<MutableList<OutgoingAlertData>?> get() = _outgoingAlertListLiveData
 
@@ -74,6 +68,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
             _userImageUri.value = currentUserid?.let { SayfeRepository.getImageUriFromDb(it) }
 
+            _users.value = currentUserid?.let { SayfeRepository.getRegisteredGuardianAngels(it) }
+
            // _outgoingAlertListLiveData.value = currentUserid?.let { SayfeRepository.getOutgoingAlertList(it) }
 
            // _incomingAlertListLiveData.value = currentUserid?.let { SayfeRepository.getIncomingAlertList(it) }
@@ -81,8 +77,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun updateShouldNavActivity(navigate : Boolean){
-        _navigateToActivity.value = navigate
+    fun updateShouldTriggerApp(navigate : Boolean){
+        _triggerApp.value = navigate
     }
 
     fun checkDuplicateRegisteredNumber(phoneNumber: String){
