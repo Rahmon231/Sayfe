@@ -28,7 +28,6 @@ import com.lemzeeyyy.sayfe.viewmodels.*
 class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
     private lateinit var binding : FragmentOutgoingAlertBinding
     private lateinit var outgoingAlertsRecyclerAdapter: OutgoingAlertsRecyclerAdapter
-    private val fAuth = Firebase.auth
     private lateinit var notificationBodyListener : NotificationBodyClickListener
     private val viewModel: MainActivityViewModel by activityViewModels()
 

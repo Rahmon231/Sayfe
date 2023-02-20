@@ -54,8 +54,8 @@ import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
-import com.lemzeeyyy.sayfe.service.NOTIFICATION_URL
-import com.lemzeeyyy.sayfe.service.WEB_KEY
+import com.lemzeeyyy.sayfe.utils.Utilities.NOTIFICATION_URL
+import com.lemzeeyyy.sayfe.utils.Utilities.WEB_KEY
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback

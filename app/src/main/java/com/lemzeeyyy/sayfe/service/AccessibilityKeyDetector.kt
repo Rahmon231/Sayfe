@@ -27,6 +27,8 @@ import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.model.*
 import com.lemzeeyyy.sayfe.network.NetworkObject
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
+import com.lemzeeyyy.sayfe.utils.Utilities.NOTIFICATION_URL
+import com.lemzeeyyy.sayfe.utils.Utilities.WEB_KEY
 import kotlinx.coroutines.*
 import okhttp3.Call
 import okhttp3.Callback
@@ -41,8 +43,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-const val NOTIFICATION_URL = "https://fcm.googleapis.com/fcm/send"
-const val WEB_KEY = "key =AAAAjSSVQd8:APA91bGXkadZl3RJX9wdwsKQVE723byXjRYU2fK29jJtyykUjxWzxF_3nivclwlGT4z4VcvgDFIZvCMtcTI13gNptncMJxLDi5HALsBbsLoLvJ8Ybw5mOroDPybZ-wAZaxTQx0CsgxdI"
 
 class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val TAG = "AccessKeyDetector"
