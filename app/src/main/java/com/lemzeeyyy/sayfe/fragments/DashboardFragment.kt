@@ -97,6 +97,7 @@ class DashboardFragment : Fragment() {
     private var shakeTrigger : Boolean = false
     private var volumeTrigger : Boolean = false
     private var tapTrigger : Boolean = false
+    private var progress = 20
 
     private val exitAppTimer = object : CountDownTimer(2000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
@@ -139,6 +140,22 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkAccessibilityPermission()
+        viewLifecycleOwner.lifecycleScope.launch{
+            if(SayfeRepository.getGuardianList(SayfeRepository.getCurrentUid()).isNotEmpty()){
+                progress+=40
+            }
+            if (SayfeRepository.getUserPhone(SayfeRepository.getCurrentUid()).isNotEmpty()){
+                progress+=20
+            }
+            if (checkAccessibilityPermission()){
+                progress+=20
+            }
+            binding.dashboardProgress.progress = progress
+            binding.progressPercentageText.setText("${progress}%")
+        }
+
+
+
 
         viewLifecycleOwner.lifecycleScope.launch {
             val userName =  SayfeRepository.getNotificationSender(SayfeRepository.getCurrentUid())

@@ -147,6 +147,26 @@ object SayfeRepository {
         return userCountryCode
     }
 
+     suspend fun getUserPhone(currentUserid: String) : String {
+        val database = Firebase.firestore
+        val userReference = database.collection("Users")
+        var userPhoneNumber= ""
+
+        try {
+            val result =  userReference.whereEqualTo("currentUserId",currentUserid)
+                .get()
+                .await()
+            result.forEach {
+                val users = it.toObject(Users::class.java)
+                userPhoneNumber = users.phoneNumber
+            }
+
+        }catch (e:Exception){
+            Log.d("Country Code Exception", "getGetCountryCode: ${e.message} ")
+        }
+        return userPhoneNumber
+    }
+
     suspend fun getImageUriFromDb(currentUserid: String) : Uri {
         val storageRef = FirebaseStorage.getInstance().getReference();
         val imagesRef: StorageReference = storageRef.child("profile_images").child(currentUserid)
