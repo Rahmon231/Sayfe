@@ -67,7 +67,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
             _userImageUri.value = SayfeRepository.getImageUriFromDb(SayfeRepository.getCurrentUid())
 
-            _users.value = SayfeRepository.getRegisteredGuardianAngels(SayfeRepository.getCurrentUid())
+           // _users.value = SayfeRepository.getRegisteredGuardianAngels(SayfeRepository.getCurrentUid())
 
             _currentUserid.value = SayfeRepository.getCurrentUid()
 
@@ -97,6 +97,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 _contactStatus.value = EMPTY
             }
         }
+    }
+
+    fun getRegisteredGuardians(){
+        viewModelScope.launch {
+            _users.value = SayfeRepository.getRegisteredGuardianAngels(SayfeRepository.getCurrentUid())
+        }
+
     }
 
     fun getGuardianAngels(){

@@ -105,10 +105,6 @@ class SignUpFragment : Fragment() {
                         // Get new FCM registration token
                         appToken = tokenTask.result
 
-                        // Log and toast
-
-                        Log.d("tokeennn", appToken)
-                        Toast.makeText(requireContext(), appToken, Toast.LENGTH_SHORT).show()
                         val user = fAuth.currentUser
                         val currentUserId = user!!.uid
 
@@ -129,7 +125,7 @@ class SignUpFragment : Fragment() {
                     Log.w("TAGd", "createUserWithEmail:failure", task.exception)
                     Toast.makeText(requireContext(), "Authentication failed ${task}.",
                         Toast.LENGTH_SHORT).show()
-                    //updateUI(null)
+
                 }
 
             }

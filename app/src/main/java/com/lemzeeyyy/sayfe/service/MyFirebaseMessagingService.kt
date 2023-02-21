@@ -51,7 +51,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         Log.d("apptokencheck", "onMessageReceived: $appTokenList ")
         message.data["alertBody"]?.let { generateNotification("Body",it) }
-        val incomingAlertData = message.data["alertBody"]?.let {body ->
+        val incomingAlertData = message.data["alertBody"]?.let { body ->
             message.data["title"]?.let { title ->
                 message.data["location"]?.let { locationUrl ->
                     message.data["senderName"]?.let { senderName ->
@@ -110,7 +110,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
   val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(notificationChannel)
@@ -124,8 +124,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val scope = CoroutineScope(Job() + Dispatchers.Main)
         scope.launch {
             SayfeRepository.getCurrentUid().let {
-                incomingAlertDataList.addAll(SayfeRepository.getIncomingAlertList(it))
-                myRef.child(it).setValue(incomingAlertDataList)
+                SayfeRepository.saveIncomingData(it, incomingAlertDataList)
             }
         }
 

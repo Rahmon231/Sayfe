@@ -91,7 +91,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                                         Log.d(TAG, "onTick: $citName")
 
                                         saveOutgoingAlertToDb(it, outgoingDataList)
-                                        usersList.forEach {user->
+                                        usersList.forEach { user->
                                             sendPushNotifier(user,outgoingAlertData)
                                         }
                                         Toast.makeText(this@AccessibilityKeyDetector,"Your recipients have been notified",Toast.LENGTH_SHORT)

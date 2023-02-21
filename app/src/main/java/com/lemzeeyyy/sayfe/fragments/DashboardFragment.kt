@@ -140,6 +140,7 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkAccessibilityPermission()
+
         viewLifecycleOwner.lifecycleScope.launch{
             if(SayfeRepository.getGuardianList(SayfeRepository.getCurrentUid()).isNotEmpty()){
                 progress+=40
@@ -209,6 +210,7 @@ class DashboardFragment : Fragment() {
         currentAcceleration = SensorManager.GRAVITY_EARTH
         lastAcceleration = SensorManager.GRAVITY_EARTH
 
+        viewModel.getRegisteredGuardians()
         viewModel.triggerApp.observe(viewLifecycleOwner){
             if (it==null){
                 return@observe
@@ -269,11 +271,15 @@ class DashboardFragment : Fragment() {
 
     private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
         viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
-            if (it != null) {
-                outgoingAlertDataList.addAll(it)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (it != null) {
+                        outgoingAlertDataList.addAll(it)
+                    }
+                    SayfeRepository.saveOutgoingData(currentUserid,outgoingAlertDataList)
+                }
+
             }
-            myRef.child(currentUserid).setValue(outgoingAlertDataList)
-        }
+
 
     }
 
@@ -421,7 +427,6 @@ class DashboardFragment : Fragment() {
     }
 
       private fun getDoubleVolumeTap(){
-
           viewLifecycleOwner.lifecycleScope.launch {
               val currentUserid = SayfeRepository.getCurrentUid()
               if (!checkAccessibilityPermission() && volumeTrigger){
@@ -429,13 +434,13 @@ class DashboardFragment : Fragment() {
                   val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                   val currentDate = sdf.format(Date())
                   val cityName = getCityName(longitude,latitude)
+                  senderName = SayfeRepository.getNotificationSender(SayfeRepository.getCurrentUid())
                   val outgoingAlertData = OutgoingAlertData(senderName,
                       locationUrl,currentDate,"Sayfe SOS Alert",cityName)
                   outgoingDataList.add(outgoingAlertData)
-                  saveOutgoingAlertToDb(currentUserid, outgoingDataList)
-                  viewModel.users.observe(viewLifecycleOwner) {
-                      if (it != null) {
-                          if (it.isEmpty()) {
+                  viewModel.users.observe(viewLifecycleOwner) {users->
+                      if (users != null) {
+                          if (users.isEmpty()) {
                               Toast.makeText(
                                   requireContext(),
                                   "Unable to send notification, Guardian List is empty",
@@ -443,9 +448,11 @@ class DashboardFragment : Fragment() {
                               ).show()
                               return@observe
                           }
-                          it.forEach { user ->
+                          users.forEach { user ->
                               sendPushNotifier(user, outgoingAlertData)
                           }
+                          saveOutgoingAlertToDb(currentUserid, outgoingDataList)
+                          Toast.makeText(requireContext(),"Your Guardians have been notified",Toast.LENGTH_SHORT).show()
                       }
                   }
               }

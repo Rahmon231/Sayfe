@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
@@ -18,6 +19,8 @@ import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSignInBinding
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
+import kotlinx.coroutines.launch
 
 
 class SignInFragment : Fragment() {
@@ -102,9 +105,12 @@ class SignInFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        if (fAuth.currentUser != null){
-           findNavController().navigate(R.id.nav_home)
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (fAuth.currentUser != null && SayfeRepository.getUserPhone(SayfeRepository.getCurrentUid()).isNotEmpty()){
+                findNavController().navigate(R.id.nav_home)
+            }
         }
+
     }
 
 }

@@ -303,7 +303,7 @@ object SayfeRepository {
         myRef.child(currentUserid).setValue(outgoingAlertDataList)
     }
 
-    suspend fun saveIncomingData(currentUserid: String, incomingAlertDataList: MutableList<OutgoingAlertData>){
+    suspend fun saveIncomingData(currentUserid: String, incomingAlertDataList: MutableList<IncomingAlertData>){
         val incomingAlertDb = Firebase.database
         val myRef = incomingAlertDb.getReference("IncomingAlerts")
         myRef.child(currentUserid).setValue(incomingAlertDataList)
