@@ -65,14 +65,11 @@ class SignInFragment : Fragment() {
         fAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                   // findNavController().navigate(R.id.dashboardFragment)
                     binding.progressSignin.visibility = View.GONE
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("TAG", "signInWithEmail:success")
-                    Toast.makeText(requireContext(),"Success",Toast.LENGTH_SHORT).show()
                     val user = fAuth.currentUser
-                    val currentUserId = user!!.uid
-                    Log.d("UID", "signInUsers: ${currentUserId} ")
+                    val currentUserId = user?.uid
                     collectionReference.whereEqualTo("currentUserId",currentUserId)
                         .addSnapshotListener { value, error ->
                             value?.let {
@@ -88,7 +85,7 @@ class SignInFragment : Fragment() {
                                }
                            }
 
-                       } ?: Toast.makeText(requireContext(),"current uid is empty",Toast.LENGTH_SHORT).show()
+                       } ?: Toast.makeText(requireContext(),error?.message.toString(),Toast.LENGTH_SHORT).show()
                     }
 
                 } else {

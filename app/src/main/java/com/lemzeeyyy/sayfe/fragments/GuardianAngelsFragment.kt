@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -27,7 +28,9 @@ import com.lemzeeyyy.sayfe.databinding.FragmentGuardianAngelsBinding
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.*
+import kotlinx.coroutines.launch
 
 
 class GuardianAngelsFragment : Fragment() {
@@ -35,9 +38,6 @@ class GuardianAngelsFragment : Fragment() {
     private lateinit var binding : FragmentGuardianAngelsBinding
     private lateinit var adapter : GuardianAngelAdapter
      private val viewModel: MainActivityViewModel by activityViewModels()
-    private lateinit var fAuth: FirebaseAuth
-    private val database = Firebase.firestore
-    private val collectionReference = database.collection("Guardian Angels")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,7 +51,6 @@ class GuardianAngelsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fAuth = Firebase.auth
 
         adapter = GuardianAngelAdapter()
 
@@ -74,7 +73,7 @@ class GuardianAngelsFragment : Fragment() {
             openBottomDialog()
         }
         binding.contactGuardianBtn.setOnClickListener {
-           findNavController().navigateUp()
+           findNavController().navigate(GuardianAngelsFragmentDirections.actionGuardianAngelsFragmentToNavHome())
         }
 
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT){
@@ -95,7 +94,7 @@ class GuardianAngelsFragment : Fragment() {
                     val deletedContacts = contacts[viewHolder.adapterPosition]
                     val position = viewHolder.adapterPosition
                     contacts.removeAt(position)
-                    saveGuardianAngelsToDb(contacts,requireContext())
+                    updateGuardianAngelsToDb(contacts)
                     viewModel.guardianLiveData.observe(viewLifecycleOwner){
                         val dataList = it.guardianInfo
                         if (dataList.isEmpty()){
@@ -113,7 +112,7 @@ class GuardianAngelsFragment : Fragment() {
                         .setAction(
                             "Undo", View.OnClickListener {
                                 contacts.add(position,deletedContacts)
-                                saveGuardianAngelsToDb(contacts,requireContext())
+                                updateGuardianAngelsToDb(contacts)
                                 //adapter.notifyItemChanged(position)
                                 viewModel.guardianLiveData.observe(viewLifecycleOwner){
                                     val dataList = it.guardianInfo
@@ -130,8 +129,6 @@ class GuardianAngelsFragment : Fragment() {
                             }
                         )
                         .show()
-
-
                 }
 
 
@@ -191,38 +188,13 @@ class GuardianAngelsFragment : Fragment() {
 
     }
 
-    private fun saveGuardianAngelsToDb(checkedList: MutableList<PhonebookContact>, context: Context) {
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
-        if (currentUserId != null) {
-            collectionReference.document(currentUserId)
-                .get()
-                .addOnSuccessListener {
-                    val doc = it.toObject(GuardianData::class.java)
-                    if (doc != null) {
-                        collectionReference
-                            .document(currentUserId)
-                            .set(GuardianData(checkedList))
-                            .addOnSuccessListener {
 
-//                                Toast.makeText(context,"Guardian angel added successfully deleted",Toast.LENGTH_SHORT)
-//                                    .show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context,"Unable to delete guardian angel",Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-
-                    }
-
-                }
-
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
-                }
+    private fun updateGuardianAngelsToDb(checkedList: MutableList<PhonebookContact>){
+        viewLifecycleOwner.lifecycleScope.launch {
+            SayfeRepository.saveGuardianList(checkedList)
         }
-    }
 
+    }
 
 
 

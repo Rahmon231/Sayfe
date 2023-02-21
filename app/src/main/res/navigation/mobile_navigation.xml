@@ -111,7 +111,11 @@
         android:id="@+id/guardianAngelsFragment"
         android:name="com.lemzeeyyy.sayfe.fragments.GuardianAngelsFragment"
         android:label="fragment_guardian_angels"
-        tools:layout="@layout/fragment_guardian_angels" />
+        tools:layout="@layout/fragment_guardian_angels" >
+        <action
+            android:id="@+id/action_guardianAngelsFragment_to_nav_home"
+            app:destination="@id/nav_home" />
+    </fragment>
     <fragment
         android:id="@+id/triggersFragment"
         android:name="com.lemzeeyyy.sayfe.fragments.TriggersFragment"

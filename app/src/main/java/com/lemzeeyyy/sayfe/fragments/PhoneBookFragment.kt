@@ -36,6 +36,7 @@ import com.lemzeeyyy.sayfe.model.ContactsState
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.BUSY
 import com.lemzeeyyy.sayfe.viewmodels.EMPTY
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
@@ -52,10 +53,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding : FragmentPhoneBookBinding
     private lateinit var adapter : PhonebookRecyclerAdapter
-    private lateinit var fAuth: FirebaseAuth
-    private val database = Firebase.firestore
     private lateinit var backPressedCallback: OnBackPressedCallback
-    private val collectionReference = database.collection("Guardian Angels")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,8 +76,6 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
             intent.setData(uri);
             startActivity(intent);
         }
-
-        fAuth = Firebase.auth
 
         adapter = PhonebookRecyclerAdapter(this,requireContext())
 
@@ -144,53 +140,32 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     }
 
-    private fun saveGuardianAngelsListToDb(checkedList: MutableList<PhonebookContact>, context: Context) {
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
-        if (currentUserId != null) {
-            binding.phoneBookSavingState.visibility = View.VISIBLE
-            binding.phoneBookEmptyState.visibility = View.INVISIBLE
-            binding.addGuardianAngel.visibility = View.INVISIBLE
-            binding.allContactsRecycler.visibility = View.INVISIBLE
-            binding.searchContactTvId.visibility = View.INVISIBLE
-
-            collectionReference.document(currentUserId)
-                .get()
-                .addOnSuccessListener {
-
-                        collectionReference
-                            .document(currentUserId)
-                            .set(GuardianData(checkedList))
-                            .addOnSuccessListener {
-                                binding.phoneBookFailedState.visibility = View.INVISIBLE
-                                binding.phoneBookEmptyState.visibility = View.INVISIBLE
-                                binding.addGuardianAngel.visibility = View.VISIBLE
-                                binding.allContactsRecycler.visibility = View.VISIBLE
-                                binding.searchContactTvId.visibility = View.VISIBLE
-                                binding.phoneBookSavingState.visibility = View.INVISIBLE
-                                Toast.makeText(context,"Guardian angels added successfully",Toast.LENGTH_SHORT)
-                                    .show()
-                                findNavController().navigateUp()
-                            }
-                            .addOnFailureListener {
-                                binding.phoneBookFailedState.visibility = View.VISIBLE
-                                binding.phoneBookEmptyState.visibility = View.INVISIBLE
-                                binding.addGuardianAngel.visibility = View.INVISIBLE
-                                binding.allContactsRecycler.visibility = View.INVISIBLE
-                                binding.searchContactTvId.visibility = View.INVISIBLE
-                                binding.phoneBookSavingState.visibility = View.INVISIBLE
-                                Toast.makeText(context,"Unable to add guardian angels",Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-
-
-
-                }
-
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
-                }
+    private fun updateGuardianAngelsToDb(checkedList: MutableList<PhonebookContact>){
+        viewLifecycleOwner.lifecycleScope.launch {
+           try {
+               if (SayfeRepository.saveGuardianList(checkedList)){
+                   Toast.makeText(requireContext(),"Guardian Number Added Successfully",Toast.LENGTH_SHORT).show()
+                   binding.phoneBookFailedState.visibility = View.INVISIBLE
+                   binding.phoneBookEmptyState.visibility = View.INVISIBLE
+                   binding.addGuardianAngel.visibility = View.VISIBLE
+                   binding.allContactsRecycler.visibility = View.VISIBLE
+                   binding.searchContactTvId.visibility = View.VISIBLE
+                   binding.phoneBookSavingState.visibility = View.INVISIBLE
+                   findNavController().navigate(PhoneBookFragmentDirections.actionNavPhonebookToNavHome())
+               }else{
+                   binding.phoneBookFailedState.visibility = View.VISIBLE
+                   binding.phoneBookEmptyState.visibility = View.INVISIBLE
+                   binding.addGuardianAngel.visibility = View.INVISIBLE
+                   binding.allContactsRecycler.visibility = View.INVISIBLE
+                   binding.searchContactTvId.visibility = View.INVISIBLE
+                   binding.phoneBookSavingState.visibility = View.INVISIBLE
+                   Toast.makeText(requireContext(),"Unable to add guardian angel",Toast.LENGTH_SHORT).show()
+               }
+           } catch (e:Exception){
+               Log.d("Add Guardian Exception", "updateGuardianAngelsToDb: ${e.message}")
+           }
         }
+
     }
 
     private fun requestContactPermission() {
@@ -298,7 +273,9 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 contacts.add(it)
             }
         }
-        saveGuardianAngelsListToDb(contacts,requireContext())
+
+
+        updateGuardianAngelsToDb(contacts)
 
 
     }

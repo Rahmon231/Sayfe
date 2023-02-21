@@ -18,15 +18,13 @@ import com.lemzeeyyy.sayfe.databinding.FragmentEmptyGuardiansListBinding
 import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.RecipientContact
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.launch
 
 
 class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
     private lateinit var binding : FragmentEmptyGuardiansListBinding
-    private lateinit var fAuth: FirebaseAuth
-    private val database = Firebase.firestore
-    private val collectionReference = database.collection("Guardian Angels")
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var adapter : GuardianAngelAdapter
 
@@ -42,13 +40,7 @@ class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         adapter = GuardianAngelAdapter()
-        fAuth = Firebase.auth
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
 
-//        if (currentUserId != null) {
-//            viewModel.getGuardianAngelsListFromDb(currentUserId)
-//        }
         binding.frameEmptyNow.setOnClickListener {
             emptyGuardianAngelList()
             findNavController().navigate(R.id.guardianAngelsFragment)
@@ -61,21 +53,10 @@ class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
 
     }
     private fun emptyGuardianAngelList(){
-        val user = fAuth.currentUser
-        val currentUserId = user?.uid
-        val docData = GuardianData(mutableListOf())
-
-        if (currentUserId != null) {
-            collectionReference
-                .document(currentUserId)
-                .set(docData)
-                .addOnSuccessListener {
-
-                }
-                .addOnFailureListener {
-
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            SayfeRepository.emptyGuardianList()
         }
+
     }
 
 }

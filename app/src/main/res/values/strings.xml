@@ -20,6 +20,6 @@
     <string name="accessibility_permission_text">To use Sayfe discreet SOS feature triggered via the volume up button,
         please grant the Sayfe accessibility service permission in the settings once prompted. This will allow the app to function seamlessly in the background,
         immediately sending your location information to your selected contacts in case of an emergency.""</string>
-    <string name="incoming_alert_txt">Nothing to see here, when you send a notification, it will appear here</string>
-    <string name="outgoing_alert_txt">Nothing to see here, when you receive a notification, it will appear here</string>
+    <string name="incoming_alert_txt">Nothing to see here, when you receive a notification, it will appear here</string>
+    <string name="outgoing_alert_txt">Nothing to see here, when you send a notification, it will appear here</string>
 </resources>

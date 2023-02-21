@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -204,7 +205,6 @@ object SayfeRepository {
         return distinctContact
     }
 
-
     suspend fun getGuardianList(currentUserid: String) : MutableList<PhonebookContact>{
          val database = Firebase.firestore
          val collectionReference = database.collection("Guardian Angels")
@@ -297,5 +297,107 @@ object SayfeRepository {
             currentUserId = currentUser.uid
        }
         return currentUserId
+    }
+
+    suspend fun savePhoneNumber(phoneNumber: String, countryCode : String) : Boolean{
+         val database = Firebase.firestore
+         val usersCollection = database.collection("Users")
+        var saved = false
+        try {
+            val snapshot =  usersCollection.whereEqualTo("currentUserId", getCurrentUid()).get().await()
+            snapshot.forEach {
+                val users = it.toObject(Users::class.java)
+                users.phoneNumber = phoneNumber.filter { whiteSpace->
+                    !whiteSpace.isWhitespace()
+                }
+                users.number = users.phoneNumber.filter { white->
+                    !white.isWhitespace()
+                }.takeLast(10)
+                users.countryCode = countryCode
+
+             usersCollection.document(it.id).set(users).await()
+                saved = true
+            }
+        }catch (e:Exception){
+            Log.d("Add Phone Number Exception", "savePhoneNumber: ${e.message}")
+            saved = false
+        }
+    return saved
+    }
+
+    suspend fun saveGuardianList(checkedList: MutableList<PhonebookContact>) : Boolean{
+        var saved = false
+        try {
+            val database = Firebase.firestore
+            val collectionReference = database.collection("Guardian Angels")
+            val data = collectionReference.document(getCurrentUid()).get().await()
+            if (data!=null){
+                collectionReference.document(getCurrentUid()).set(GuardianData(checkedList)).await()
+                saved = true
+            }
+        }catch (e:Exception){
+            Log.d("Save Guardian Exception", "saveGuardianList: ${e.message}")
+        }
+        return saved
+    }
+
+    suspend fun emptyGuardianList() : Boolean{
+        val docData = GuardianData(mutableListOf())
+        var deleted = false
+        try {
+            val database = Firebase.firestore
+            val collectionReference = database.collection("Guardian Angels")
+            collectionReference.document(getCurrentUid()).set(docData).await()
+            deleted = true
+
+        }catch (e:Exception){
+            deleted = false
+            Log.d("Empty Guardian List Exception", "emptyGuardianList:${e.message} ")
+        }
+        return deleted
+    }
+
+    suspend fun saveSosText(sosText: String) : Boolean{
+        val database = Firebase.firestore
+        var saved = false
+        try {
+            val usersCollection = database.collection("Users")
+            val snapshot = usersCollection.whereEqualTo("currentUserId", getCurrentUid()).get().await()
+            snapshot?.forEach {
+                val users = it.toObject(Users::class.java)
+                users.userSOSText = sosText
+                usersCollection.document(it.id).set(users)
+                saved = true
+            }
+        }catch (e:Exception){
+            saved = false
+            Log.d("Save Sos Exception", "saveSosText: ${e.message} ")
+        }
+        return saved
+    }
+
+    suspend fun changePhoneNumber(phoneNumber: String) : Boolean{
+        val database = Firebase.firestore
+        val usersCollection = database.collection("Users")
+        var saved = false
+        try {
+            val snapshot =  usersCollection.whereEqualTo("currentUserId", getCurrentUid()).get().await()
+            snapshot.forEach {
+                val users = it.toObject(Users::class.java)
+                users.phoneNumber = phoneNumber.filter { whiteSpace->
+                    !whiteSpace.isWhitespace()
+                }
+                users.number = users.phoneNumber.filter { white->
+                    !white.isWhitespace()
+                }.takeLast(10)
+
+                usersCollection.document(it.id).set(users).await()
+                saved = true
+            }
+        }catch (e:Exception){
+            Log.d("Change Phone Number Exception", "savePhoneNumber: ${e.message}")
+            saved = false
+        }
+        return saved
     }
 }

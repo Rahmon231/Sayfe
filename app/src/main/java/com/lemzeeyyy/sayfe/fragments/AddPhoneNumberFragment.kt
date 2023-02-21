@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -17,15 +18,14 @@ import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentAddPhoneNumberBinding
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import kotlinx.coroutines.launch
 
 
 class AddPhoneNumberFragment : Fragment() {
 
     private lateinit var binding : FragmentAddPhoneNumberBinding
-    private lateinit var fAuth: FirebaseAuth
-    private val database = Firebase.firestore
-    private val collectionReference = database.collection("Users")
     private val viewModel: MainActivityViewModel by activityViewModels()
     private var isDuplicate = false
     private var phoneNumber = ""
@@ -43,7 +43,7 @@ class AddPhoneNumberFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fAuth = Firebase.auth
+
         binding.setupLaterTxt.setOnClickListener {
             findNavController().navigate(R.id.nav_home)
         }
@@ -76,39 +76,17 @@ class AddPhoneNumberFragment : Fragment() {
 
 
     private fun savePhoneNumber(phone: String,countryCode : String) {
-        val user = fAuth.currentUser
-         val currentUserId = user?.uid
-
-        collectionReference.whereEqualTo("currentUserId",currentUserId)
-            .addSnapshotListener { value, error ->
-                if(!value!!.isEmpty){
-                    for( snapshot : QueryDocumentSnapshot in value){
-                        val users = snapshot.toObject(Users::class.java)
-                        users.phoneNumber = phone.filter {
-                            !it.isWhitespace()
-                        }
-                        users.number = users.phoneNumber.filter {
-                            !it.isWhitespace()
-                        }.takeLast(10)
-                        users.countryCode = countryCode
-                        collectionReference.document(snapshot.id)
-                            .set(users)
-                            .addOnSuccessListener {
-                                Toast.makeText(requireContext(),"Phone Number Added Successfully",Toast.LENGTH_LONG).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_LONG).show()
-                            }
-                    }
-
-                }
-            }
-        findNavController().navigate(R.id.nav_home)
+        viewLifecycleOwner.lifecycleScope.launch {
+           if ( SayfeRepository.savePhoneNumber(phone,countryCode)) {
+               toastMessage("Phone Number Added Successfully")
+               findNavController().navigate(R.id.nav_home)
+           }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("RESUME TAG", "onResume: Called?")
+    private fun toastMessage(s: String) {
+        Toast.makeText(requireContext(),s,Toast.LENGTH_SHORT).show()
     }
+
 
 }
