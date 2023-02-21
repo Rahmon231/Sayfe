@@ -92,11 +92,14 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
 
                                         saveOutgoingAlertToDb(it, outgoingDataList)
                                         usersList.forEach {user->
-                                            Log.d(TAG, "onTick: ${user.fullName}")
                                             sendPushNotifier(user,outgoingAlertData)
                                         }
+                                        Toast.makeText(this@AccessibilityKeyDetector,"Your recipients have been notified",Toast.LENGTH_SHORT)
+                                            .show()
                                     }
                                     sendSmsFromBackEnd("+447823927201","\n$locationUrl")
+                                    Toast.makeText(this@AccessibilityKeyDetector,"Message Sent",Toast.LENGTH_SHORT)
+                                        .show()
                                 }
 
                             }

@@ -203,6 +203,7 @@ class DashboardFragment : Fragment() {
         viewModel.updateShouldTriggerApp(false)
 
 
+
     }
 
     private fun sendPushNotifier(users: Users, data: OutgoingAlertData) {
@@ -414,12 +415,20 @@ class DashboardFragment : Fragment() {
                   val outgoingAlertData = OutgoingAlertData(senderName,
                       locationUrl,currentDate,"Sayfe SOS Alert",cityName)
                   outgoingDataList.add(outgoingAlertData)
-                  if (currentUserid != null) {
-                      saveOutgoingAlertToDb(currentUserid, outgoingDataList)
-                  }
-                  viewModel.users.observe(viewLifecycleOwner){
-                      it?.forEach {user->
-                          sendPushNotifier(user,outgoingAlertData)
+                  saveOutgoingAlertToDb(currentUserid, outgoingDataList)
+                  viewModel.users.observe(viewLifecycleOwner) {
+                      if (it != null) {
+                          if (it.isEmpty()) {
+                              Toast.makeText(
+                                  requireContext(),
+                                  "Unable to send notification, Guardian List is empty",
+                                  Toast.LENGTH_SHORT
+                              ).show()
+                              return@observe
+                          }
+                          it.forEach { user ->
+                              sendPushNotifier(user, outgoingAlertData)
+                          }
                       }
                   }
               }

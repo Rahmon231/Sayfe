@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         if (keyCode.equals(KeyEvent.KEYCODE_VOLUME_UP)){
             if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(this@MainActivity,"Double Clicked",Toast.LENGTH_SHORT).show()
                    viewModel.updateShouldTriggerApp(true)
                 }
             }
