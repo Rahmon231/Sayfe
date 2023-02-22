@@ -22,12 +22,14 @@ import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.ActivityMainBinding
 import com.lemzeeyyy.sayfe.fragments.DashboardFragment
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 const val DOUBLE_CLICK_TIME_DELTA = 300
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding : ActivityMainBinding

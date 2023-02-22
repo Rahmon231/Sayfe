@@ -4,7 +4,6 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,33 +12,26 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSettingsBinding
-import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 const val IMG_REQUEST_CODE = 120
+
+@AndroidEntryPoint
 class SettingsFragment : Fragment() {
-    private var storageRef = FirebaseStorage.getInstance().getReference();
-
     private val viewModel: MainActivityViewModel by activityViewModels()
-
-    private val database = Firebase.firestore
-
-    private val usersCollection = database.collection("Users")
-
-    private var imagesRef: StorageReference = storageRef.child("profile_images")
-
-    private lateinit var fAuth: FirebaseAuth
 
     private lateinit var binding : FragmentSettingsBinding
 
@@ -66,26 +58,25 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.getUserName()
+        viewModel.getUserEmail()
+        viewModel.getCurrentUserId()
+        viewModel.currentUserID.observe(viewLifecycleOwner){
+            viewModel.getImageUriFromDb(it)
+        }
 
 
-
-        fAuth = Firebase.auth
-        val user = fAuth.currentUser
-        val currentUserId = user!!.uid
-
-        usersCollection.whereEqualTo("currentUserId",currentUserId)
-            .addSnapshotListener { value, error ->
-                if (value != null) {
-                    for ( i in value){
-                        val users = i.toObject(Users::class.java)
-                        binding.currrentUserName.setText(users.fullName)
-                    }
-
-                }
+        viewModel.userEmail.observe(viewLifecycleOwner){
+            if (it == null) {
+                return@observe
             }
-
-        binding.currentUserEmail.setText(fAuth.currentUser?.email ?: "Email empty?")
-
+            binding.currentUserEmail.setText(it.toString())
+            }
+            viewModel.userName.observe(viewLifecycleOwner){
+                if (it==null)
+                    return@observe
+                binding.currrentUserName.setText(it.toString())
+            }
 
         binding.accountSettingsSettings.setOnClickListener {
             findNavController().navigate(R.id.accountSettings)
@@ -101,7 +92,6 @@ class SettingsFragment : Fragment() {
         }
 
         binding.fabBtnUploadPic.setOnClickListener {
-
             val i = Intent()
             i.type = "image/*"
             i.action = Intent.ACTION_GET_CONTENT
@@ -110,7 +100,7 @@ class SettingsFragment : Fragment() {
         }
 
         binding.logoutSettingsSettings.setOnClickListener {
-            fAuth.signOut()
+            viewModel.signOutUser()
             findNavController().navigate(R.id.signInFragment)
         }
 
@@ -136,19 +126,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun saveImageUri(imageUri: Uri){
-
-        fAuth = Firebase.auth
-        val user = fAuth.currentUser
-        val currentUserId = user!!.uid
-
-        imagesRef.child(currentUserId)
-            .putFile(imageUri)
-            .addOnSuccessListener {
-
-            }
-            .addOnFailureListener {
-
-            }
+        viewModel.currentUserID.observe(viewLifecycleOwner){
+            viewModel.saveImageUri(imageUri,it)
+        }
     }
 
 }

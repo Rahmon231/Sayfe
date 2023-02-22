@@ -2,33 +2,28 @@ package com.lemzeeyyy.sayfe.repository
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.lemzeeyyy.sayfe.model.*
 import kotlinx.coroutines.tasks.await
 
-object SayfeRepository {
+class SayfeRepository {
 
     suspend fun getOutgoingAlertList(currentUserid: String)  : MutableList<OutgoingAlertData> {
         val outgoingAlertDb = Firebase.database
         val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
         var outgoingDataList = mutableListOf<OutgoingAlertData>()
         val key = mutableListOf<String>()
+
         try {
             val result = myRef.get().await()
             result.children.forEach {
@@ -41,12 +36,10 @@ object SayfeRepository {
         }catch (e:Exception){
             Log.d("Outgoing exception", "getOutgoingAlertList: ${e.message} ")
         }
-        Log.d("outgoingDataList", "getOutgoingAlertList: $outgoingDataList ")
-        Log.d("outgoingDataList", "getOutgoingAlertList: ${key.size} ")
        return outgoingDataList
     }
 
-    suspend fun  getIncomingAlertList(currentUserid: String) : MutableList<IncomingAlertData>{
+    suspend fun  getIncomingAlertList(currentUserid: String) : MutableList<IncomingAlertData> {
          val incomingAlertDb = Firebase.database
          val myRef = incomingAlertDb.getReference("IncomingAlerts")
         var incomingDataList = mutableListOf<IncomingAlertData>()
@@ -176,13 +169,29 @@ object SayfeRepository {
             if (result!=null){
                 imageUri = result
             }
-            Log.d("IMAGR URI", "getImageUriFromDb: $imageUri ")
         }
          catch (e:Exception){
              Log.d("Image exception", "getImageUriFromDb: ${e.message}")
          }
-        Log.d("IMAGR URI", "getImageUriFromDb: $imageUri ")
         return imageUri
+    }
+
+    suspend fun saveImageUri(imageUri: Uri,currentUserid: String){
+        val storageRef = FirebaseStorage.getInstance().getReference();
+        val imagesRef: StorageReference = storageRef.child("profile_images")
+        imagesRef.child(currentUserid).putFile(imageUri).await()
+
+    }
+
+    suspend fun getCurrentUserEmail(currentUserid: String) : String{
+        val fAuth = Firebase.auth
+        var userEmail = ""
+        try {
+           userEmail = fAuth.currentUser?.email.toString()
+        }catch (e:Exception){
+            Log.d("EMAIL EXCEPTION", "getCurrentUserEmail: ${e.message}")
+        }
+        return userEmail
     }
 
     @SuppressLint("Range")
@@ -191,15 +200,15 @@ object SayfeRepository {
         val contacts = mutableListOf<PhonebookContact>()
         var distinctContact = mutableListOf<PhonebookContact>()
 
-        val cr = context.contentResolver
+            val cr = context.contentResolver
 
-        try {
-            val query = cr.query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null,
-                null,
-                null,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            try {
+                val query = cr.query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
 
             if (query!!.count > 0){
                 while (query.moveToNext()){
@@ -319,6 +328,11 @@ object SayfeRepository {
         return currentUserId
     }
 
+    suspend fun getCurrentUser(): FirebaseUser? {
+        val fauth = Firebase.auth
+        return fauth.currentUser
+    }
+
     suspend fun savePhoneNumber(phoneNumber: String, countryCode : String) : Boolean{
          val database = Firebase.firestore
          val usersCollection = database.collection("Users")
@@ -420,4 +434,27 @@ object SayfeRepository {
         }
         return saved
     }
+
+    suspend fun signInUser(email : String , password : String) : Boolean{
+        val  fAuth = Firebase.auth
+        var signInSuccess = false
+        try {
+         fAuth.signInWithEmailAndPassword(email,password).await()
+            signInSuccess = true
+        }catch (e:Exception){
+            signInSuccess = false
+            Log.d("Sign in exception", "signInUser: ${e.message} ")
+        }
+        return signInSuccess
+    }
+
+    suspend fun signOutUser(){
+        val  fAuth = Firebase.auth
+        try {
+            fAuth.signOut()
+        }catch (e:Exception){
+            Log.d("Sign in exception", "signInUser: ${e.message} ")
+        }
+    }
+
 }

@@ -6,11 +6,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.QueryDocumentSnapshot
@@ -20,12 +17,9 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.activities.MainActivity
-import com.lemzeeyyy.sayfe.fragments.DashboardFragment
 import com.lemzeeyyy.sayfe.model.IncomingAlertData
-import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
-import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.alertTriggerId
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.appTokenList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +33,7 @@ const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Sayfe Description"
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val incomingAlertDb = Firebase.database
     private val fAuth = Firebase.auth
+    lateinit var repository: SayfeRepository
     private val myRef = incomingAlertDb.getReference("IncomingAlerts")
     private var incomingDataList = mutableListOf<IncomingAlertData>()
 
@@ -109,7 +104,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
-  val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH)
@@ -123,8 +118,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val scope = CoroutineScope(Job() + Dispatchers.Main)
         scope.launch {
-            SayfeRepository.getCurrentUid().let {
-                SayfeRepository.saveIncomingData(it, incomingAlertDataList)
+            repository.getCurrentUid().let {
+                repository.saveIncomingData(it, incomingAlertDataList)
             }
         }
 

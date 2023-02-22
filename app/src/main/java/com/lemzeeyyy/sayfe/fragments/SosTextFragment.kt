@@ -8,20 +8,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSosTextBinding
-import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class SosTextFragment : Fragment() {
     private lateinit var binding : FragmentSosTextBinding
+    @Inject
+    lateinit var repository: SayfeRepository
     var sosText = ""
 
     override fun onCreateView(
@@ -50,7 +47,7 @@ class SosTextFragment : Fragment() {
     }
     private fun saveSosText(sosText : String){
         viewLifecycleOwner.lifecycleScope.launch {
-            if (SayfeRepository.saveSosText(sosText)){
+            if (repository.saveSosText(sosText)){
                 Toast.makeText(requireContext(),"Saved",Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
             }

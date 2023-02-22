@@ -1,7 +1,6 @@
 package com.lemzeeyyy.sayfe
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,24 +8,21 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.adapters.GuardianAngelAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentEmptyGuardiansListBinding
-import com.lemzeeyyy.sayfe.model.GuardianData
-import com.lemzeeyyy.sayfe.model.PhonebookContact
-import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
     private lateinit var binding : FragmentEmptyGuardiansListBinding
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var adapter : GuardianAngelAdapter
+    @Inject
+    lateinit var repository: SayfeRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +50,7 @@ class EmptyGuardiansListFragment : BottomSheetDialogFragment() {
     }
     private fun emptyGuardianAngelList(){
         viewLifecycleOwner.lifecycleScope.launch {
-            SayfeRepository.emptyGuardianList()
+            repository.emptyGuardianList()
         }
 
     }

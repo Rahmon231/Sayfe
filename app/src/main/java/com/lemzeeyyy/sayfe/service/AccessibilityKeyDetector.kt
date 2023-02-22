@@ -19,8 +19,6 @@ import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.database.SharedPrefs
@@ -54,6 +52,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val outgoingAlertDb = Firebase.database
     private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private var outgoingDataList = mutableListOf<OutgoingAlertData>()
+    lateinit var repository: SayfeRepository
 
     companion object{
          var appTokenList : MutableList<String> = mutableListOf()
@@ -71,21 +70,19 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
                         if(listItem.size == 4){
                             Log.d("TAG", "onTick: ${listItem.size}")
                             alertTriggerId = fAuth.currentUser?.uid.toString()
-                            Toast.makeText(this@AccessibilityKeyDetector,"The volume up was tapped twice",Toast.LENGTH_SHORT)
-                                .show()
                             listItem.clear()
                             if (SharedPrefs.getBoolean("volume",true) && fAuth.currentUser!=null){
                                 getCurrentLocation()
                                 val scope = CoroutineScope(Job() + Dispatchers.Main)
 
                                 scope.launch {
-                                    SayfeRepository.getCurrentUid().let {
-                                        val usersList = SayfeRepository.getRegisteredGuardianAngels(it)
+                                    repository.getCurrentUid().let {
+                                        val usersList = repository.getRegisteredGuardianAngels(it)
                                         val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                                         val currentDate = sdf.format(Date())
                                         val citName = getCityName(longitude,latitude)
-                                        val senderNam = SayfeRepository.getNotificationSender(it)
-                                        val sos = SayfeRepository.getUserSosText(it)
+                                        val senderNam = repository.getNotificationSender(it)
+                                        val sos = repository.getUserSosText(it)
                                         val outgoingAlertData = OutgoingAlertData(senderNam,locationUrl,currentDate,"Sayfe SOS Alert",citName)
                                         outgoingDataList.add(outgoingAlertData)
                                         Log.d(TAG, "onTick: $citName")
@@ -286,8 +283,8 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
         val scope = CoroutineScope(Job() + Dispatchers.Main)
         scope.launch {
-            outgoingAlertDataList.addAll(SayfeRepository.getOutgoingAlertList(currentUserid))
-           SayfeRepository.saveOutgoingData(currentUserid,outgoingAlertDataList)
+            outgoingAlertDataList.addAll(repository.getOutgoingAlertList(currentUserid))
+           repository.saveOutgoingData(currentUserid,outgoingAlertDataList)
         }
 
     }

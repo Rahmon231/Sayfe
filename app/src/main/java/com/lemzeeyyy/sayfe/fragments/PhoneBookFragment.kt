@@ -1,7 +1,5 @@
 package com.lemzeeyyy.sayfe.fragments
 
-import android.Manifest.permission.READ_CONTACTS
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -15,37 +13,28 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.browser.customtabs.CustomTabsClient.getPackageName
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.CheckedContactListener
-import com.lemzeeyyy.sayfe.activities.MainActivity
 import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
 import com.lemzeeyyy.sayfe.adapters.PhonebookRecyclerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentPhoneBookBinding
-import com.lemzeeyyy.sayfe.model.ContactsState
-import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
-import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.BUSY
 import com.lemzeeyyy.sayfe.viewmodels.EMPTY
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import com.lemzeeyyy.sayfe.viewmodels.PASSED
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 const val REQUEST_CONTACT = 10
+@AndroidEntryPoint
 class PhoneBookFragment : Fragment(), CheckedContactListener {
 
     private var contactList = emptyList<PhonebookContact>()
@@ -54,6 +43,8 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private lateinit var binding : FragmentPhoneBookBinding
     private lateinit var adapter : PhonebookRecyclerAdapter
     private lateinit var backPressedCallback: OnBackPressedCallback
+    @Inject
+    lateinit var repository : SayfeRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -143,7 +134,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
     private fun updateGuardianAngelsToDb(checkedList: MutableList<PhonebookContact>){
         viewLifecycleOwner.lifecycleScope.launch {
            try {
-               if (SayfeRepository.saveGuardianList(checkedList)){
+               if (repository.saveGuardianList(checkedList)){
                    Toast.makeText(requireContext(),"Guardian Number Added Successfully",Toast.LENGTH_SHORT).show()
                    binding.phoneBookFailedState.visibility = View.INVISIBLE
                    binding.phoneBookEmptyState.visibility = View.INVISIBLE
@@ -177,7 +168,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                 viewModel.contactStatus.observe(viewLifecycleOwner){
                     updateContactView(it)
                 }
-                viewModel.getPhoneBook()
+                viewModel.getPhoneBook(requireActivity().application)
                 viewModel.userContactsLiveDataList.observe(viewLifecycleOwner){
                     if (it != null) {
 
@@ -231,7 +222,7 @@ class PhoneBookFragment : Fragment(), CheckedContactListener {
                     viewModel.contactStatus.observe(viewLifecycleOwner){
                         updateContactView(it)
                     }
-                    viewModel.getPhoneBook()
+                    viewModel.getPhoneBook(requireActivity().application)
                     viewModel.userContactsLiveDataList.observe(viewLifecycleOwner){
                         if (it != null) {
                             adapter.updatePhonebookData(it)

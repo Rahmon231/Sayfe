@@ -4,6 +4,7 @@ plugins {
     id "org.jetbrains.kotlin.kapt"
     id 'com.google.gms.google-services'
     id("androidx.navigation.safeargs.kotlin")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -118,5 +119,8 @@ dependencies {
 
     //Shimmer Animation
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
 
 }

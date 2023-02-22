@@ -1,7 +1,6 @@
 package com.lemzeeyyy.sayfe.fragments
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,19 +9,15 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentAddPhoneNumberBinding
-import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AddPhoneNumberFragment : Fragment() {
 
     private lateinit var binding : FragmentAddPhoneNumberBinding
@@ -30,6 +25,8 @@ class AddPhoneNumberFragment : Fragment() {
     private var isDuplicate = false
     private var phoneNumber = ""
     private var countryCode = ""
+    @Inject
+    lateinit var repository: SayfeRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,12 +73,21 @@ class AddPhoneNumberFragment : Fragment() {
 
 
     private fun savePhoneNumber(phone: String,countryCode : String) {
-        viewLifecycleOwner.lifecycleScope.launch {
-           if ( SayfeRepository.savePhoneNumber(phone,countryCode)) {
-               toastMessage("Phone Number Added Successfully")
-               findNavController().navigate(R.id.nav_home)
-           }
+        viewModel.savePhoneNumber(phone, countryCode)
+        viewModel.saveNumber.observe(viewLifecycleOwner){
+            if (it==null)
+                return@observe
+            if (it){
+                toastMessage("Phone Number Added Successfully")
+                findNavController().navigate(R.id.nav_home)
+            }
         }
+//        viewLifecycleOwner.lifecycleScope.launch {
+//           if ( repository.savePhoneNumber(phone,countryCode)) {
+//               toastMessage("Phone Number Added Successfully")
+//               findNavController().navigate(R.id.nav_home)
+//           }
+//        }
     }
 
     private fun toastMessage(s: String) {

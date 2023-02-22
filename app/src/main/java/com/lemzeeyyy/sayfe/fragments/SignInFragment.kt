@@ -7,27 +7,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSignInBinding
 import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
+import com.lemzeeyyy.sayfe.viewmodels.BUSY
+import com.lemzeeyyy.sayfe.viewmodels.FAILED
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
+import com.lemzeeyyy.sayfe.viewmodels.PASSED
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class SignInFragment : Fragment() {
+    private val viewModel: MainActivityViewModel by activityViewModels()
     lateinit var binding : FragmentSignInBinding
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Users")
+    @Inject
+    lateinit var repository: SayfeRepository
 
 
 
@@ -100,16 +109,15 @@ class SignInFragment : Fragment() {
 
                 }
             }
-
     }
 
     override fun onStart() {
         super.onStart()
-        viewLifecycleOwner.lifecycleScope.launch {
-            if (fAuth.currentUser != null && SayfeRepository.getUserPhone(SayfeRepository.getCurrentUid()).isNotEmpty()){
-                findNavController().navigate(R.id.nav_home)
+        viewModel.phoneNumber.observe(viewLifecycleOwner){
+            if (fAuth.currentUser!=null && it.isNotEmpty()){
+                    findNavController().navigate(R.id.nav_home)
+                }
             }
-        }
 
     }
 

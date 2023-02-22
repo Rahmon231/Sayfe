@@ -1,43 +1,35 @@
 package com.lemzeeyyy.sayfe.fragments
 
-import android.content.Context
-import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.EmptyGuardiansListFragment
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.adapters.GuardianAngelAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentGuardianAngelsBinding
-import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
-import com.lemzeeyyy.sayfe.model.RecipientContact
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.viewmodels.*
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class GuardianAngelsFragment : Fragment() {
 
     private lateinit var binding : FragmentGuardianAngelsBinding
     private lateinit var adapter : GuardianAngelAdapter
      private val viewModel: MainActivityViewModel by activityViewModels()
+    @Inject
+    lateinit var repository : SayfeRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -191,7 +183,7 @@ class GuardianAngelsFragment : Fragment() {
 
     private fun updateGuardianAngelsToDb(checkedList: MutableList<PhonebookContact>){
         viewLifecycleOwner.lifecycleScope.launch {
-            SayfeRepository.saveGuardianList(checkedList)
+            repository.saveGuardianList(checkedList)
         }
 
     }

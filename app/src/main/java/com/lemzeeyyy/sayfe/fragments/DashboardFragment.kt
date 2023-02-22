@@ -18,7 +18,6 @@ import android.os.CountDownTimer
 import android.provider.Settings
 import android.telephony.SmsManager
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,13 +33,8 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firestore.v1.StructuredAggregationQuery.Aggregation.Count
 import com.google.gson.Gson
 import com.lemzeeyyy.sayfe.AccessibilityServiceSettings
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
@@ -48,14 +42,13 @@ import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.activities.PERMISSION_REQUEST
 import com.lemzeeyyy.sayfe.database.SharedPrefs
 import com.lemzeeyyy.sayfe.databinding.FragmentDashboardBinding
-import com.lemzeeyyy.sayfe.model.GuardianData
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
 import com.lemzeeyyy.sayfe.model.PhonebookContact
 import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
-import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
 import com.lemzeeyyy.sayfe.utils.Utilities.NOTIFICATION_URL
 import com.lemzeeyyy.sayfe.utils.Utilities.WEB_KEY
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
@@ -69,12 +62,16 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlin.math.sqrt
 
 const val LOCATION_PERMISSION = 2001
 
+@AndroidEntryPoint
 class DashboardFragment : Fragment() {
 
+    @Inject
+    lateinit var repository: SayfeRepository
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MainActivityViewModel by activityViewModels()
@@ -140,27 +137,15 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkAccessibilityPermission()
-
-        viewLifecycleOwner.lifecycleScope.launch{
-            if(SayfeRepository.getGuardianList(SayfeRepository.getCurrentUid()).isNotEmpty()){
-                progress+=40
-            }
-            if (SayfeRepository.getUserPhone(SayfeRepository.getCurrentUid()).isNotEmpty()){
-                progress+=20
-            }
-            if (checkAccessibilityPermission()){
-                progress+=20
-            }
-            binding.dashboardProgress.progress = progress
-            binding.progressPercentageText.setText("${progress}%")
+        viewModel.getCurrentUserId()
+        viewModel.getUserName()
+        viewModel.currentUserID.observe(viewLifecycleOwner){
+            viewModel.getImageUriFromDb(it)
         }
 
 
-
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val userName =  SayfeRepository.getNotificationSender(SayfeRepository.getCurrentUid())
-            binding.userNameHome.setText(userName.toString())
+        viewModel.userName.observe(viewLifecycleOwner){
+            binding.userNameHome.setText(it.toString())
         }
 
 
@@ -177,6 +162,8 @@ class DashboardFragment : Fragment() {
 
 
         viewModel.userImageUri.observe(viewLifecycleOwner) {
+            if (it == null)
+                return@observe
 
             if (it.equals(Uri.EMPTY)) {
                 binding.profileImage.setImageResource(R.drawable.profile_image)
@@ -271,14 +258,12 @@ class DashboardFragment : Fragment() {
 
     private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
         viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
-                viewLifecycleOwner.lifecycleScope.launch {
-                    if (it != null) {
-                        outgoingAlertDataList.addAll(it)
-                    }
-                    SayfeRepository.saveOutgoingData(currentUserid,outgoingAlertDataList)
-                }
-
+            if (it != null) {
+                outgoingAlertDataList.addAll(it)
             }
+            viewModel.saveOutgoingData(currentUserid,outgoingAlertDataList)
+        //repository.saveOutgoingData(currentUserid,outgoingAlertDataList)
+        }
 
 
     }
@@ -428,13 +413,14 @@ class DashboardFragment : Fragment() {
 
       private fun getDoubleVolumeTap(){
           viewLifecycleOwner.lifecycleScope.launch {
-              val currentUserid = SayfeRepository.getCurrentUid()
+
+              val currentUserid = repository.getCurrentUid()
               if (!checkAccessibilityPermission() && volumeTrigger){
                   //sendSMSSOS()
                   val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                   val currentDate = sdf.format(Date())
                   val cityName = getCityName(longitude,latitude)
-                  senderName = SayfeRepository.getNotificationSender(SayfeRepository.getCurrentUid())
+                  senderName = repository.getNotificationSender(repository.getCurrentUid())
                   val outgoingAlertData = OutgoingAlertData(senderName,
                       locationUrl,currentDate,"Sayfe SOS Alert",cityName)
                   outgoingDataList.add(outgoingAlertData)
@@ -574,6 +560,8 @@ class DashboardFragment : Fragment() {
 
     override fun onResume() {
         viewModel.userImageUri.observe(viewLifecycleOwner) {
+            if (it == null)
+                return@observe
 
             if (it.equals(Uri.EMPTY)) {
                 binding.profileImage.setImageResource(R.drawable.profile_image)
