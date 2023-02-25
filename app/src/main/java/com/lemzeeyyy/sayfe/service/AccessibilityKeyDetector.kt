@@ -27,6 +27,7 @@ import com.lemzeeyyy.sayfe.network.NetworkObject
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.utils.Utilities.NOTIFICATION_URL
 import com.lemzeeyyy.sayfe.utils.Utilities.WEB_KEY
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import okhttp3.Call
 import okhttp3.Callback
@@ -40,8 +41,9 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val TAG = "AccessKeyDetector"
     private var listItem = mutableListOf<Int>()
@@ -52,6 +54,7 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     private val outgoingAlertDb = Firebase.database
     private val myRef = outgoingAlertDb.getReference("OutgoingAlerts")
     private var outgoingDataList = mutableListOf<OutgoingAlertData>()
+    @Inject
     lateinit var repository: SayfeRepository
 
     companion object{
@@ -131,7 +134,6 @@ class AccessibilityKeyDetector : AccessibilityService(),LocationListener {
     override fun onInterrupt() {
         Log.e(TAG, "onInterrupt: something went wrong")
     }
-
 
     override fun onServiceConnected() {
         getCurrentLocation()

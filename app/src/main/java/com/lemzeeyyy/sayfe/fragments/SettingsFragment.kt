@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSettingsBinding
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
+import com.lemzeeyyy.sayfe.viewmodels.AuthViewModel
 import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -32,6 +34,7 @@ const val IMG_REQUEST_CODE = 120
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
+    private val authViewModel : AuthViewModel by activityViewModels()
 
     private lateinit var binding : FragmentSettingsBinding
 
@@ -100,7 +103,7 @@ class SettingsFragment : Fragment() {
         }
 
         binding.logoutSettingsSettings.setOnClickListener {
-            viewModel.signOutUser()
+            authViewModel.logout()
             findNavController().navigate(R.id.signInFragment)
         }
 
