@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.ktx.auth
@@ -20,6 +21,7 @@ import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.adapters.OutgoingAlertsRecyclerAdapter
 import com.lemzeeyyy.sayfe.databinding.FragmentOutgoingAlertBinding
 import com.lemzeeyyy.sayfe.model.OutgoingAlertData
+import com.lemzeeyyy.sayfe.model.OutgoingAlertState
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.alertTriggerId
 import com.lemzeeyyy.sayfe.viewmodels.*
@@ -30,6 +32,7 @@ class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
     private lateinit var outgoingAlertsRecyclerAdapter: OutgoingAlertsRecyclerAdapter
     private lateinit var notificationBodyListener : NotificationBodyClickListener
     private val viewModel: MainActivityViewModel by activityViewModels()
+    private val authViewModel : AuthViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,52 +48,46 @@ class OutgoingAlertFragment : Fragment(), NotificationBodyClickListener {
         notificationBodyListener = this
         outgoingAlertsRecyclerAdapter = OutgoingAlertsRecyclerAdapter(notificationBodyListener)
         binding.outgoingRecycler.adapter = outgoingAlertsRecyclerAdapter
-
-        viewModel.outgoingDataList()
-        viewModel.outgoingDataStatus.observe(viewLifecycleOwner){
-            updateViewForOutgoingState(it)
-        }
-
-        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){outgoingDataList->
-            if (outgoingDataList != null) {
-                if (outgoingDataList.size == 0 ){
-                    //binding.emptyOutgoingAlert.visibility = View.VISIBLE
-                    return@observe
-                }
-                outgoingAlertsRecyclerAdapter.updateDataList(outgoingDataList)
+        authViewModel.currentUser.let {
+            if (it != null) {
+                viewModel.outgoingAlerts(it.uid)
             }
-
+        }
+        viewModel.outgoingAlertLiveData.observe(viewLifecycleOwner){
+            updateViewForOutgoingData(it)
         }
 
     }
 
-    private fun updateViewForOutgoingState(contactState: Int?) {
-            if (contactState == null)
-                return
-
-            when(contactState){
-                BUSY -> {
-                    binding.emptyOutgoingAlert.visibility = View.INVISIBLE
-                    binding.outgoingRecycler.visibility = View.INVISIBLE
-                    binding.loadingOutgoing.visibility = View.VISIBLE
-                }
-                EMPTY ->{
-                    binding.emptyOutgoingAlert.visibility = View.VISIBLE
-                    binding.outgoingRecycler.visibility = View.INVISIBLE
-                    binding.loadingOutgoing.visibility = View.INVISIBLE
-                }
-                PASSED ->{
-                    binding.outgoingRecycler.visibility = View.VISIBLE
-                    binding.emptyOutgoingAlert.visibility = View.INVISIBLE
-                    binding.loadingOutgoing.visibility = View.INVISIBLE
-                }
-                FAILED ->{
-                    binding.emptyOutgoingAlert.visibility = View.INVISIBLE
-                    binding.outgoingRecycler.visibility = View.INVISIBLE
-                    binding.loadingOutgoing.visibility = View.INVISIBLE
-                }
+    private fun updateViewForOutgoingData(alertState: OutgoingAlertState?) {
+        if (alertState==null){
+            return
+        }
+        when(alertState){
+            OutgoingAlertState.Empty -> {
+                binding.emptyOutgoingAlert.visibility = View.VISIBLE
+                binding.outgoingRecycler.visibility = View.INVISIBLE
+                binding.loadingOutgoing.visibility = View.INVISIBLE
+            }
+            is OutgoingAlertState.Failure -> {
+                binding.emptyOutgoingAlert.visibility = View.INVISIBLE
+                binding.outgoingRecycler.visibility = View.INVISIBLE
+                binding.loadingOutgoing.visibility = View.INVISIBLE
+                Toast.makeText(requireContext(),alertState.exception.message,Toast.LENGTH_SHORT).show()
+            }
+            OutgoingAlertState.Loading -> {
+                binding.emptyOutgoingAlert.visibility = View.INVISIBLE
+                binding.outgoingRecycler.visibility = View.INVISIBLE
+                binding.loadingOutgoing.visibility = View.VISIBLE
+            }
+            is OutgoingAlertState.Success -> {
+                binding.outgoingRecycler.visibility = View.VISIBLE
+                binding.emptyOutgoingAlert.visibility = View.INVISIBLE
+                binding.loadingOutgoing.visibility = View.INVISIBLE
+                outgoingAlertsRecyclerAdapter.updateDataList(alertState.outgoingDataList)
             }
 
+        }
     }
 
     override fun onNotificationBodyClick(view: View,alertBody : String) {

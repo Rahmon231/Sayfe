@@ -3,6 +3,8 @@ package com.lemzeeyyy.sayfe.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.lemzeeyyy.sayfe.repository.AuthRepository
+import com.lemzeeyyy.sayfe.repository.AuthRepositoryImpl
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import dagger.Module
 import dagger.Provides
@@ -23,6 +25,12 @@ object AppModule {
     @Provides
     fun provideRepository() : SayfeRepository{
         return SayfeRepository()
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthRepository(impl : AuthRepositoryImpl) : AuthRepository{
+        return impl
     }
 
 }
