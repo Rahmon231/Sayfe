@@ -139,6 +139,7 @@ class DashboardFragment : Fragment() {
         checkAccessibilityPermission()
         viewModel.getCurrentUserId()
         viewModel.getUserName()
+        viewModel.outgoingDataList()
         viewModel.currentUserID.observe(viewLifecycleOwner){
             viewModel.getImageUriFromDb(it)
         }
@@ -153,7 +154,6 @@ class DashboardFragment : Fragment() {
          shakeTrigger = SharedPrefs.getBoolean("shake", false)
          volumeTrigger = SharedPrefs.getBoolean("volume", false)
          tapTrigger = SharedPrefs.getBoolean("tap", false)
-
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -254,18 +254,6 @@ class DashboardFragment : Fragment() {
                     )
                 }
             })
-    }
-
-    private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
-        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
-            if (it != null) {
-                outgoingAlertDataList.addAll(it)
-            }
-            viewModel.saveOutgoingData(currentUserid,outgoingAlertDataList)
-        //repository.saveOutgoingData(currentUserid,outgoingAlertDataList)
-        }
-
-
     }
 
     private fun getCurrentLocation() {
@@ -411,7 +399,7 @@ class DashboardFragment : Fragment() {
 
     }
 
-      private fun getDoubleVolumeTap(){
+    private fun getDoubleVolumeTap(){
           viewLifecycleOwner.lifecycleScope.launch {
 
               val currentUserid = repository.getCurrentUid()
@@ -473,7 +461,7 @@ class DashboardFragment : Fragment() {
     private fun triggerSayfe() {
         SharedPrefs.init(requireContext())
         val shakeTrigger = SharedPrefs.getBoolean("shake", false)
-        val volumeTrigger = SharedPrefs.getBoolean("volume", false)
+        val volumeTrigger = SharedPrefs.getBoolean("volume", true)
         val tapTrigger = SharedPrefs.getBoolean("tap", false)
 
         if (!checkAccessibilityPermission()){
@@ -487,6 +475,19 @@ class DashboardFragment : Fragment() {
             }
         }
 
+
+
+    }
+
+    private fun saveOutgoingAlertToDb(currentUserid: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
+        viewModel.outgoingAlertListLiveData.observe(viewLifecycleOwner){
+            if (it != null) {
+                outgoingAlertDataList.addAll(it)
+            }
+            Log.d("khkhjg", "saveOutgoingAlertToDb: ${outgoingAlertDataList.size}")
+            viewModel.saveOutgoingData(currentUserid,outgoingAlertDataList)
+            //repository.saveOutgoingData(currentUserid,outgoingAlertDataList)
+        }
 
 
     }

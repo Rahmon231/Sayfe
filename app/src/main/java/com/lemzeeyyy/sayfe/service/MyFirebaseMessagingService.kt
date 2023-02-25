@@ -21,18 +21,22 @@ import com.lemzeeyyy.sayfe.model.IncomingAlertData
 import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
 import com.lemzeeyyy.sayfe.service.AccessibilityKeyDetector.Companion.appTokenList
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 const val CHANNEL_ID = "notification_id"
 const val CHANNEL_NAME = "notification channel name"
 const val NOTIFICATION_TITLE = "Title"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Sayfe Description"
+@AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val incomingAlertDb = Firebase.database
     private val fAuth = Firebase.auth
+    @Inject
     lateinit var repository: SayfeRepository
     private val myRef = incomingAlertDb.getReference("IncomingAlerts")
     private var incomingDataList = mutableListOf<IncomingAlertData>()
@@ -113,9 +117,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         notificationManager.notify(0,builder.build())
     }
 
-
     private fun saveIncomingAlertToDb(incomingAlertDataList: MutableList<IncomingAlertData>){
-
         val scope = CoroutineScope(Job() + Dispatchers.Main)
         scope.launch {
             repository.getCurrentUid().let {

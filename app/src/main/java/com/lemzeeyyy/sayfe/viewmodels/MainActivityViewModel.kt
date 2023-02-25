@@ -2,6 +2,7 @@ package com.lemzeeyyy.sayfe.viewmodels
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,7 +20,7 @@ const val PASSED = 2
 const val EMPTY = 3
 const val FAILED = 4
 
-@HiltViewModel
+    @HiltViewModel
 class MainActivityViewModel @Inject constructor(private val repository: SayfeRepository) : ViewModel() {
 
     private val _guardianLiveData = MutableLiveData<GuardianData>()
@@ -34,17 +35,11 @@ class MainActivityViewModel @Inject constructor(private val repository: SayfeRep
     private val _triggerApp = MutableLiveData<Boolean>()
     val triggerApp : LiveData<Boolean> get() = _triggerApp
 
-    private val _signIn = MutableLiveData<Boolean>()
-    val signIn : LiveData<Boolean> get() = _signIn
-
     private val _saveNumber = MutableLiveData<Boolean>()
     val saveNumber : LiveData<Boolean> get() = _saveNumber
 
     private var _contactStatus = MutableLiveData<Int>()
     val contactStatus: LiveData<Int> get() = _contactStatus
-
-    private var _signInStatus = MutableLiveData<Int>()
-    val signInStatus: LiveData<Int> get() = _signInStatus
 
     private var _guardianAngelsStatus = MutableLiveData<Int>()
     val guardianAngelsStatus: LiveData<Int> get() = _guardianAngelsStatus
@@ -76,8 +71,15 @@ class MainActivityViewModel @Inject constructor(private val repository: SayfeRep
     private val _outgoingAlertListLiveData = MutableLiveData<MutableList<OutgoingAlertData>?>()
     val outgoingAlertListLiveData : LiveData<MutableList<OutgoingAlertData>?> get() = _outgoingAlertListLiveData
 
-    private val _incomingAlertListLiveData = MutableLiveData<MutableList<IncomingAlertData>?>()
-    val incomingAlertListLiveData : LiveData<MutableList<IncomingAlertData>?> get() = _incomingAlertListLiveData
+        private val _outgoingAlertLiveData =  MutableLiveData<OutgoingAlertState>()
+        val outgoingAlertLiveData : LiveData<OutgoingAlertState> get() = _outgoingAlertLiveData
+
+        private val _guardianState= MutableLiveData<GuardianState?>()
+        val guardianState : LiveData<GuardianState?> get() = _guardianState
+
+
+        private val _incomingAlertListLiveData = MutableLiveData<MutableList<IncomingAlertData>?>()
+        val incomingAlertListLiveData : LiveData<MutableList<IncomingAlertData>?> get() = _incomingAlertListLiveData
 
     private val _isRegistered = MutableLiveData<Boolean>()
     val isRegistered: LiveData<Boolean> get() = _isRegistered
@@ -122,21 +124,9 @@ class MainActivityViewModel @Inject constructor(private val repository: SayfeRep
 
     }
 
-    fun signInUser(email : String, password : String){
+    fun getUserPhoneNumber(currentUserId: String){
         viewModelScope.launch {
-            _signInStatus.value = BUSY
-            _signIn.value = repository.signInUser(email,password)
-            if (_signIn.value == true){
-                _signInStatus.value = PASSED
-            }else{
-                _signInStatus.value = FAILED
-            }
-        }
-    }
-
-    fun getUserPhoneNumber(){
-        viewModelScope.launch {
-            _phoneNumber.value = repository.getUserPhone(repository.getCurrentUid())
+            _phoneNumber.value = repository.getUserPhone(currentUserId)
         }
     }
 
@@ -225,23 +215,67 @@ class MainActivityViewModel @Inject constructor(private val repository: SayfeRep
         }
     }
 
-    fun saveImageUri(imageUri : Uri, currentUserId : String){
+        fun outgoingAlerts(currentUserId: String){
+            _outgoingAlertLiveData.value = OutgoingAlertState.Loading
+            viewModelScope.launch {
+                try {
+                    OutgoingAlertState.Success(repository.getOutgoingAlertList(currentUserId))
+                    if (OutgoingAlertState.Success(repository.getOutgoingAlertList(currentUserId)).outgoingDataList.isEmpty()){
+                        _outgoingAlertLiveData.value = OutgoingAlertState.Empty
+                    }else{
+                        _outgoingAlertLiveData.value = OutgoingAlertState.Success(OutgoingAlertState.Success(repository.getOutgoingAlertList(currentUserId)).outgoingDataList)
+                    }
+                }catch (e:Exception){
+                    _outgoingAlertLiveData.value = OutgoingAlertState.Failure(e)
+                }
+
+            }
+        }
+
+        fun saveImageUri(imageUri : Uri, currentUserId : String){
         viewModelScope.launch {
             repository.saveImageUri(imageUri,currentUserId)
         }
 
     }
 
-    fun saveOutgoingData(currentUserId: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
+        fun saveOutgoingData(currentUserId: String, outgoingAlertDataList: MutableList<OutgoingAlertData>){
         viewModelScope.launch {
             repository.saveOutgoingData(currentUserId,outgoingAlertDataList)
         }
     }
 
-    fun saveIncomingData(currentUserId: String, incomingAlertDataList: MutableList<IncomingAlertData>){
+        fun saveIncomingData(currentUserId: String, incomingAlertDataList: MutableList<IncomingAlertData>){
         viewModelScope.launch {
             repository.saveIncomingData(currentUserId,incomingAlertDataList)
         }
     }
+
+        fun saveUserInfo(user: Users){
+            viewModelScope.launch {
+                try {
+                    repository.saveUserData(user)
+                }catch (e:Exception){
+                    Log.d("TAG", "saveUserInfo: ")
+                }
+
+            }
+        }
+
+        fun getGuardianAngelsTest(currentUserId: String){
+            _guardianState.value = GuardianState.Loading
+            viewModelScope.launch {
+                try {
+                    if (repository.getGuardianAngelsListFromDb(currentUserId).guardianInfo.isEmpty()){
+                        _guardianState.value = GuardianState.Empty
+                    }else{
+                        _guardianState.value = GuardianState.Success( repository.getGuardianAngelsListFromDb(currentUserId).guardianInfo)
+                    }
+                }catch (e:Exception){
+                    _guardianState.value = GuardianState.Failure(e)
+                }
+
+            }
+        }
 
 }

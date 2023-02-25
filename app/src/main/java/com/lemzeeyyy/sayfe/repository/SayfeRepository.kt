@@ -410,6 +410,13 @@ class SayfeRepository {
         return saved
     }
 
+    @Throws(Exception::class)
+    suspend fun saveUserData(user : Users){
+        val database = Firebase.firestore
+        val usersCollection = database.collection("Users")
+            usersCollection.add(user).await()
+    }
+
     suspend fun changePhoneNumber(phoneNumber: String) : Boolean{
         val database = Firebase.firestore
         val usersCollection = database.collection("Users")
@@ -435,16 +442,13 @@ class SayfeRepository {
         return saved
     }
 
+    @Throws(Exception::class)
     suspend fun signInUser(email : String , password : String) : Boolean{
         val  fAuth = Firebase.auth
         var signInSuccess = false
-        try {
-         fAuth.signInWithEmailAndPassword(email,password).await()
+        fAuth.signInWithEmailAndPassword(email,password).await()
             signInSuccess = true
-        }catch (e:Exception){
-            signInSuccess = false
-            Log.d("Sign in exception", "signInUser: ${e.message} ")
-        }
+
         return signInSuccess
     }
 
@@ -453,8 +457,16 @@ class SayfeRepository {
         try {
             fAuth.signOut()
         }catch (e:Exception){
-            Log.d("Sign in exception", "signInUser: ${e.message} ")
+            Log.d("Sign out exception", "signOutUser: ${e.message} ")
         }
     }
 
+    @Throws(Exception::class)
+    suspend fun signInUsers(email : String , password : String){
+        val  fAuth = Firebase.auth
+        fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener {
+
+        }
+
+    }
 }

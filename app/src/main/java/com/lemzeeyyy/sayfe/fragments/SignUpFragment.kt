@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.OnCompleteListener
@@ -18,7 +19,10 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSignUpBinding
+import com.lemzeeyyy.sayfe.model.Resource
 import com.lemzeeyyy.sayfe.model.Users
+import com.lemzeeyyy.sayfe.viewmodels.AuthViewModel
+import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
 
 class SignUpFragment : Fragment() {
 
@@ -27,8 +31,9 @@ class SignUpFragment : Fragment() {
     private val binding get() = _binding!!
     private val database = Firebase.firestore
     private val collectionReference = database.collection("Users")
-    private lateinit var progressBar: ProgressBar
     private var appToken = ""
+    private val authViewModel : AuthViewModel by activityViewModels()
+    private val viewModel : MainActivityViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,10 +47,45 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fAuth = Firebase.auth
+        authViewModel.signupFlow.observe(viewLifecycleOwner){
+            when (it) {
+                is Resource.Failure -> {
+                    binding.progressSignup.visibility = View.INVISIBLE
+                    Toast.makeText(requireContext(), it.exception.message, Toast.LENGTH_SHORT)
+                        .show()
+                }
+                Resource.Loading -> binding.progressSignup.visibility = View.VISIBLE
+                is Resource.Success -> {
+                    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { tokenTask ->
+                        if (!tokenTask.isSuccessful) {
+                            Log.w("TAG", "Fetching FCM registration token failed", tokenTask.exception)
+                            return@OnCompleteListener
+                        }
+
+                        // Get new FCM registration token
+                        appToken = tokenTask.result
+
+                        val currentUserId = authViewModel.currentUser?.uid
+
+                        val users =
+                            currentUserId?.let { it1 ->
+                                Users(phoneNumber = "",appToken,
+                                    it1,authViewModel.currentUser?.displayName.toString())
+                            }
+                        if (users!=null){
+                            viewModel.saveUserInfo(users)
+                        }
+                    })
+                    binding.progressSignup.visibility = View.INVISIBLE
+                    findNavController().navigate(R.id.addPhoneNumber)
+                }
+                null -> return@observe
+            }
+        }
 
 
         binding.agreeAndRegisterBtnSignUp.setOnClickListener {
-            binding.progressSignup.visibility = View.VISIBLE
+//            binding.progressSignup.visibility = View.VISIBLE
 
             val emailString : String = binding.emailEtSignUp.text!!.toString()
             val passwordString : String = binding.passwordEtSignUp.text!!.toString()
@@ -91,48 +131,50 @@ class SignUpFragment : Fragment() {
         emailString: String,
         passwordString: String,
         fullName: String){
-        fAuth.createUserWithEmailAndPassword(emailString, passwordString)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    binding.progressSignup.visibility = View.GONE
-                    Toast.makeText(requireContext(),"Account created successfully",Toast.LENGTH_LONG).show()
-                    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { tokenTask ->
-                        if (!tokenTask.isSuccessful) {
-                            Log.w("TAG", "Fetching FCM registration token failed", task.exception)
-                            return@OnCompleteListener
-                        }
+        authViewModel.signup(emailString,passwordString,fullName)
 
-                        // Get new FCM registration token
-                        appToken = tokenTask.result
-
-                        val user = fAuth.currentUser
-                        val currentUserId = user!!.uid
-
-                        val users = Users(phoneNumber = "",appToken,currentUserId,fullName)
-                        collectionReference.add(users)
-                            .addOnSuccessListener {
-                                findNavController().navigate(R.id.addPhoneNumber)
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()
-                            }
-                    })
-
+//        fAuth.createUserWithEmailAndPassword(emailString, passwordString)
+//            .addOnCompleteListener(requireActivity()) { task ->
+//                if (task.isSuccessful) {
+//                    binding.progressSignup.visibility = View.GONE
+//                    Toast.makeText(requireContext(),"Account created successfully",Toast.LENGTH_LONG).show()
+//                    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { tokenTask ->
+//                        if (!tokenTask.isSuccessful) {
+//                            Log.w("TAG", "Fetching FCM registration token failed", task.exception)
+//                            return@OnCompleteListener
+//                        }
 //
-                } else {
-                    binding.progressSignup.visibility = View.GONE
-                    // If sign in fails, display a message to the user.
-                    Log.w("TAGd", "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(requireContext(), "Authentication failed ${task}.",
-                        Toast.LENGTH_SHORT).show()
-
-                }
-
-            }
-            .addOnFailureListener {
-                Log.d("TAGd", it.message.toString())
-                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
-            }
+//                        // Get new FCM registration token
+//                        appToken = tokenTask.result
+//
+//                        val user = fAuth.currentUser
+//                        val currentUserId = user!!.uid
+//
+//                        val users = Users(phoneNumber = "",appToken,currentUserId,fullName)
+//                        collectionReference.add(users)
+//                            .addOnSuccessListener {
+//                                findNavController().navigate(R.id.addPhoneNumber)
+//                            }
+//                            .addOnFailureListener {
+//                                Toast.makeText(requireContext(),it.toString(),Toast.LENGTH_LONG).show()
+//                            }
+//                    })
+//
+////
+//                } else {
+//                    binding.progressSignup.visibility = View.GONE
+//                    // If sign in fails, display a message to the user.
+//                    Log.w("TAGd", "createUserWithEmail:failure", task.exception)
+//                    Toast.makeText(requireContext(), "Authentication failed ${task}.",
+//                        Toast.LENGTH_SHORT).show()
+//
+//                }
+//
+//            }
+//            .addOnFailureListener {
+//                Log.d("TAGd", it.message.toString())
+//                Toast.makeText(requireContext(),it.message.toString(),Toast.LENGTH_SHORT).show()
+//            }
     }
 
 

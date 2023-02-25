@@ -18,19 +18,19 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lemzeeyyy.sayfe.R
 import com.lemzeeyyy.sayfe.databinding.FragmentSignInBinding
+import com.lemzeeyyy.sayfe.model.Resource
 import com.lemzeeyyy.sayfe.model.Users
 import com.lemzeeyyy.sayfe.repository.SayfeRepository
-import com.lemzeeyyy.sayfe.viewmodels.BUSY
-import com.lemzeeyyy.sayfe.viewmodels.FAILED
-import com.lemzeeyyy.sayfe.viewmodels.MainActivityViewModel
-import com.lemzeeyyy.sayfe.viewmodels.PASSED
+import com.lemzeeyyy.sayfe.viewmodels.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignInFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
+    private val authViewModel : AuthViewModel by activityViewModels()
     lateinit var binding : FragmentSignInBinding
     private lateinit var fAuth: FirebaseAuth
     private val database = Firebase.firestore
@@ -51,9 +51,27 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+            authViewModel.loginFLow.observe(viewLifecycleOwner){
+                when (it) {
+                    is Resource.Failure -> {
+                        binding.progressSignin.visibility = View.INVISIBLE
+                        Toast.makeText(requireContext(), it.exception.message, Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    Resource.Loading -> binding.progressSignin.visibility = View.VISIBLE
+                    is Resource.Success -> {
+                        binding.progressSignin.visibility = View.INVISIBLE
+                        findNavController().navigate(R.id.nav_home)
+                    }
+                    null -> return@observe
+                }
+            }
+
+
+
         fAuth = Firebase.auth
         binding.loginSignin.setOnClickListener {
-            binding.progressSignin.visibility = View.VISIBLE
             val email = binding.emailEtSignIn.text.toString()
             val password = binding.passwordEtSignIn.text.toString()
             if(binding.rememberMeCheckBoxSignIn.isChecked){
@@ -74,50 +92,57 @@ class SignInFragment : Fragment() {
     }
 
     private fun signInUsers(email: String, password: String) {
-        fAuth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    binding.progressSignin.visibility = View.GONE
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("TAG", "signInWithEmail:success")
-                    val user = fAuth.currentUser
-                    val currentUserId = user?.uid
-                    collectionReference.whereEqualTo("currentUserId",currentUserId)
-                        .addSnapshotListener { value, error ->
-                            value?.let {
-                                if(!it.isEmpty){
-                               for (snapshot : QueryDocumentSnapshot in value){
-                                   val users = snapshot.toObject(Users::class.java)
-                                   if (users.phoneNumber == "" || users.phoneNumber.isEmpty()){
-                                       findNavController().navigate(R.id.addPhoneNumber)
-                                   }
-                                   else{
-                                       findNavController().navigate(R.id.nav_home)
-                                   }
-                               }
-                           }
-
-                       } ?: Toast.makeText(requireContext(),error?.message.toString(),Toast.LENGTH_SHORT).show()
-                    }
-
-                } else {
-                    // If sign in fails, display a message to the user.
-                    binding.progressSignin.visibility = View.GONE
-                    Log.d("TAG", "signInWithEmail:failure ${task.exception}")
-                    Toast.makeText(requireContext(), "Authentication failed. ${task.exception.toString()}",
-                        Toast.LENGTH_SHORT).show()
-
-                }
-            }
+        authViewModel.logInUser(email,password)
+//        fAuth.signInWithEmailAndPassword(email, password)
+//            .addOnCompleteListener(requireActivity()) { task ->
+//                if (task.isSuccessful) {
+//                    binding.progressSignin.visibility = View.GONE
+//                    // Sign in success, update UI with the signed-in user's information
+//                    Log.d("TAG", "signInWithEmail:success")
+//                    val user = fAuth.currentUser
+//                    val currentUserId = user?.uid
+//                    collectionReference.whereEqualTo("currentUserId",currentUserId)
+//                        .addSnapshotListener { value, error ->
+//                            value?.let {
+//                                if(!it.isEmpty){
+//                               for (snapshot : QueryDocumentSnapshot in value){
+//                                   val users = snapshot.toObject(Users::class.java)
+//                                   if (users.phoneNumber == "" || users.phoneNumber.isEmpty()){
+//                                       findNavController().navigate(R.id.addPhoneNumber)
+//                                   }
+//                                   else{
+//                                       findNavController().navigate(R.id.nav_home)
+//                                   }
+//                               }
+//                           }
+//
+//                       } ?: Toast.makeText(requireContext(),error?.message.toString(),Toast.LENGTH_SHORT).show()
+//                    }
+//
+//                } else {
+//                    // If sign in fails, display a message to the user.
+//                    binding.progressSignin.visibility = View.GONE
+//                    Log.d("TAG", "signInWithEmail:failure ${task.exception}")
+//                    Toast.makeText(requireContext(), "Authentication failed. ${task.exception.toString()}",
+//                        Toast.LENGTH_SHORT).show()
+//
+//                }
+//            }
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.phoneNumber.observe(viewLifecycleOwner){
-            if (fAuth.currentUser!=null && it.isNotEmpty()){
-                    findNavController().navigate(R.id.nav_home)
-                }
+        authViewModel.currentUser.let {
+            if (it!=null){
+                findNavController().navigate(R.id.nav_home)
             }
+        }
+
+//        viewModel.phoneNumber.observe(viewLifecycleOwner){
+//            if (fAuth.currentUser!=null && it.isNotEmpty()){
+//                    findNavController().navigate(R.id.nav_home)
+//                }
+//            }
 
     }
 
